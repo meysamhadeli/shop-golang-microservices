@@ -12,13 +12,13 @@ type Producer interface {
 }
 
 type producer struct {
-	log     logger.Logger
+	log     logger.ILogger
 	brokers []string
 	w       *kafka.Writer
 }
 
 // NewProducer create new kafka producer
-func NewProducer(log logger.Logger, brokers []string) *producer {
+func NewProducer(log logger.ILogger, brokers []string) *producer {
 	return &producer{log: log, brokers: brokers, w: NewWriter(brokers, kafka.LoggerFunc(log.Errorf))}
 }
 

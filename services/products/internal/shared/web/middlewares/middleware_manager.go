@@ -12,11 +12,11 @@ type MiddlewareManager interface {
 }
 
 type middlewareManager struct {
-	log       logger.Logger
+	log       logger.ILogger
 	cfg       *config.Config
 	metricsCb MiddlewareMetricsCb
 }
 
-func NewMiddlewareManager(log logger.Logger, cfg *config.Config, metricsCb MiddlewareMetricsCb) *middlewareManager {
+func NewMiddlewareManager(log logger.ILogger, cfg *config.Config, metricsCb MiddlewareMetricsCb) *middlewareManager {
 	return &middlewareManager{log: log, cfg: cfg, metricsCb: metricsCb}
 }

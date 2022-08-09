@@ -12,12 +12,12 @@ import (
 )
 
 type SearchProductsHandler struct {
-	log    logger.Logger
+	log    logger.ILogger
 	cfg    *config.Config
 	pgRepo contracts.ProductRepository
 }
 
-func NewSearchProductsHandler(log logger.Logger, cfg *config.Config, pgRepo contracts.ProductRepository) *SearchProductsHandler {
+func NewSearchProductsHandler(log logger.ILogger, cfg *config.Config, pgRepo contracts.ProductRepository) *SearchProductsHandler {
 	return &SearchProductsHandler{log: log, cfg: cfg, pgRepo: pgRepo}
 }
 

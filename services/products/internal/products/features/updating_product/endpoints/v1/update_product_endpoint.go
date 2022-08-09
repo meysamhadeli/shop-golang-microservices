@@ -41,7 +41,7 @@ func (ep *updateProductEndpoint) updateProduct() echo.HandlerFunc {
 
 		request := &updating_product.UpdateProductRequestDto{}
 		if err := c.Bind(request); err != nil {
-			ep.Log.WarnMsg("Bind", err)
+			ep.Log.Warn("Bind", err)
 			tracing.TraceErr(span, err)
 			return err
 		}
@@ -49,7 +49,7 @@ func (ep *updateProductEndpoint) updateProduct() echo.HandlerFunc {
 		command := updating_product.NewUpdateProduct(request.ProductID, request.Name, request.Description, request.Price)
 
 		if err := ep.Validator.StructCtx(ctx, command); err != nil {
-			ep.Log.WarnMsg("validate", err)
+			ep.Log.Warn("validate", err)
 			tracing.TraceErr(span, err)
 			return err
 		}
@@ -57,7 +57,7 @@ func (ep *updateProductEndpoint) updateProduct() echo.HandlerFunc {
 		_, err := mediatr.Send[*mediatr.Unit](ctx, command)
 
 		if err != nil {
-			ep.Log.WarnMsg("UpdateProduct", err)
+			ep.Log.Warnf("UpdateProduct", err)
 			tracing.TraceErr(span, err)
 			return err
 		}

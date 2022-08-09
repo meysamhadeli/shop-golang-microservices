@@ -41,7 +41,7 @@ func (ep *getProductByIdEndpoint) getProductByID() echo.HandlerFunc {
 
 		request := &dtos.GetProductByIdRequestDto{}
 		if err := c.Bind(request); err != nil {
-			ep.Log.WarnMsg("Bind", err)
+			ep.Log.Warn("Bind", err)
 			tracing.TraceErr(span, err)
 			return err
 		}
@@ -49,7 +49,7 @@ func (ep *getProductByIdEndpoint) getProductByID() echo.HandlerFunc {
 		query := getting_product_by_id.NewGetProductById(request.ProductId)
 
 		if err := ep.Validator.StructCtx(ctx, query); err != nil {
-			ep.Log.WarnMsg("validate", err)
+			ep.Log.Warn("validate", err)
 			tracing.TraceErr(span, err)
 			return err
 		}
@@ -57,7 +57,7 @@ func (ep *getProductByIdEndpoint) getProductByID() echo.HandlerFunc {
 		queryResult, err := mediatr.Send[*dtos.GetProductByIdResponseDto](ctx, query)
 
 		if err != nil {
-			ep.Log.WarnMsg("GetProductById", err)
+			ep.Log.Warn("GetProductById", err)
 			tracing.TraceErr(span, err)
 			return err
 		}

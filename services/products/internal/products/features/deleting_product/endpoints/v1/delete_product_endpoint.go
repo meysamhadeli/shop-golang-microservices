@@ -40,7 +40,7 @@ func (ep *deleteProductEndpoint) deleteProduct() echo.HandlerFunc {
 
 		request := &deleting_product.DeleteProductRequestDto{}
 		if err := c.Bind(request); err != nil {
-			ep.Log.WarnMsg("Bind", err)
+			ep.Log.Warn("Bind", err)
 			tracing.TraceErr(span, err)
 			return err
 		}
@@ -48,7 +48,7 @@ func (ep *deleteProductEndpoint) deleteProduct() echo.HandlerFunc {
 		command := deleting_product.NewDeleteProduct(request.ProductID)
 
 		if err := ep.Validator.StructCtx(ctx, command); err != nil {
-			ep.Log.WarnMsg("validate", err)
+			ep.Log.Warn("validate", err)
 			tracing.TraceErr(span, err)
 			return err
 		}
@@ -56,7 +56,7 @@ func (ep *deleteProductEndpoint) deleteProduct() echo.HandlerFunc {
 		_, err := mediatr.Send[*mediatr.Unit](ctx, command)
 
 		if err != nil {
-			ep.Log.WarnMsg("DeleteProduct", err)
+			ep.Log.Warn("DeleteProduct", err)
 			tracing.TraceErr(span, err)
 			return err
 		}

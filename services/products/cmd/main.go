@@ -35,7 +35,7 @@ func main() {
 
 	appLogger := logger.NewAppLogger(cfg.Logger)
 	appLogger.InitLogger()
-	appLogger.WithName(web.GetMicroserviceName(cfg))
+	appLogger.Info(web.GetMicroserviceName(cfg))
 
 	appLogger.Fatal(server.NewServer(appLogger, cfg).Run())
 }

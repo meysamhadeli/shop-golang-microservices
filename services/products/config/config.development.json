@@ -32,9 +32,7 @@
     "checkIntervalSeconds": 10
   },
   "logger": {
-    "level": "debug",
-    "devMode": false,
-    "encoder": "json"
+    "level": "debug"
   },
   "postgres": {
     "host": "localhost",

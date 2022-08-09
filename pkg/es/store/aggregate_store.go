@@ -18,11 +18,11 @@ const (
 )
 
 type aggregateStore struct {
-	log logger.Logger
+	log logger.ILogger
 	db  *esdb.Client
 }
 
-func NewAggregateStore(log logger.Logger, db *esdb.Client) *aggregateStore {
+func NewAggregateStore(log logger.ILogger, db *esdb.Client) *aggregateStore {
 	return &aggregateStore{log: log, db: db}
 }
 

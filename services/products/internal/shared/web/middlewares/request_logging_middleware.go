@@ -19,7 +19,7 @@ func (mw *middlewareManager) RequestLoggerMiddleware(next echo.HandlerFunc) echo
 		s := time.Since(start)
 
 		if !mw.checkIgnoredURI(ctx.Request().RequestURI, mw.cfg.Http.IgnoreLogUrls) {
-			mw.log.HttpMiddlewareAccessLogger(req.Method, req.URL.String(), status, size, s)
+			mw.log.Info(req.Method, req.URL.String(), status, size, s)
 		}
 
 		return err

@@ -13,11 +13,11 @@ import (
 )
 
 type eventStore struct {
-	log logger.Logger
+	log logger.ILogger
 	db  *esdb.Client
 }
 
-func NewEventStore(log logger.Logger, db *esdb.Client) *eventStore {
+func NewEventStore(log logger.ILogger, db *esdb.Client) *eventStore {
 	return &eventStore{log: log, db: db}
 }
 

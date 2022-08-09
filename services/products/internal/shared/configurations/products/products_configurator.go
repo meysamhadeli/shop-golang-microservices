@@ -18,13 +18,13 @@ type CatalogsServiceConfigurator interface {
 }
 
 type catalogsServiceConfigurator struct {
-	log        logger.Logger
+	log        logger.ILogger
 	cfg        *config.Config
 	echo       *echo.Echo
 	grpcServer *grpc.Server
 }
 
-func NewCatalogsServiceConfigurator(log logger.Logger, cfg *config.Config, echo *echo.Echo, grpcServer *grpc.Server) *catalogsServiceConfigurator {
+func NewCatalogsServiceConfigurator(log logger.ILogger, cfg *config.Config, echo *echo.Echo, grpcServer *grpc.Server) *catalogsServiceConfigurator {
 	return &catalogsServiceConfigurator{cfg: cfg, echo: echo, grpcServer: grpcServer, log: log}
 }
 

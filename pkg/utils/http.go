@@ -47,7 +47,7 @@ func GetIPAddress(c echo.Context) string {
 }
 
 // Error response with logging error for echo context
-func ErrResponseWithLog(ctx echo.Context, logger logger.Logger, err error) error {
+func ErrResponseWithLog(ctx echo.Context, logger logger.ILogger, err error) error {
 	logger.Errorf(
 		"ErrResponseWithLog, RequestID: %s, IPAddress: %s, Error: %s",
 		GetRequestID(ctx),
@@ -58,7 +58,7 @@ func ErrResponseWithLog(ctx echo.Context, logger logger.Logger, err error) error
 }
 
 // Error response with logging error for echo context
-func LogResponseError(ctx echo.Context, logger logger.Logger, err error) {
+func LogResponseError(ctx echo.Context, logger logger.ILogger, err error) {
 	logger.Errorf(
 		"ErrResponseWithLog, RequestID: %s, IPAddress: %s, Error: %s",
 		GetRequestID(ctx),

@@ -6,7 +6,6 @@ import (
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
-	"go.uber.org/zap"
 )
 
 type MigrationParams struct {
@@ -41,7 +40,7 @@ func RunMigration(db *sql.DB, p MigrationParams) error {
 		return nil
 	}
 
-	zap.L().Info("migration finished")
+	//zap.L().Info("migration finished")
 	if err != nil {
 		return fmt.Errorf("failed to migrate database: %w", err)
 	}

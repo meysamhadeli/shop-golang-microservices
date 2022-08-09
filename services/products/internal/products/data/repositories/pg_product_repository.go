@@ -18,13 +18,13 @@ import (
 )
 
 type postgresProductRepository struct {
-	log  logger.Logger
+	log  logger.ILogger
 	cfg  *config.Config
 	db   *pgxpool.Pool
 	gorm *gorm.DB
 }
 
-func NewPostgresProductRepository(log logger.Logger, cfg *config.Config, gorm *gorm.DB) *postgresProductRepository {
+func NewPostgresProductRepository(log logger.ILogger, cfg *config.Config, gorm *gorm.DB) *postgresProductRepository {
 	return &postgresProductRepository{log: log, cfg: cfg, gorm: gorm}
 }
 

@@ -48,7 +48,7 @@ func (ep *getProductsEndpoint) getAllProducts() echo.HandlerFunc {
 
 		request := &dtos.GetProductsRequestDto{ListQuery: listQuery}
 		if err := c.Bind(request); err != nil {
-			ep.Log.WarnMsg("Bind", err)
+			ep.Log.Warn("Bind", err)
 			tracing.TraceErr(span, err)
 			return err
 		}
@@ -58,7 +58,7 @@ func (ep *getProductsEndpoint) getAllProducts() echo.HandlerFunc {
 		queryResult, err := mediatr.Send[*dtos.GetProductsResponseDto](ctx, query)
 
 		if err != nil {
-			ep.Log.WarnMsg("GetProducts", err)
+			ep.Log.Warnf("GetProducts", err)
 			tracing.TraceErr(span, err)
 			return err
 		}

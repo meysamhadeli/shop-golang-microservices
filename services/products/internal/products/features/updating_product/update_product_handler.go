@@ -20,13 +20,13 @@ import (
 )
 
 type UpdateProductHandler struct {
-	log           logger.Logger
+	log           logger.ILogger
 	cfg           *config.Config
 	pgRepo        contracts.ProductRepository
 	kafkaProducer kafkaClient.Producer
 }
 
-func NewUpdateProductHandler(log logger.Logger, cfg *config.Config, pgRepo contracts.ProductRepository, kafkaProducer kafkaClient.Producer) *UpdateProductHandler {
+func NewUpdateProductHandler(log logger.ILogger, cfg *config.Config, pgRepo contracts.ProductRepository, kafkaProducer kafkaClient.Producer) *UpdateProductHandler {
 	return &UpdateProductHandler{log: log, cfg: cfg, pgRepo: pgRepo, kafkaProducer: kafkaProducer}
 }
 

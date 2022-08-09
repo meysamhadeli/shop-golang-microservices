@@ -18,7 +18,7 @@ import (
 )
 
 type InfrastructureConfiguration struct {
-	Log               logger.Logger
+	Log               logger.ILogger
 	Cfg               *config.Config
 	Validator         *validator.Validate
 	KafkaConn         *kafka.Conn
@@ -39,13 +39,13 @@ type InfrastructureConfigurator interface {
 }
 
 type infrastructureConfigurator struct {
-	log        logger.Logger
+	log        logger.ILogger
 	cfg        *config.Config
 	echo       *echo.Echo
 	grpcServer *grpc.Server
 }
 
-func NewInfrastructureConfigurator(log logger.Logger, cfg *config.Config, echo *echo.Echo, grpcServer *grpc.Server) *infrastructureConfigurator {
+func NewInfrastructureConfigurator(log logger.ILogger, cfg *config.Config, echo *echo.Echo, grpcServer *grpc.Server) *infrastructureConfigurator {
 	return &infrastructureConfigurator{log: log, cfg: cfg, echo: echo, grpcServer: grpcServer}
 }
 

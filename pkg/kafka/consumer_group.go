@@ -25,11 +25,11 @@ type ConsumerGroup interface {
 type consumerGroup struct {
 	Brokers []string
 	GroupID string
-	log     logger.Logger
+	log     logger.ILogger
 }
 
 // NewConsumerGroup kafka consumer group constructor
-func NewConsumerGroup(brokers []string, groupID string, log logger.Logger) *consumerGroup {
+func NewConsumerGroup(brokers []string, groupID string, log logger.ILogger) *consumerGroup {
 	return &consumerGroup{Brokers: brokers, GroupID: groupID, log: log}
 }
 

@@ -69,7 +69,7 @@ func (s *ProductGrpcServiceServer) UpdateProduct(ctx context.Context, req *produ
 
 	productUUID, err := uuid.FromString(req.GetProductID())
 	if err != nil {
-		s.infrastructure.Log.WarnMsg("uuid.FromString", err)
+		s.infrastructure.Log.Warn("uuid.FromString", err)
 		tracing.TraceErr(span, err)
 		return nil, s.errResponse(codes.InvalidArgument, err)
 	}
@@ -77,14 +77,14 @@ func (s *ProductGrpcServiceServer) UpdateProduct(ctx context.Context, req *produ
 	command := updating_product.NewUpdateProduct(productUUID, req.GetName(), req.GetDescription(), req.GetPrice())
 
 	if err := s.infrastructure.Validator.StructCtx(ctx, command); err != nil {
-		s.infrastructure.Log.WarnMsg("validate", err)
+		s.infrastructure.Log.Warn("validate", err)
 		tracing.TraceErr(span, err)
 		return nil, s.errResponse(codes.InvalidArgument, err)
 	}
 
 	_, err = mediatr.Send[*mediatr.Unit](ctx, command)
 	if err != nil {
-		s.infrastructure.Log.WarnMsg("UpdateProduct.Handle", err)
+		s.infrastructure.Log.Warn("UpdateProduct.Handle", err)
 		tracing.TraceErr(span, err)
 		return nil, s.errResponse(codes.Internal, err)
 	}
@@ -104,20 +104,20 @@ func (s *ProductGrpcServiceServer) GetProductById(ctx context.Context, req *prod
 
 	productUUID, err := uuid.FromString(req.GetProductID())
 	if err != nil {
-		s.infrastructure.Log.WarnMsg("uuid.FromString", err)
+		s.infrastructure.Log.Warn("uuid.FromString", err)
 		tracing.TraceErr(span, err)
 		return nil, s.errResponse(codes.InvalidArgument, err)
 	}
 
 	query := getting_product_by_id.NewGetProductById(productUUID)
 	if err := s.infrastructure.Validator.StructCtx(ctx, query); err != nil {
-		s.infrastructure.Log.WarnMsg("validate", err)
+		s.infrastructure.Log.Warn("validate", err)
 		return nil, s.errResponse(codes.InvalidArgument, err)
 	}
 
 	queryResult, err := mediatr.Send[*getting_product_by_id_dtos.GetProductByIdResponseDto](ctx, query)
 	if err != nil {
-		s.infrastructure.Log.WarnMsg("GetProductById.Handle", err)
+		s.infrastructure.Log.Warn("GetProductById.Handle", err)
 		tracing.TraceErr(span, err)
 		return nil, s.errResponse(codes.Internal, err)
 	}

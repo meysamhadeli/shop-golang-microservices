@@ -41,7 +41,7 @@ func (ep *createProductEndpoint) createProduct() echo.HandlerFunc {
 
 		request := &dtos.CreateProductRequestDto{}
 		if err := c.Bind(request); err != nil {
-			ep.Log.WarnMsg("Bind", err)
+			ep.Log.Warn("Bind", err)
 			tracing.TraceErr(span, err)
 			return err
 		}

@@ -21,13 +21,13 @@ import (
 )
 
 type CreateProductHandler struct {
-	log           logger.Logger
+	log           logger.ILogger
 	cfg           *config.Config
 	repository    contracts.ProductRepository
 	kafkaProducer kafkaClient.Producer
 }
 
-func NewCreateProductHandler(log logger.Logger, cfg *config.Config, repository contracts.ProductRepository, kafkaProducer kafkaClient.Producer) *CreateProductHandler {
+func NewCreateProductHandler(log logger.ILogger, cfg *config.Config, repository contracts.ProductRepository, kafkaProducer kafkaClient.Producer) *CreateProductHandler {
 	return &CreateProductHandler{log: log, cfg: cfg, repository: repository, kafkaProducer: kafkaProducer}
 }
 

@@ -12,12 +12,12 @@ import (
 )
 
 type GetProductsHandler struct {
-	log    logger.Logger
+	log    logger.ILogger
 	cfg    *config.Config
 	pgRepo contracts.ProductRepository
 }
 
-func NewGetProductsHandler(log logger.Logger, cfg *config.Config, pgRepo contracts.ProductRepository) *GetProductsHandler {
+func NewGetProductsHandler(log logger.ILogger, cfg *config.Config, pgRepo contracts.ProductRepository) *GetProductsHandler {
 	return &GetProductsHandler{log: log, cfg: cfg, pgRepo: pgRepo}
 }
 

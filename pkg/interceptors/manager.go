@@ -28,11 +28,11 @@ type InterceptorManager interface {
 
 // InterceptorManager struct
 type interceptorManager struct {
-	logger logger.Logger
+	logger logger.ILogger
 }
 
 // NewInterceptorManager InterceptorManager constructor
-func NewInterceptorManager(logger logger.Logger) *interceptorManager {
+func NewInterceptorManager(logger logger.ILogger) *interceptorManager {
 	return &interceptorManager{logger: logger}
 }
 
@@ -46,7 +46,7 @@ func (im *interceptorManager) Logger(
 	start := time.Now()
 	md, _ := metadata.FromIncomingContext(ctx)
 	reply, err := handler(ctx, req)
-	im.logger.GrpcMiddlewareAccessLogger(info.FullMethod, time.Since(start), md, err)
+	im.logger.Info(info.FullMethod, time.Since(start), md, err)
 	return reply, err
 }
 
@@ -72,7 +72,7 @@ func (im *interceptorManager) ClientRequestLoggerInterceptor() func(
 		start := time.Now()
 		err := invoker(ctx, method, req, reply, cc, opts...)
 		md, _ := metadata.FromIncomingContext(ctx)
-		im.logger.GrpcClientInterceptorLogger(method, req, reply, time.Since(start), md, err)
+		im.logger.Info(method, req, reply, time.Since(start), md, err)
 		return err
 	}
 }

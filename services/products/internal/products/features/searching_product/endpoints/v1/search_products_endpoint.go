@@ -52,7 +52,7 @@ func (ep *searchProductsEndpoint) searchProducts() echo.HandlerFunc {
 
 		// https://echo.labstack.com/guide/binding/
 		if err := c.Bind(request); err != nil {
-			ep.Log.WarnMsg("Bind", err)
+			ep.Log.Warn("Bind", err)
 			tracing.TraceErr(span, err)
 			return err
 		}
@@ -68,7 +68,7 @@ func (ep *searchProductsEndpoint) searchProducts() echo.HandlerFunc {
 		queryResult, err := mediatr.Send[*dtos.SearchProductsResponseDto](ctx, query)
 
 		if err != nil {
-			ep.Log.WarnMsg("SearchProducts", err)
+			ep.Log.Warn("SearchProducts", err)
 			tracing.TraceErr(span, err)
 			return err
 		}

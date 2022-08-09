@@ -16,14 +16,14 @@ import (
 )
 
 type Server struct {
-	Log        logger.Logger
+	Log        logger.ILogger
 	Cfg        *config.Config
 	Echo       *echo.Echo
 	DoneCh     chan struct{}
 	GrpcServer *grpc.Server
 }
 
-func NewServer(log logger.Logger, cfg *config.Config) *Server {
+func NewServer(log logger.ILogger, cfg *config.Config) *Server {
 	return &Server{Log: log, Cfg: cfg, Echo: echo.New(), GrpcServer: NewGrpcServer()}
 }
 

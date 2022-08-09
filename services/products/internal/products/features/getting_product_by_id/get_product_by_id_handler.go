@@ -14,12 +14,12 @@ import (
 )
 
 type GetProductByIdHandler struct {
-	log    logger.Logger
+	log    logger.ILogger
 	cfg    *config.Config
 	pgRepo contracts.ProductRepository
 }
 
-func NewGetProductByIdHandler(log logger.Logger, cfg *config.Config, pgRepo contracts.ProductRepository) *GetProductByIdHandler {
+func NewGetProductByIdHandler(log logger.ILogger, cfg *config.Config, pgRepo contracts.ProductRepository) *GetProductByIdHandler {
 	return &GetProductByIdHandler{log: log, cfg: cfg, pgRepo: pgRepo}
 }
 

@@ -50,7 +50,7 @@ func (ic *infrastructureConfigurator) connectKafkaBrokers(ctx context.Context) (
 func (ic *infrastructureConfigurator) initKafkaTopics(ctx context.Context, kafkaConn *kafka.Conn) {
 	controller, err := kafkaConn.Controller()
 	if err != nil {
-		ic.log.WarnMsg("kafkaConn.Controller", err)
+		ic.log.Warn("kafkaConn.Controller", err)
 		return
 	}
 
@@ -59,7 +59,7 @@ func (ic *infrastructureConfigurator) initKafkaTopics(ctx context.Context, kafka
 
 	conn, err := kafka.DialContext(ctx, "tcp", controllerURI)
 	if err != nil {
-		ic.log.WarnMsg("initKafkaTopics.DialContext", err)
+		ic.log.Warn("initKafkaTopics.DialContext", err)
 		return
 	}
 	defer conn.Close() // nolint: errcheck
@@ -110,7 +110,7 @@ func (ic *infrastructureConfigurator) initKafkaTopics(ctx context.Context, kafka
 		productDeleteTopic,
 		productDeletedTopic,
 	); err != nil {
-		ic.log.WarnMsg("kafkaConn.CreateTopics", err)
+		ic.log.Warn("kafkaConn.CreateTopics", err)
 		return
 	}
 
