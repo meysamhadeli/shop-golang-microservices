@@ -2,19 +2,19 @@ package v1
 
 import (
 	"github.com/labstack/echo/v4"
-	"github.com/meysamhadeli/shop-golang-microservices/services/products/config"
+	"github.com/mehdihadeli/go-mediatr"
+	"github.com/meysamhadeli/shop-golang-microservices/services/products/shared"
 	"net/http"
 
-	"github.com/meysamhadeli/shop-golang-microservices/pkg/mediatr"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/features/getting_product_by_id"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/features/getting_product_by_id/dtos"
 )
 
 type getProductByIdEndpoint struct {
-	*config.ProductEndpointBase[config.InfrastructureConfiguration]
+	*shared.ProductEndpointBase[shared.InfrastructureConfiguration]
 }
 
-func NewGetProductByIdEndpoint(productEndpointBase *config.ProductEndpointBase[config.InfrastructureConfiguration]) *getProductByIdEndpoint {
+func NewGetProductByIdEndpoint(productEndpointBase *shared.ProductEndpointBase[shared.InfrastructureConfiguration]) *getProductByIdEndpoint {
 	return &getProductByIdEndpoint{productEndpointBase}
 }
 
@@ -49,7 +49,7 @@ func (ep *getProductByIdEndpoint) getProductByID() echo.HandlerFunc {
 			return err
 		}
 
-		queryResult, err := mediatr.Send[*dtos.GetProductByIdResponseDto](ctx, query)
+		queryResult, err := mediatr.Send[*getting_product_by_id.GetProductById, *dtos.GetProductByIdResponseDto](ctx, query)
 
 		if err != nil {
 			ep.Configuration.Log.Warn("GetProductById", err)

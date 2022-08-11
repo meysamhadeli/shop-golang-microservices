@@ -2,18 +2,18 @@ package v1
 
 import (
 	"github.com/labstack/echo/v4"
-	"github.com/meysamhadeli/shop-golang-microservices/services/products/config"
+	"github.com/mehdihadeli/go-mediatr"
+	"github.com/meysamhadeli/shop-golang-microservices/services/products/shared"
 	"net/http"
 
-	"github.com/meysamhadeli/shop-golang-microservices/pkg/mediatr"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/features/updating_product"
 )
 
 type updateProductEndpoint struct {
-	*config.ProductEndpointBase[config.InfrastructureConfiguration]
+	*shared.ProductEndpointBase[shared.InfrastructureConfiguration]
 }
 
-func NewUpdateProductEndpoint(productEndpointBase *config.ProductEndpointBase[config.InfrastructureConfiguration]) *updateProductEndpoint {
+func NewUpdateProductEndpoint(productEndpointBase *shared.ProductEndpointBase[shared.InfrastructureConfiguration]) *updateProductEndpoint {
 	return &updateProductEndpoint{productEndpointBase}
 }
 
@@ -49,7 +49,7 @@ func (ep *updateProductEndpoint) updateProduct() echo.HandlerFunc {
 			return err
 		}
 
-		_, err := mediatr.Send[*mediatr.Unit](ctx, command)
+		_, err := mediatr.Send[*updating_product.UpdateProduct, *mediatr.Unit](ctx, command)
 
 		if err != nil {
 			ep.Configuration.Log.Warnf("UpdateProduct", err)

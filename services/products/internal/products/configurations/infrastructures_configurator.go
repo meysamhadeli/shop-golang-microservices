@@ -8,6 +8,7 @@ import (
 	"github.com/meysamhadeli/shop-golang-microservices/pkg/interceptors"
 	"github.com/meysamhadeli/shop-golang-microservices/pkg/logger"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/config"
+	"github.com/meysamhadeli/shop-golang-microservices/services/products/shared"
 	"google.golang.org/grpc"
 	"net/http"
 )
@@ -29,7 +30,7 @@ func NewInfrastructureConfigurator(log logger.ILogger, cfg *config.Config, echo 
 
 func (ic *infrastructureConfigurator) ConfigInfrastructures(ctx context.Context) (error, func()) {
 
-	infrastructure := &config.InfrastructureConfiguration{Cfg: ic.Cfg, Echo: ic.Echo, GrpcServer: ic.GrpcServer, Log: ic.Log, Validator: validator.New()}
+	infrastructure := &shared.InfrastructureConfiguration{Cfg: ic.Cfg, Echo: ic.Echo, GrpcServer: ic.GrpcServer, Log: ic.Log, Validator: validator.New()}
 
 	infrastructure.Im = interceptors.NewInterceptorManager(ic.Log)
 
@@ -65,7 +66,7 @@ func (ic *infrastructureConfigurator) ConfigInfrastructures(ctx context.Context)
 	}
 
 	ic.Echo.GET("", func(ec echo.Context) error {
-		return ec.String(http.StatusOK, fmt.Sprintf("%s is running...", "product-service"))
+		return ec.String(http.StatusOK, fmt.Sprintf("%s is running...", config.GetMicroserviceName(ic.Cfg)))
 	})
 
 	return nil, func() {

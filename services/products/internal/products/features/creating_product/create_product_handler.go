@@ -4,19 +4,16 @@ import (
 	"context"
 	"encoding/json"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/config"
-	"github.com/opentracing/opentracing-go"
 	"github.com/segmentio/kafka-go"
 	"time"
 
 	kafkaClient "github.com/meysamhadeli/shop-golang-microservices/pkg/kafka"
 	"github.com/meysamhadeli/shop-golang-microservices/pkg/logger"
-	"github.com/meysamhadeli/shop-golang-microservices/pkg/tracing"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/contracts"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/contracts/grpc/kafka_messages"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/features/creating_product/dtos"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/mappings"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/models"
-	"github.com/opentracing/opentracing-go/log"
 	"google.golang.org/protobuf/proto"
 )
 
@@ -32,10 +29,6 @@ func NewCreateProductHandler(log logger.ILogger, cfg *config.Config, repository 
 }
 
 func (c *CreateProductHandler) Handle(ctx context.Context, command *CreateProduct) (*dtos.CreateProductResponseDto, error) {
-
-	span, ctx := opentracing.StartSpanFromContext(ctx, "CreateProductHandler.Handle")
-	span.LogFields(log.String("ProductId", command.ProductID.String()))
-	defer span.Finish()
 
 	product := &models.Product{
 		ProductID:   command.ProductID,
@@ -53,27 +46,24 @@ func (c *CreateProductHandler) Handle(ctx context.Context, command *CreateProduc
 	evt := &kafka_messages.ProductCreated{Product: mappings.ProductToGrpcMessage(createdProduct)}
 	msgBytes, err := proto.Marshal(evt)
 	if err != nil {
-		tracing.TraceErr(span, err)
 		return nil, err
 	}
 
 	message := kafka.Message{
-		Topic:   c.cfg.KafkaTopics.ProductCreated.TopicName,
-		Value:   msgBytes,
-		Time:    time.Now(),
-		Headers: tracing.GetKafkaTracingHeadersFromSpanCtx(span.Context()),
+		Topic: c.cfg.KafkaTopics.ProductCreated.TopicName,
+		Value: msgBytes,
+		Time:  time.Now(),
 	}
 
 	err = c.kafkaProducer.PublishMessage(ctx, message)
 	if err != nil {
-		tracing.TraceErr(span, err)
 		return nil, err
 	}
 
 	response := &dtos.CreateProductResponseDto{ProductID: product.ProductID}
 	bytes, _ := json.Marshal(response)
 
-	span.LogFields(log.String("CreateProductResponseDto", string(bytes)))
+	c.log.Info("CreateProductResponseDto", string(bytes))
 
 	return response, nil
 }

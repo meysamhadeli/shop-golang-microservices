@@ -2,19 +2,19 @@ package v1
 
 import (
 	"github.com/labstack/echo/v4"
-	"github.com/meysamhadeli/shop-golang-microservices/services/products/config"
+	"github.com/mehdihadeli/go-mediatr"
+	"github.com/meysamhadeli/shop-golang-microservices/services/products/shared"
 	"net/http"
 
-	"github.com/meysamhadeli/shop-golang-microservices/pkg/mediatr"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/features/creating_product"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/features/creating_product/dtos"
 )
 
 type createProductEndpoint struct {
-	*config.ProductEndpointBase[config.InfrastructureConfiguration]
+	*shared.ProductEndpointBase[shared.InfrastructureConfiguration]
 }
 
-func NewCreteProductEndpoint(endpointBase *config.ProductEndpointBase[config.InfrastructureConfiguration]) *createProductEndpoint {
+func NewCreteProductEndpoint(endpointBase *shared.ProductEndpointBase[shared.InfrastructureConfiguration]) *createProductEndpoint {
 	return &createProductEndpoint{endpointBase}
 }
 
@@ -48,7 +48,7 @@ func (ep *createProductEndpoint) createProduct() echo.HandlerFunc {
 		}
 
 		command := creating_product.NewCreateProduct(request.Name, request.Description, request.Price)
-		result, err := mediatr.Send[*dtos.CreateProductResponseDto](ctx, command)
+		result, err := mediatr.Send[*creating_product.CreateProduct, *dtos.CreateProductResponseDto](ctx, command)
 
 		if err != nil {
 			ep.Configuration.Log.Errorf("(CreateProduct.Handle) id: {%s}, err: {%v}", command.ProductID, err)

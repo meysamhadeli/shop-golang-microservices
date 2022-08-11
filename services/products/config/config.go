@@ -6,7 +6,6 @@ import (
 	"github.com/meysamhadeli/shop-golang-microservices/pkg/constants"
 	"github.com/meysamhadeli/shop-golang-microservices/pkg/gorm_postgres"
 	"github.com/meysamhadeli/shop-golang-microservices/pkg/logger"
-	"github.com/meysamhadeli/shop-golang-microservices/pkg/rabbitmq"
 	"os"
 	"strings"
 
@@ -22,16 +21,15 @@ func init() {
 }
 
 type Config struct {
-	DeliveryType string                   `mapstructure:"deliveryType"`
-	ServiceName  string                   `mapstructure:"serviceName"`
-	Logger       *logger.Config           `mapstructure:"logger"`
-	KafkaTopics  KafkaTopics              `mapstructure:"kafkaTopics"`
-	GRPC         GRPC                     `mapstructure:"grpc"`
-	Http         Http                     `mapstructure:"http"`
-	Context      Context                  `mapstructure:"context"`
-	Rabbitmq     *rabbitmq.RabbitMQConfig `mapstructure:"rabbitmq"`
-	GormPostgres *gorm_postgres.Config    `mapstructure:"gormPostgres"`
-	Kafka        *kafkaClient.Config      `mapstructure:"kafka"`
+	DeliveryType string                `mapstructure:"deliveryType"`
+	ServiceName  string                `mapstructure:"serviceName"`
+	Logger       *logger.Config        `mapstructure:"logger"`
+	KafkaTopics  KafkaTopics           `mapstructure:"kafkaTopics"`
+	GRPC         GRPC                  `mapstructure:"grpc"`
+	Http         Http                  `mapstructure:"http"`
+	Context      Context               `mapstructure:"context"`
+	GormPostgres *gorm_postgres.Config `mapstructure:"gormPostgres"`
+	Kafka        *kafkaClient.Config   `mapstructure:"kafka"`
 }
 
 type Context struct {

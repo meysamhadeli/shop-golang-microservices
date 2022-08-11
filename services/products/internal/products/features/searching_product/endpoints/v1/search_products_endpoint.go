@@ -2,20 +2,20 @@ package v1
 
 import (
 	"github.com/labstack/echo/v4"
-	"github.com/meysamhadeli/shop-golang-microservices/services/products/config"
+	"github.com/mehdihadeli/go-mediatr"
+	"github.com/meysamhadeli/shop-golang-microservices/services/products/shared"
 	"net/http"
 
-	"github.com/meysamhadeli/shop-golang-microservices/pkg/mediatr"
 	"github.com/meysamhadeli/shop-golang-microservices/pkg/utils"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/features/searching_product"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/features/searching_product/dtos"
 )
 
 type searchProductsEndpoint struct {
-	*config.ProductEndpointBase[config.InfrastructureConfiguration]
+	*shared.ProductEndpointBase[shared.InfrastructureConfiguration]
 }
 
-func NewSearchProductsEndpoint(productEndpointBase *config.ProductEndpointBase[config.InfrastructureConfiguration]) *searchProductsEndpoint {
+func NewSearchProductsEndpoint(productEndpointBase *shared.ProductEndpointBase[shared.InfrastructureConfiguration]) *searchProductsEndpoint {
 	return &searchProductsEndpoint{productEndpointBase}
 }
 
@@ -59,7 +59,7 @@ func (ep *searchProductsEndpoint) searchProducts() echo.HandlerFunc {
 			return err
 		}
 
-		queryResult, err := mediatr.Send[*dtos.SearchProductsResponseDto](ctx, query)
+		queryResult, err := mediatr.Send[*searching_product.SearchProducts, *dtos.SearchProductsResponseDto](ctx, query)
 
 		if err != nil {
 			ep.Configuration.Log.Warn("SearchProducts", err)

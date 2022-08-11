@@ -3,14 +3,11 @@ package repositories
 import (
 	"context"
 	"fmt"
-	"github.com/meysamhadeli/shop-golang-microservices/pkg/tracing"
-	"github.com/meysamhadeli/shop-golang-microservices/services/products/config"
-	"github.com/opentracing/opentracing-go"
-
 	"github.com/jackc/pgx/v4/pgxpool"
 	"github.com/meysamhadeli/shop-golang-microservices/pkg/gorm_postgres"
 	"github.com/meysamhadeli/shop-golang-microservices/pkg/logger"
 	"github.com/meysamhadeli/shop-golang-microservices/pkg/utils"
+	"github.com/meysamhadeli/shop-golang-microservices/services/products/config"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/models"
 	"github.com/pkg/errors"
 	uuid "github.com/satori/go.uuid"
@@ -29,40 +26,31 @@ func NewPostgresProductRepository(log logger.ILogger, cfg *config.Config, gorm *
 }
 
 func (p *postgresProductRepository) GetAllProducts(ctx context.Context, listQuery *utils.ListQuery) (*utils.ListResult[*models.Product], error) {
-	span, ctx := opentracing.StartSpanFromContext(ctx, "postgresProductRepository.GetAllProducts")
-	defer span.Finish()
 
 	result, err := gorm_postgres.Paginate[*models.Product](ctx, listQuery, p.gorm)
 	if err != nil {
-		tracing.TraceErr(span, err)
 		return nil, err
 	}
 	return result, nil
 }
 
 func (p *postgresProductRepository) SearchProducts(ctx context.Context, searchText string, listQuery *utils.ListQuery) (*utils.ListResult[*models.Product], error) {
-	span, ctx := opentracing.StartSpanFromContext(ctx, "postgresProductRepository.SearchProducts")
-	defer span.Finish()
 
 	whereQuery := fmt.Sprintf("%s IN (?)", "Name")
 	query := p.gorm.Where(whereQuery, searchText)
 
 	result, err := gorm_postgres.Paginate[*models.Product](ctx, listQuery, query)
 	if err != nil {
-		tracing.TraceErr(span, err)
 		return nil, err
 	}
 	return result, nil
 }
 
 func (p *postgresProductRepository) GetProductById(ctx context.Context, uuid uuid.UUID) (*models.Product, error) {
-	span, ctx := opentracing.StartSpanFromContext(ctx, "postgresProductRepository.GetProductById")
-	defer span.Finish()
 
 	var product models.Product
 
 	if err := p.gorm.First(&product, uuid).Error; err != nil {
-		tracing.TraceErr(span, err)
 		return nil, errors.Wrap(err, fmt.Sprintf("can't find the product with id %s into the database.", uuid))
 	}
 
@@ -71,11 +59,7 @@ func (p *postgresProductRepository) GetProductById(ctx context.Context, uuid uui
 
 func (p *postgresProductRepository) CreateProduct(ctx context.Context, product *models.Product) (*models.Product, error) {
 
-	span, ctx := opentracing.StartSpanFromContext(ctx, "postgresProductRepository.CreateProduct")
-	defer span.Finish()
-
 	if err := p.gorm.Create(&product).Error; err != nil {
-		tracing.TraceErr(span, err)
 		return nil, errors.Wrap(err, "error in the inserting product into the database.")
 	}
 
@@ -83,11 +67,8 @@ func (p *postgresProductRepository) CreateProduct(ctx context.Context, product *
 }
 
 func (p *postgresProductRepository) UpdateProduct(ctx context.Context, updateProduct *models.Product) (*models.Product, error) {
-	span, ctx := opentracing.StartSpanFromContext(ctx, "postgresProductRepository.UpdateProduct")
-	defer span.Finish()
 
 	if err := p.gorm.Save(updateProduct).Error; err != nil {
-		tracing.TraceErr(span, err)
 		return nil, errors.Wrap(err, fmt.Sprintf("error in updating product with id %s into the database.", updateProduct.ProductID))
 	}
 
@@ -95,18 +76,14 @@ func (p *postgresProductRepository) UpdateProduct(ctx context.Context, updatePro
 }
 
 func (p *postgresProductRepository) DeleteProductByID(ctx context.Context, uuid uuid.UUID) error {
-	span, ctx := opentracing.StartSpanFromContext(ctx, "postgresProductRepository.DeleteProductByID")
-	defer span.Finish()
 
 	var product models.Product
 
 	if err := p.gorm.First(&product, uuid).Error; err != nil {
-		tracing.TraceErr(span, err)
 		return errors.Wrap(err, fmt.Sprintf("can't find the product with id %s into the database.", uuid))
 	}
 
 	if err := p.gorm.Delete(&product).Error; err != nil {
-		tracing.TraceErr(span, err)
 		return errors.Wrap(err, "error in the deleting product into the database.")
 	}
 

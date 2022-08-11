@@ -12,13 +12,6 @@ import (
 const dev = "development"
 const production = "production"
 
-//https://github.com/swaggo/swag#how-to-use-it-with-gin
-
-// @contact.name Meysam Hadeli
-// @contact.url https://github.com/meysamhadeli
-// @title Products Service Api.
-// @version 1.0
-// @description Products Service Api.
 func main() {
 	flag.Parse()
 

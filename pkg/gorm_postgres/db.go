@@ -5,9 +5,7 @@ import (
 	"fmt"
 	"github.com/jackc/pgx/v4/pgxpool"
 	"github.com/meysamhadeli/shop-golang-microservices/pkg/migrations"
-	"github.com/meysamhadeli/shop-golang-microservices/pkg/tracing"
 	"github.com/meysamhadeli/shop-golang-microservices/pkg/utils"
-	"github.com/opentracing/opentracing-go"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
 	gorm_postgres "gorm.io/driver/postgres"
@@ -137,8 +135,6 @@ func (db *Gorm) Migrate() error {
 
 func Paginate[T any](ctx context.Context, listQuery *utils.ListQuery, db *gorm.DB) (*utils.ListResult[T], error) {
 
-	span, ctx := opentracing.StartSpanFromContext(ctx, "gorm.Paginate")
-
 	var items []T
 	var totalRows int64
 	db.Model(items).Count(&totalRows)
@@ -172,7 +168,6 @@ func Paginate[T any](ctx context.Context, listQuery *utils.ListQuery, db *gorm.D
 	}
 
 	if err := query.Find(&items).Error; err != nil {
-		tracing.TraceErr(span, err)
 		return nil, errors.Wrap(err, "error in finding products.")
 	}
 

@@ -2,20 +2,20 @@ package v1
 
 import (
 	"github.com/labstack/echo/v4"
-	"github.com/meysamhadeli/shop-golang-microservices/services/products/config"
+	"github.com/mehdihadeli/go-mediatr"
+	"github.com/meysamhadeli/shop-golang-microservices/services/products/shared"
 	"net/http"
 
-	"github.com/meysamhadeli/shop-golang-microservices/pkg/mediatr"
 	"github.com/meysamhadeli/shop-golang-microservices/pkg/utils"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/features/getting_products"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/features/getting_products/dtos"
 )
 
 type getProductsEndpoint struct {
-	*config.ProductEndpointBase[config.InfrastructureConfiguration]
+	*shared.ProductEndpointBase[shared.InfrastructureConfiguration]
 }
 
-func NewGetProductsEndpoint(productEndpointBase *config.ProductEndpointBase[config.InfrastructureConfiguration]) *getProductsEndpoint {
+func NewGetProductsEndpoint(productEndpointBase *shared.ProductEndpointBase[shared.InfrastructureConfiguration]) *getProductsEndpoint {
 	return &getProductsEndpoint{productEndpointBase}
 }
 
@@ -51,7 +51,7 @@ func (ep *getProductsEndpoint) getAllProducts() echo.HandlerFunc {
 
 		query := &getting_products.GetProducts{ListQuery: request.ListQuery}
 
-		queryResult, err := mediatr.Send[*dtos.GetProductsResponseDto](ctx, query)
+		queryResult, err := mediatr.Send[*getting_products.GetProducts, *dtos.GetProductsResponseDto](ctx, query)
 
 		if err != nil {
 			ep.Configuration.Log.Warnf("GetProducts", err)

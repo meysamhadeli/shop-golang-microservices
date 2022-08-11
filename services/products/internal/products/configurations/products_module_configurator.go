@@ -2,9 +2,9 @@ package configurations
 
 import (
 	"context"
-	"github.com/meysamhadeli/shop-golang-microservices/services/products/config"
 	repositories_imp "github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/data/repositories"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/mappings"
+	"github.com/meysamhadeli/shop-golang-microservices/services/products/shared"
 )
 
 type ProductsModuleConfigurator interface {
@@ -12,10 +12,10 @@ type ProductsModuleConfigurator interface {
 }
 
 type productsModuleConfigurator struct {
-	*config.InfrastructureConfiguration
+	*shared.InfrastructureConfiguration
 }
 
-func NewProductsModuleConfigurator(infrastructure *config.InfrastructureConfiguration) *productsModuleConfigurator {
+func NewProductsModuleConfigurator(infrastructure *shared.InfrastructureConfiguration) *productsModuleConfigurator {
 	return &productsModuleConfigurator{InfrastructureConfiguration: infrastructure}
 }
 

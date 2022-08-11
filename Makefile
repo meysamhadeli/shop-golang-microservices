@@ -65,8 +65,10 @@ proto_products_product_service:
 # ==============================================================================
 # Swagger products Service  #https://github.com/swaggo/swag/issues/817
 
+install_swag:
+	cd services/products/ && 	go install github.com/swaggo/swag/cmd/swag@latest
+
 swagger_products:
 	@echo Starting swagger generating
 	swag init --parseDependency --parseInternal --parseDepth 1 -g ./cmd/main.go -d ./services/products/ -o ./services/products/docs
-	swag init --parseDependency --parseInternal --parseDepth 1 -g ./cmd/main.go -d ./services/products/ -o ./api_docs/products/openapi/
 

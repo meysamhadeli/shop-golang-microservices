@@ -3,17 +3,15 @@ package updating_product
 import (
 	"context"
 	"fmt"
+	"github.com/mehdihadeli/go-mediatr"
 	"github.com/meysamhadeli/shop-golang-microservices/pkg/http_errors"
 	kafkaClient "github.com/meysamhadeli/shop-golang-microservices/pkg/kafka"
 	"github.com/meysamhadeli/shop-golang-microservices/pkg/logger"
-	"github.com/meysamhadeli/shop-golang-microservices/pkg/mediatr"
-	"github.com/meysamhadeli/shop-golang-microservices/pkg/tracing"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/config"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/contracts"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/contracts/grpc/kafka_messages"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/mappings"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/models"
-	"github.com/opentracing/opentracing-go"
 	"github.com/segmentio/kafka-go"
 	"google.golang.org/protobuf/proto"
 	"time"
@@ -31,9 +29,6 @@ func NewUpdateProductHandler(log logger.ILogger, cfg *config.Config, pgRepo cont
 }
 
 func (c *UpdateProductHandler) Handle(ctx context.Context, command *UpdateProduct) (*mediatr.Unit, error) {
-
-	span, ctx := opentracing.StartSpanFromContext(ctx, "UpdateProductHandler.Handle")
-	defer span.Finish()
 
 	_, err := c.pgRepo.GetProductById(ctx, command.ProductID)
 
@@ -55,10 +50,9 @@ func (c *UpdateProductHandler) Handle(ctx context.Context, command *UpdateProduc
 	}
 
 	message := kafka.Message{
-		Topic:   c.cfg.KafkaTopics.ProductUpdated.TopicName,
-		Value:   msgBytes,
-		Time:    time.Now(),
-		Headers: tracing.GetKafkaTracingHeadersFromSpanCtx(span.Context()),
+		Topic: c.cfg.KafkaTopics.ProductUpdated.TopicName,
+		Value: msgBytes,
+		Time:  time.Now(),
 	}
 
 	return &mediatr.Unit{}, c.kafkaProducer.PublishMessage(ctx, message)

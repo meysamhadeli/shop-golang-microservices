@@ -2,11 +2,11 @@ package server
 
 import (
 	"context"
+	"github.com/mehdihadeli/go-mediatr"
 	"github.com/meysamhadeli/shop-golang-microservices/pkg/mapper"
-	"github.com/meysamhadeli/shop-golang-microservices/pkg/mediatr"
-	"github.com/meysamhadeli/shop-golang-microservices/services/products/config"
 	getting_product_by_id_dtos "github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/features/getting_product_by_id/dtos"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/models"
+	"github.com/meysamhadeli/shop-golang-microservices/services/products/shared"
 
 	product_service_client "github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/contracts/grpc/service_clients"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/features/creating_product"
@@ -20,12 +20,12 @@ import (
 )
 
 type ProductGrpcServiceServer struct {
-	infrastructure *config.InfrastructureConfiguration
+	infrastructure *shared.InfrastructureConfiguration
 	// Ref:https://github.com/grpc/grpc-go/issues/3794#issuecomment-720599532
 	// product_service_client.UnimplementedProductsServiceServer
 }
 
-func NewProductGrpcService(infra *config.InfrastructureConfiguration) *ProductGrpcServiceServer {
+func NewProductGrpcService(infra *shared.InfrastructureConfiguration) *ProductGrpcServiceServer {
 	return &ProductGrpcServiceServer{infrastructure: infra}
 }
 
@@ -38,7 +38,7 @@ func (s *ProductGrpcServiceServer) CreateProduct(ctx context.Context, req *produ
 		return nil, s.errResponse(codes.InvalidArgument, err)
 	}
 
-	result, err := mediatr.Send[*dtos.CreateProductResponseDto](ctx, command)
+	result, err := mediatr.Send[*creating_product.CreateProduct, *dtos.CreateProductResponseDto](ctx, command)
 	if err != nil {
 		s.infrastructure.Log.Errorf("(CreateProduct.Handle) productId: {%s}, err: {%v}", command.ProductID, err)
 		return nil, s.errResponse(codes.Internal, err)
@@ -64,7 +64,7 @@ func (s *ProductGrpcServiceServer) UpdateProduct(ctx context.Context, req *produ
 		return nil, s.errResponse(codes.InvalidArgument, err)
 	}
 
-	_, err = mediatr.Send[*mediatr.Unit](ctx, command)
+	_, err = mediatr.Send[*updating_product.UpdateProduct, *mediatr.Unit](ctx, command)
 	if err != nil {
 		s.infrastructure.Log.Warn("UpdateProduct.Handle", err)
 		return nil, s.errResponse(codes.Internal, err)
@@ -88,7 +88,7 @@ func (s *ProductGrpcServiceServer) GetProductById(ctx context.Context, req *prod
 		return nil, s.errResponse(codes.InvalidArgument, err)
 	}
 
-	queryResult, err := mediatr.Send[*getting_product_by_id_dtos.GetProductByIdResponseDto](ctx, query)
+	queryResult, err := mediatr.Send[*getting_product_by_id.GetProductById, *getting_product_by_id_dtos.GetProductByIdResponseDto](ctx, query)
 	if err != nil {
 		s.infrastructure.Log.Warn("GetProductById.Handle", err)
 		return nil, s.errResponse(codes.Internal, err)
