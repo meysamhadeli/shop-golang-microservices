@@ -2,21 +2,20 @@ package v1
 
 import (
 	"github.com/labstack/echo/v4"
+	"github.com/meysamhadeli/shop-golang-microservices/services/products/config"
 	"net/http"
 
 	"github.com/meysamhadeli/shop-golang-microservices/pkg/mediatr"
-	"github.com/meysamhadeli/shop-golang-microservices/pkg/tracing"
 	"github.com/meysamhadeli/shop-golang-microservices/pkg/utils"
-	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/delivery"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/features/searching_product"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/features/searching_product/dtos"
 )
 
 type searchProductsEndpoint struct {
-	*delivery.ProductEndpointBase
+	*config.ProductEndpointBase[config.InfrastructureConfiguration]
 }
 
-func NewSearchProductsEndpoint(productEndpointBase *delivery.ProductEndpointBase) *searchProductsEndpoint {
+func NewSearchProductsEndpoint(productEndpointBase *config.ProductEndpointBase[config.InfrastructureConfiguration]) *searchProductsEndpoint {
 	return &searchProductsEndpoint{productEndpointBase}
 }
 
@@ -36,15 +35,12 @@ func (ep *searchProductsEndpoint) MapRoute() {
 func (ep *searchProductsEndpoint) searchProducts() echo.HandlerFunc {
 	return func(c echo.Context) error {
 
-		ep.Metrics.SearchProductHttpRequests.Inc()
-		ctx, span := tracing.StartHttpServerTracerSpan(c, "searchProductsEndpoint.searchProducts")
-		defer span.Finish()
+		ctx := c.Request().Context()
 
 		listQuery, err := utils.GetListQueryFromCtx(c)
 
 		if err != nil {
-			tracing.TraceErr(span, err)
-			utils.LogResponseError(c, ep.Log, err)
+			utils.LogResponseError(c, ep.Configuration.Log, err)
 			return err
 		}
 
@@ -52,24 +48,21 @@ func (ep *searchProductsEndpoint) searchProducts() echo.HandlerFunc {
 
 		// https://echo.labstack.com/guide/binding/
 		if err := c.Bind(request); err != nil {
-			ep.Log.Warn("Bind", err)
-			tracing.TraceErr(span, err)
+			ep.Configuration.Log.Warn("Bind", err)
 			return err
 		}
 
 		query := &searching_product.SearchProducts{SearchText: request.SearchText, ListQuery: request.ListQuery}
 
-		if err := ep.Validator.StructCtx(ctx, query); err != nil {
-			ep.Log.Errorf("(validate) err: {%v}", err)
-			tracing.TraceErr(span, err)
+		if err := ep.Configuration.Validator.StructCtx(ctx, query); err != nil {
+			ep.Configuration.Log.Errorf("(validate) err: {%v}", err)
 			return err
 		}
 
 		queryResult, err := mediatr.Send[*dtos.SearchProductsResponseDto](ctx, query)
 
 		if err != nil {
-			ep.Log.Warn("SearchProducts", err)
-			tracing.TraceErr(span, err)
+			ep.Configuration.Log.Warn("SearchProducts", err)
 			return err
 		}
 

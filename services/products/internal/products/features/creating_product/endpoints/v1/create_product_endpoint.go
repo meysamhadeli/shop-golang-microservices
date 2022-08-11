@@ -2,20 +2,19 @@ package v1
 
 import (
 	"github.com/labstack/echo/v4"
+	"github.com/meysamhadeli/shop-golang-microservices/services/products/config"
 	"net/http"
 
 	"github.com/meysamhadeli/shop-golang-microservices/pkg/mediatr"
-	"github.com/meysamhadeli/shop-golang-microservices/pkg/tracing"
-	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/delivery"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/features/creating_product"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/features/creating_product/dtos"
 )
 
 type createProductEndpoint struct {
-	*delivery.ProductEndpointBase
+	*config.ProductEndpointBase[config.InfrastructureConfiguration]
 }
 
-func NewCreteProductEndpoint(endpointBase *delivery.ProductEndpointBase) *createProductEndpoint {
+func NewCreteProductEndpoint(endpointBase *config.ProductEndpointBase[config.InfrastructureConfiguration]) *createProductEndpoint {
 	return &createProductEndpoint{endpointBase}
 }
 
@@ -35,20 +34,16 @@ func (ep *createProductEndpoint) MapRoute() {
 func (ep *createProductEndpoint) createProduct() echo.HandlerFunc {
 	return func(c echo.Context) error {
 
-		ep.Metrics.CreateProductHttpRequests.Inc()
-		ctx, span := tracing.StartHttpServerTracerSpan(c, "createProductEndpoint.createProduct")
-		defer span.Finish()
+		ctx := c.Request().Context()
 
 		request := &dtos.CreateProductRequestDto{}
 		if err := c.Bind(request); err != nil {
-			ep.Log.Warn("Bind", err)
-			tracing.TraceErr(span, err)
+			ep.Configuration.Log.Warn("Bind", err)
 			return err
 		}
 
-		if err := ep.Validator.StructCtx(ctx, request); err != nil {
-			ep.Log.Errorf("(validate) err: {%v}", err)
-			tracing.TraceErr(span, err)
+		if err := ep.Configuration.Validator.StructCtx(ctx, request); err != nil {
+			ep.Configuration.Log.Errorf("(validate) err: {%v}", err)
 			return err
 		}
 
@@ -56,12 +51,11 @@ func (ep *createProductEndpoint) createProduct() echo.HandlerFunc {
 		result, err := mediatr.Send[*dtos.CreateProductResponseDto](ctx, command)
 
 		if err != nil {
-			ep.Log.Errorf("(CreateProduct.Handle) id: {%s}, err: {%v}", command.ProductID, err)
-			tracing.TraceErr(span, err)
+			ep.Configuration.Log.Errorf("(CreateProduct.Handle) id: {%s}, err: {%v}", command.ProductID, err)
 			return err
 		}
 
-		ep.Log.Infof("(product created) id: {%s}", command.ProductID)
+		ep.Configuration.Log.Infof("(product created) id: {%s}", command.ProductID)
 		return c.JSON(http.StatusCreated, result)
 	}
 }

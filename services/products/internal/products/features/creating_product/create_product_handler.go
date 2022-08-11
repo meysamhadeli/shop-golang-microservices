@@ -3,6 +3,7 @@ package creating_product
 import (
 	"context"
 	"encoding/json"
+	"github.com/meysamhadeli/shop-golang-microservices/services/products/config"
 	"github.com/opentracing/opentracing-go"
 	"github.com/segmentio/kafka-go"
 	"time"
@@ -10,7 +11,6 @@ import (
 	kafkaClient "github.com/meysamhadeli/shop-golang-microservices/pkg/kafka"
 	"github.com/meysamhadeli/shop-golang-microservices/pkg/logger"
 	"github.com/meysamhadeli/shop-golang-microservices/pkg/tracing"
-	"github.com/meysamhadeli/shop-golang-microservices/services/products/config"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/contracts"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/contracts/grpc/kafka_messages"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/features/creating_product/dtos"

@@ -1,4 +1,4 @@
-package constants
+package consts
 
 import "time"
 

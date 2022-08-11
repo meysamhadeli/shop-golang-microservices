@@ -4,8 +4,7 @@ import (
 	"flag"
 	"github.com/meysamhadeli/shop-golang-microservices/pkg/logger"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/config"
-	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/shared/server"
-	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/shared/web"
+	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/server"
 	"log"
 	"os"
 )
@@ -35,7 +34,7 @@ func main() {
 
 	appLogger := logger.NewAppLogger(cfg.Logger)
 	appLogger.InitLogger()
-	appLogger.Info(web.GetMicroserviceName(cfg))
+	appLogger.Info(config.GetMicroserviceName(cfg))
 
 	appLogger.Fatal(server.NewServer(appLogger, cfg).Run())
 }

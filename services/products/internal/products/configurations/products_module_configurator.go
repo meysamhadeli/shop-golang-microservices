@@ -2,9 +2,9 @@ package configurations
 
 import (
 	"context"
+	"github.com/meysamhadeli/shop-golang-microservices/services/products/config"
 	repositories_imp "github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/data/repositories"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/mappings"
-	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/shared/configurations/infrastructure"
 )
 
 type ProductsModuleConfigurator interface {
@@ -12,10 +12,10 @@ type ProductsModuleConfigurator interface {
 }
 
 type productsModuleConfigurator struct {
-	*infrastructure.InfrastructureConfiguration
+	*config.InfrastructureConfiguration
 }
 
-func NewProductsModuleConfigurator(infrastructure *infrastructure.InfrastructureConfiguration) *productsModuleConfigurator {
+func NewProductsModuleConfigurator(infrastructure *config.InfrastructureConfiguration) *productsModuleConfigurator {
 	return &productsModuleConfigurator{InfrastructureConfiguration: infrastructure}
 }
 
@@ -38,9 +38,9 @@ func (c *productsModuleConfigurator) ConfigureProductsModule(ctx context.Context
 
 	c.configEndpoints(ctx, group)
 
-	if c.Cfg.DeliveryType == "grpc" {
-		c.configGrpc(ctx)
-	}
+	//if c.Cfg.DeliveryType == "grpc" {
+	//	c.configGrpc(ctx)
+	//}
 
 	return nil
 }

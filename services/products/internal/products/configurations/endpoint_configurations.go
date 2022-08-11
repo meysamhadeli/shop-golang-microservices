@@ -3,8 +3,7 @@ package configurations
 import (
 	"context"
 	"github.com/labstack/echo/v4"
-
-	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/delivery"
+	"github.com/meysamhadeli/shop-golang-microservices/services/products/config"
 	creating_product "github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/features/creating_product/endpoints/v1"
 	deleting_product "github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/features/deleting_product/endpoints/v1"
 	gettting_product_by_id "github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/features/getting_product_by_id/endpoints/v1"
@@ -15,9 +14,9 @@ import (
 
 func (c *productsModuleConfigurator) configEndpoints(ctx context.Context, group *echo.Group) {
 
-	productEndpointBase := &delivery.ProductEndpointBase{
-		ProductsGroup:               group,
-		InfrastructureConfiguration: c.InfrastructureConfiguration,
+	productEndpointBase := &config.ProductEndpointBase[config.InfrastructureConfiguration]{
+		ProductsGroup: group,
+		Configuration: *c.InfrastructureConfiguration,
 	}
 	// CreateNewProduct
 	createProductEndpoint := creating_product.NewCreteProductEndpoint(productEndpointBase)

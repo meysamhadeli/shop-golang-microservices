@@ -2,19 +2,18 @@ package v1
 
 import (
 	"github.com/labstack/echo/v4"
+	"github.com/meysamhadeli/shop-golang-microservices/services/products/config"
 	"net/http"
 
 	"github.com/meysamhadeli/shop-golang-microservices/pkg/mediatr"
-	"github.com/meysamhadeli/shop-golang-microservices/pkg/tracing"
-	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/delivery"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/features/deleting_product"
 )
 
 type deleteProductEndpoint struct {
-	*delivery.ProductEndpointBase
+	*config.ProductEndpointBase[config.InfrastructureConfiguration]
 }
 
-func NewDeleteProductEndpoint(productEndpointBase *delivery.ProductEndpointBase) *deleteProductEndpoint {
+func NewDeleteProductEndpoint(productEndpointBase *config.ProductEndpointBase[config.InfrastructureConfiguration]) *deleteProductEndpoint {
 	return &deleteProductEndpoint{productEndpointBase}
 }
 
@@ -34,30 +33,25 @@ func (ep *deleteProductEndpoint) MapRoute() {
 func (ep *deleteProductEndpoint) deleteProduct() echo.HandlerFunc {
 	return func(c echo.Context) error {
 
-		ep.Metrics.DeleteProductHttpRequests.Inc()
-		ctx, span := tracing.StartHttpServerTracerSpan(c, "deleteProductEndpoint.deleteProduct")
-		defer span.Finish()
+		ctx := c.Request().Context()
 
 		request := &deleting_product.DeleteProductRequestDto{}
 		if err := c.Bind(request); err != nil {
-			ep.Log.Warn("Bind", err)
-			tracing.TraceErr(span, err)
+			ep.Configuration.Log.Warn("Bind", err)
 			return err
 		}
 
 		command := deleting_product.NewDeleteProduct(request.ProductID)
 
-		if err := ep.Validator.StructCtx(ctx, command); err != nil {
-			ep.Log.Warn("validate", err)
-			tracing.TraceErr(span, err)
+		if err := ep.Configuration.Validator.StructCtx(ctx, command); err != nil {
+			ep.Configuration.Log.Warn("validate", err)
 			return err
 		}
 
 		_, err := mediatr.Send[*mediatr.Unit](ctx, command)
 
 		if err != nil {
-			ep.Log.Warn("DeleteProduct", err)
-			tracing.TraceErr(span, err)
+			ep.Configuration.Log.Warn("DeleteProduct", err)
 			return err
 		}
 

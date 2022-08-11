@@ -2,21 +2,20 @@ package v1
 
 import (
 	"github.com/labstack/echo/v4"
+	"github.com/meysamhadeli/shop-golang-microservices/services/products/config"
 	"net/http"
 
 	"github.com/meysamhadeli/shop-golang-microservices/pkg/mediatr"
-	"github.com/meysamhadeli/shop-golang-microservices/pkg/tracing"
 	"github.com/meysamhadeli/shop-golang-microservices/pkg/utils"
-	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/delivery"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/features/getting_products"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/features/getting_products/dtos"
 )
 
 type getProductsEndpoint struct {
-	*delivery.ProductEndpointBase
+	*config.ProductEndpointBase[config.InfrastructureConfiguration]
 }
 
-func NewGetProductsEndpoint(productEndpointBase *delivery.ProductEndpointBase) *getProductsEndpoint {
+func NewGetProductsEndpoint(productEndpointBase *config.ProductEndpointBase[config.InfrastructureConfiguration]) *getProductsEndpoint {
 	return &getProductsEndpoint{productEndpointBase}
 }
 
@@ -36,20 +35,17 @@ func (ep *getProductsEndpoint) MapRoute() {
 func (ep *getProductsEndpoint) getAllProducts() echo.HandlerFunc {
 	return func(c echo.Context) error {
 
-		ep.Metrics.GetProductsHttpRequests.Inc()
-		ctx, span := tracing.StartHttpServerTracerSpan(c, "getProductsEndpoint.getAllProducts")
-		defer span.Finish()
+		ctx := c.Request().Context()
 
 		listQuery, err := utils.GetListQueryFromCtx(c)
 		if err != nil {
-			utils.LogResponseError(c, ep.Log, err)
+			utils.LogResponseError(c, ep.Configuration.Log, err)
 			return err
 		}
 
 		request := &dtos.GetProductsRequestDto{ListQuery: listQuery}
 		if err := c.Bind(request); err != nil {
-			ep.Log.Warn("Bind", err)
-			tracing.TraceErr(span, err)
+			ep.Configuration.Log.Warn("Bind", err)
 			return err
 		}
 
@@ -58,8 +54,7 @@ func (ep *getProductsEndpoint) getAllProducts() echo.HandlerFunc {
 		queryResult, err := mediatr.Send[*dtos.GetProductsResponseDto](ctx, query)
 
 		if err != nil {
-			ep.Log.Warnf("GetProducts", err)
-			tracing.TraceErr(span, err)
+			ep.Configuration.Log.Warnf("GetProducts", err)
 			return err
 		}
 

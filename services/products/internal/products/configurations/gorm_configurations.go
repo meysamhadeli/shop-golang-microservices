@@ -1,4 +1,4 @@
-package infrastructure
+package configurations
 
 import (
 	"github.com/meysamhadeli/shop-golang-microservices/pkg/gorm_postgres"
@@ -6,7 +6,7 @@ import (
 )
 
 func (ic *infrastructureConfigurator) configGorm() (*gorm.DB, error) {
-	gorm, err := gorm_postgres.NewGorm(ic.cfg.GormPostgres)
+	gorm, err := gorm_postgres.NewGorm(ic.Cfg.GormPostgres)
 	if err != nil {
 		return nil, err
 	}

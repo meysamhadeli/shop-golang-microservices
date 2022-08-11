@@ -2,20 +2,19 @@ package v1
 
 import (
 	"github.com/labstack/echo/v4"
+	"github.com/meysamhadeli/shop-golang-microservices/services/products/config"
 	"net/http"
 
 	"github.com/meysamhadeli/shop-golang-microservices/pkg/mediatr"
-	"github.com/meysamhadeli/shop-golang-microservices/pkg/tracing"
-	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/delivery"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/features/getting_product_by_id"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/features/getting_product_by_id/dtos"
 )
 
 type getProductByIdEndpoint struct {
-	*delivery.ProductEndpointBase
+	*config.ProductEndpointBase[config.InfrastructureConfiguration]
 }
 
-func NewGetProductByIdEndpoint(productEndpointBase *delivery.ProductEndpointBase) *getProductByIdEndpoint {
+func NewGetProductByIdEndpoint(productEndpointBase *config.ProductEndpointBase[config.InfrastructureConfiguration]) *getProductByIdEndpoint {
 	return &getProductByIdEndpoint{productEndpointBase}
 }
 
@@ -35,30 +34,25 @@ func (ep *getProductByIdEndpoint) MapRoute() {
 func (ep *getProductByIdEndpoint) getProductByID() echo.HandlerFunc {
 	return func(c echo.Context) error {
 
-		ep.Metrics.GetProductByIdHttpRequests.Inc()
-		ctx, span := tracing.StartHttpServerTracerSpan(c, "productsHandlers.getProductByID")
-		defer span.Finish()
+		ctx := c.Request().Context()
 
 		request := &dtos.GetProductByIdRequestDto{}
 		if err := c.Bind(request); err != nil {
-			ep.Log.Warn("Bind", err)
-			tracing.TraceErr(span, err)
+			ep.Configuration.Log.Warn("Bind", err)
 			return err
 		}
 
 		query := getting_product_by_id.NewGetProductById(request.ProductId)
 
-		if err := ep.Validator.StructCtx(ctx, query); err != nil {
-			ep.Log.Warn("validate", err)
-			tracing.TraceErr(span, err)
+		if err := ep.Configuration.Validator.StructCtx(ctx, query); err != nil {
+			ep.Configuration.Log.Warn("validate", err)
 			return err
 		}
 
 		queryResult, err := mediatr.Send[*dtos.GetProductByIdResponseDto](ctx, query)
 
 		if err != nil {
-			ep.Log.Warn("GetProductById", err)
-			tracing.TraceErr(span, err)
+			ep.Configuration.Log.Warn("GetProductById", err)
 			return err
 		}
 

@@ -4,14 +4,11 @@ import (
 	"flag"
 	"fmt"
 	"github.com/meysamhadeli/shop-golang-microservices/pkg/constants"
-	"github.com/meysamhadeli/shop-golang-microservices/pkg/eventstroredb"
 	"github.com/meysamhadeli/shop-golang-microservices/pkg/gorm_postgres"
 	"github.com/meysamhadeli/shop-golang-microservices/pkg/logger"
-	postgres "github.com/meysamhadeli/shop-golang-microservices/pkg/postgres_pgx"
-	"github.com/meysamhadeli/shop-golang-microservices/pkg/probes"
 	"github.com/meysamhadeli/shop-golang-microservices/pkg/rabbitmq"
-	"github.com/meysamhadeli/shop-golang-microservices/pkg/tracing"
 	"os"
+	"strings"
 
 	kafkaClient "github.com/meysamhadeli/shop-golang-microservices/pkg/kafka"
 	"github.com/pkg/errors"
@@ -25,20 +22,16 @@ func init() {
 }
 
 type Config struct {
-	DeliveryType     string                         `mapstructure:"deliveryType"`
-	ServiceName      string                         `mapstructure:"serviceName"`
-	Logger           *logger.Config                 `mapstructure:"logger"`
-	KafkaTopics      KafkaTopics                    `mapstructure:"kafkaTopics"`
-	GRPC             GRPC                           `mapstructure:"grpc"`
-	Http             Http                           `mapstructure:"http"`
-	Context          Context                        `mapstructure:"context"`
-	Postgresql       *postgres.Config               `mapstructure:"postgres"`
-	Rabbitmq         *rabbitmq.RabbitMQConfig       `mapstructure:"rabbitmq"`
-	GormPostgres     *gorm_postgres.Config          `mapstructure:"gormPostgres"`
-	Kafka            *kafkaClient.Config            `mapstructure:"kafka"`
-	Probes           probes.Config                  `mapstructure:"probes"`
-	Jaeger           *tracing.Config                `mapstructure:"jaeger"`
-	EventStoreConfig eventstroredb.EventStoreConfig `mapstructure:"eventStoreConfig"`
+	DeliveryType string                   `mapstructure:"deliveryType"`
+	ServiceName  string                   `mapstructure:"serviceName"`
+	Logger       *logger.Config           `mapstructure:"logger"`
+	KafkaTopics  KafkaTopics              `mapstructure:"kafkaTopics"`
+	GRPC         GRPC                     `mapstructure:"grpc"`
+	Http         Http                     `mapstructure:"http"`
+	Context      Context                  `mapstructure:"context"`
+	Rabbitmq     *rabbitmq.RabbitMQConfig `mapstructure:"rabbitmq"`
+	GormPostgres *gorm_postgres.Config    `mapstructure:"gormPostgres"`
+	Kafka        *kafkaClient.Config      `mapstructure:"kafka"`
 }
 
 type Context struct {
@@ -95,4 +88,8 @@ func InitConfig(env string) (*Config, error) {
 	}
 
 	return cfg, nil
+}
+
+func GetMicroserviceName(cfg *Config) string {
+	return fmt.Sprintf("(%s)", strings.ToUpper(cfg.ServiceName))
 }
