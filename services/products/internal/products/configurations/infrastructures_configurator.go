@@ -7,6 +7,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/meysamhadeli/shop-golang-microservices/pkg/interceptors"
 	"github.com/meysamhadeli/shop-golang-microservices/pkg/logger"
+	"github.com/meysamhadeli/shop-golang-microservices/pkg/rabbitmq"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/config"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/shared"
 	"google.golang.org/grpc"
@@ -34,7 +35,7 @@ func (ic *infrastructureConfigurator) ConfigInfrastructures(ctx context.Context)
 
 	infrastructure.Im = interceptors.NewInterceptorManager(ic.Log)
 
-	cleanup := []func(){}
+	cleanups := []func(){}
 
 	gorm, err := ic.configGorm()
 	if err != nil {
@@ -42,13 +43,19 @@ func (ic *infrastructureConfigurator) ConfigInfrastructures(ctx context.Context)
 	}
 	infrastructure.Gorm = gorm
 
-	kafkaConn, kafkaProducer, err, kafkaCleanup := ic.configKafka(ctx)
+	conn, err, rabbitMqCleanup := rabbitmq.NewRabbitMQConn(ic.Cfg.Rabbitmq)
 	if err != nil {
 		return err, nil
 	}
-	cleanup = append(cleanup, kafkaCleanup)
-	infrastructure.KafkaConn = kafkaConn
-	infrastructure.KafkaProducer = kafkaProducer
+
+	infrastructure.ConnRabbitmq = conn
+	cleanups = append(cleanups, rabbitMqCleanup)
+
+	rabbitMqPublisher := rabbitmq.NewPublisher(ic.Cfg.Rabbitmq, infrastructure.ConnRabbitmq, infrastructure.Log)
+	infrastructure.RabbitmqPublisher = rabbitMqPublisher
+
+	rabbitMqConsumer := rabbitmq.NewConsumer(ic.Cfg.Rabbitmq, infrastructure.ConnRabbitmq, infrastructure.Log)
+	infrastructure.RabbitmqConsumer = rabbitMqConsumer
 
 	ic.configSwagger()
 	ic.configMiddlewares()
@@ -70,7 +77,7 @@ func (ic *infrastructureConfigurator) ConfigInfrastructures(ctx context.Context)
 	})
 
 	return nil, func() {
-		for _, c := range cleanup {
+		for _, c := range cleanups {
 			defer c()
 		}
 	}

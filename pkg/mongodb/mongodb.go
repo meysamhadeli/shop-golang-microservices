@@ -2,9 +2,7 @@ package mongodb
 
 import (
 	"context"
-	"github.com/meysamhadeli/shop-golang-microservices/pkg/tracing"
 	"github.com/meysamhadeli/shop-golang-microservices/pkg/utils"
-	"github.com/opentracing/opentracing-go"
 	"github.com/pkg/errors"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -59,7 +57,6 @@ func NewMongoDBConn(ctx context.Context, cfg *Config) (*mongo.Client, error) {
 //https://stackoverflow.com/a/23650312/581476
 
 func Paginate[T any](ctx context.Context, listQuery *utils.ListQuery, collection *mongo.Collection, filter interface{}) (*utils.ListResult[T], error) {
-	span, ctx := opentracing.StartSpanFromContext(ctx, "mongodb.Paginate")
 
 	if filter == nil {
 		filter = bson.D{}
@@ -67,7 +64,6 @@ func Paginate[T any](ctx context.Context, listQuery *utils.ListQuery, collection
 
 	count, err := collection.CountDocuments(ctx, filter)
 	if err != nil {
-		tracing.TraceErr(span, err)
 		return nil, errors.Wrap(err, "CountDocuments")
 	}
 
@@ -79,7 +75,6 @@ func Paginate[T any](ctx context.Context, listQuery *utils.ListQuery, collection
 		Skip:  &skip,
 	})
 	if err != nil {
-		tracing.TraceErr(span, err)
 		return nil, errors.Wrap(err, "Find")
 	}
 	defer cursor.Close(ctx) // nolint: errcheck
@@ -89,14 +84,12 @@ func Paginate[T any](ctx context.Context, listQuery *utils.ListQuery, collection
 	for cursor.Next(ctx) {
 		var prod T
 		if err := cursor.Decode(&prod); err != nil {
-			tracing.TraceErr(span, err)
 			return nil, errors.Wrap(err, "Find")
 		}
 		products = append(products, prod)
 	}
 
 	if err := cursor.Err(); err != nil {
-		tracing.TraceErr(span, err)
 		return nil, errors.Wrap(err, "cursor.Err")
 	}
 

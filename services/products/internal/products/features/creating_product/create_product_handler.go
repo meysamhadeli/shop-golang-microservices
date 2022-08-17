@@ -3,29 +3,27 @@ package creating_product
 import (
 	"context"
 	"encoding/json"
-	"github.com/meysamhadeli/shop-golang-microservices/services/products/config"
-	"github.com/segmentio/kafka-go"
-	"time"
-
 	kafkaClient "github.com/meysamhadeli/shop-golang-microservices/pkg/kafka"
 	"github.com/meysamhadeli/shop-golang-microservices/pkg/logger"
+	"github.com/meysamhadeli/shop-golang-microservices/pkg/rabbitmq"
+	"github.com/meysamhadeli/shop-golang-microservices/services/products/config"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/contracts"
-	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/contracts/grpc/kafka_messages"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/features/creating_product/dtos"
-	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/mappings"
+	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/features/events"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/models"
-	"google.golang.org/protobuf/proto"
 )
 
 type CreateProductHandler struct {
-	log           logger.ILogger
-	cfg           *config.Config
-	repository    contracts.ProductRepository
-	kafkaProducer kafkaClient.Producer
+	log               logger.ILogger
+	cfg               *config.Config
+	repository        contracts.ProductRepository
+	kafkaProducer     kafkaClient.Producer
+	rabbitmqPublisher rabbitmq.IPublisher
 }
 
-func NewCreateProductHandler(log logger.ILogger, cfg *config.Config, repository contracts.ProductRepository, kafkaProducer kafkaClient.Producer) *CreateProductHandler {
-	return &CreateProductHandler{log: log, cfg: cfg, repository: repository, kafkaProducer: kafkaProducer}
+func NewCreateProductHandler(log logger.ILogger, cfg *config.Config, repository contracts.ProductRepository, kafkaProducer kafkaClient.Producer,
+	rabbitmqPublisher rabbitmq.IPublisher) *CreateProductHandler {
+	return &CreateProductHandler{log: log, cfg: cfg, repository: repository, kafkaProducer: kafkaProducer, rabbitmqPublisher: rabbitmqPublisher}
 }
 
 func (c *CreateProductHandler) Handle(ctx context.Context, command *CreateProduct) (*dtos.CreateProductResponseDto, error) {
@@ -43,19 +41,9 @@ func (c *CreateProductHandler) Handle(ctx context.Context, command *CreateProduc
 		return nil, err
 	}
 
-	evt := &kafka_messages.ProductCreated{Product: mappings.ProductToGrpcMessage(createdProduct)}
-	msgBytes, err := proto.Marshal(evt)
-	if err != nil {
-		return nil, err
-	}
+	evt := &events.ProductCreated{ProductId: createdProduct.ProductID}
 
-	message := kafka.Message{
-		Topic: c.cfg.KafkaTopics.ProductCreated.TopicName,
-		Value: msgBytes,
-		Time:  time.Now(),
-	}
-
-	err = c.kafkaProducer.PublishMessage(ctx, message)
+	err = c.rabbitmqPublisher.PublishMessage(evt)
 	if err != nil {
 		return nil, err
 	}

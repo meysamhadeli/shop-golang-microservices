@@ -8,6 +8,14 @@
     "port": ":6003",
     "development": true
   },
+  "rabbitMq": {
+    "user": "guest",
+    "password": "guest",
+    "host": "localhost",
+    "port": 5672,
+    "exchangeName": "products",
+    "kind" : "topic"
+  },
   "http": {
     "port": ":5000",
     "development": true,

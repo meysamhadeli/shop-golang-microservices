@@ -6,24 +6,29 @@ import (
 	"github.com/meysamhadeli/shop-golang-microservices/pkg/interceptors"
 	kafkaClient "github.com/meysamhadeli/shop-golang-microservices/pkg/kafka"
 	"github.com/meysamhadeli/shop-golang-microservices/pkg/logger"
+	"github.com/meysamhadeli/shop-golang-microservices/pkg/rabbitmq"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/config"
 	v7 "github.com/olivere/elastic/v7"
 	"github.com/segmentio/kafka-go"
+	"github.com/streadway/amqp"
 	"google.golang.org/grpc"
 	"gorm.io/gorm"
 )
 
 type InfrastructureConfiguration struct {
-	Log           logger.ILogger
-	Cfg           *config.Config
-	Validator     *validator.Validate
-	KafkaConn     *kafka.Conn
-	KafkaProducer kafkaClient.Producer
-	Im            interceptors.InterceptorManager
-	Gorm          *gorm.DB
-	Echo          *echo.Echo
-	GrpcServer    *grpc.Server
-	ElasticClient *v7.Client
+	Log               logger.ILogger
+	Cfg               *config.Config
+	Validator         *validator.Validate
+	KafkaConn         *kafka.Conn
+	KafkaProducer     kafkaClient.Producer
+	RabbitmqPublisher rabbitmq.IPublisher
+	RabbitmqConsumer  rabbitmq.IConsumer
+	ConnRabbitmq      *amqp.Connection
+	Im                interceptors.InterceptorManager
+	Gorm              *gorm.DB
+	Echo              *echo.Echo
+	GrpcServer        *grpc.Server
+	ElasticClient     *v7.Client
 }
 
 type ProductEndpointBase[T any] struct {

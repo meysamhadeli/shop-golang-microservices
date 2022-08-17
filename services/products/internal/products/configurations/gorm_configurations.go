@@ -2,6 +2,7 @@ package configurations
 
 import (
 	"github.com/meysamhadeli/shop-golang-microservices/pkg/gorm_postgres"
+	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/models"
 	"gorm.io/gorm"
 )
 
@@ -11,5 +12,21 @@ func (ic *infrastructureConfigurator) configGorm() (*gorm.DB, error) {
 		return nil, err
 	}
 
+	err = migrateProducts(gorm)
+	if err != nil {
+		return nil, err
+	}
+
 	return gorm, nil
+}
+
+func migrateProducts(gorm *gorm.DB) error {
+
+	// or we could use gorm.Migrate()
+	err := gorm.AutoMigrate(&models.Product{})
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
