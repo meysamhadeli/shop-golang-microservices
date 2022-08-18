@@ -9,6 +9,8 @@ import (
 	"github.com/meysamhadeli/shop-golang-microservices/pkg/logger"
 	"github.com/meysamhadeli/shop-golang-microservices/pkg/rabbitmq"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/config"
+	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/features/creating_product/consume"
+	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/features/creating_product/events"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/shared"
 	"google.golang.org/grpc"
 	"net/http"
@@ -37,11 +39,15 @@ func (ic *infrastructureConfigurator) ConfigInfrastructures(ctx context.Context)
 
 	cleanups := []func(){}
 
+	// Config Gorm ------------------------------------------------------------------------------//
+
 	gorm, err := ic.configGorm()
 	if err != nil {
 		return err, nil
 	}
 	infrastructure.Gorm = gorm
+
+	// Config RabbitMQ ------------------------------------------------------------------------------//
 
 	conn, err, rabbitMqCleanup := rabbitmq.NewRabbitMQConn(ic.Cfg.Rabbitmq)
 	if err != nil {
@@ -54,10 +60,29 @@ func (ic *infrastructureConfigurator) ConfigInfrastructures(ctx context.Context)
 	rabbitMqPublisher := rabbitmq.NewPublisher(ic.Cfg.Rabbitmq, infrastructure.ConnRabbitmq, infrastructure.Log)
 	infrastructure.RabbitmqPublisher = rabbitMqPublisher
 
-	rabbitMqConsumer := rabbitmq.NewConsumer(ic.Cfg.Rabbitmq, infrastructure.ConnRabbitmq, infrastructure.Log)
-	infrastructure.RabbitmqConsumer = rabbitMqConsumer
+	createProductConsumer := rabbitmq.NewConsumer(ic.Cfg.Rabbitmq, infrastructure.ConnRabbitmq, infrastructure.Log, consume.HandleConsumeCreateProduct)
+
+	// Start consuming message on the specified queues
+	forever := make(chan bool)
+
+	go func() {
+		err := createProductConsumer.ConsumeMessage(events.ProductCreated{})
+		if err != nil {
+			ic.Log.Error(err)
+		}
+	}()
+
+	// Multiple listeners can be specified here
+	<-forever
+
+	// Config Swagger ------------------------------------------------------------------------------//
 
 	ic.configSwagger()
+
+	//------------------------------------------------------------------------------//
+
+	// Config Middlewares ------------------------------------------------------------------------------//
+
 	ic.configMiddlewares()
 
 	if err != nil {

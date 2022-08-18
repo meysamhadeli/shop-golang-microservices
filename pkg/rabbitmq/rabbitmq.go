@@ -32,6 +32,8 @@ func NewRabbitMQConn(cfg *RabbitMQConfig) (*amqp.Connection, error, func()) {
 		return nil, err, nil
 	}
 
+	log.Info("Connected to RabbitMQ")
+
 	return conn, nil, func() {
 		_ = conn.Close()
 	}

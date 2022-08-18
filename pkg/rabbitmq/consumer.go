@@ -9,34 +9,31 @@ import (
 )
 
 type IConsumer interface {
-	ConsumeMessage(msg interface{}) (*<-chan amqp.Delivery, error)
+	ConsumeMessage(msg interface{}) error
 }
 
 type consumer struct {
-	cfg  *RabbitMQConfig
-	conn *amqp.Connection
-	log  logger.ILogger
+	cfg     *RabbitMQConfig
+	conn    *amqp.Connection
+	log     logger.ILogger
+	handler func(queue string, msg amqp.Delivery, err error)
 }
 
-func (p consumer) ConsumeMessage(msg interface{}) (*<-chan amqp.Delivery, error) {
+func (c consumer) ConsumeMessage(msg interface{}) error {
 
-	ch, err := p.conn.Channel()
+	ch, err := c.conn.Channel()
 	if err != nil {
-		return nil, err
+		c.log.Error("Error in opening channel to consume message")
 	}
 
 	defer ch.Close()
 
-	typeName := reflect.TypeOf(msg).Elem().Name()
+	typeName := reflect.TypeOf(msg).Name()
 	snakeTypeName := strcase.ToSnake(typeName)
-
-	if err != nil {
-		return nil, err
-	}
 
 	err = ch.ExchangeDeclare(
 		snakeTypeName, // name
-		p.cfg.Kind,    // type
+		c.cfg.Kind,    // type
 		true,          // durable
 		false,         // auto-deleted
 		false,         // internal
@@ -45,7 +42,7 @@ func (p consumer) ConsumeMessage(msg interface{}) (*<-chan amqp.Delivery, error)
 	)
 
 	if err != nil {
-		return nil, err
+		c.log.Error("Error in declaring exchange to consume message")
 	}
 
 	q, err := ch.QueueDeclare(
@@ -58,7 +55,7 @@ func (p consumer) ConsumeMessage(msg interface{}) (*<-chan amqp.Delivery, error)
 	)
 
 	if err != nil {
-		return nil, err
+		c.log.Error("Error in declaring queue to consume message")
 	}
 
 	err = ch.QueueBind(
@@ -68,7 +65,7 @@ func (p consumer) ConsumeMessage(msg interface{}) (*<-chan amqp.Delivery, error)
 		false,
 		nil)
 	if err != nil {
-		return nil, err
+		c.log.Error("Error in binding queue to consume message")
 	}
 
 	msgs, err := ch.Consume(
@@ -82,12 +79,24 @@ func (p consumer) ConsumeMessage(msg interface{}) (*<-chan amqp.Delivery, error)
 	)
 
 	if err != nil {
-		return nil, err
+		c.log.Error("Error in consuming message")
 	}
 
-	return &msgs, nil
+	var forever chan struct{}
+
+	go func() {
+		for m := range msgs {
+			c.log.Info("Received message: %s", m.Body)
+			c.handler(q.Name, m, nil)
+		}
+	}()
+
+	c.log.Info("Waiting for messages. To exit press CTRL+C")
+	<-forever
+
+	return nil
 }
 
-func NewConsumer(cfg *RabbitMQConfig, conn *amqp.Connection, log logger.ILogger) *consumer {
-	return &consumer{cfg: cfg, conn: conn, log: log}
+func NewConsumer(cfg *RabbitMQConfig, conn *amqp.Connection, log logger.ILogger, handler func(queue string, msg amqp.Delivery, err error)) *consumer {
+	return &consumer{cfg: cfg, conn: conn, log: log, handler: handler}
 }

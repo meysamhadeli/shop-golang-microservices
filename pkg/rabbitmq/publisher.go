@@ -24,7 +24,7 @@ func (p publisher) PublishMessage(msg interface{}) error {
 
 	ch, err := p.conn.Channel()
 	if err != nil {
-		return err
+		p.log.Error("Error in opening channel to publish message")
 	}
 
 	defer ch.Close()
@@ -34,7 +34,7 @@ func (p publisher) PublishMessage(msg interface{}) error {
 	snakeTypeName := strcase.ToSnake(typeName)
 
 	if err != nil {
-		return err
+		p.log.Error("Error in marshalling message to publish message")
 	}
 
 	err = ch.ExchangeDeclare(
@@ -48,7 +48,7 @@ func (p publisher) PublishMessage(msg interface{}) error {
 	)
 
 	if err != nil {
-		return err
+		p.log.Error("Error in declaring exchange to publish message")
 	}
 
 	publishingMsg := amqp.Publishing{
@@ -60,10 +60,12 @@ func (p publisher) PublishMessage(msg interface{}) error {
 	}
 
 	err = ch.Publish(snakeTypeName, snakeTypeName, false, false, publishingMsg)
+
 	if err != nil {
-		return err
+		p.log.Error("Error in publishing message")
 	}
 
+	p.log.Infof("Published message: %s", publishingMsg)
 	return nil
 }
 

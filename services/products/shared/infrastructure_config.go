@@ -22,7 +22,6 @@ type InfrastructureConfiguration struct {
 	KafkaConn         *kafka.Conn
 	KafkaProducer     kafkaClient.Producer
 	RabbitmqPublisher rabbitmq.IPublisher
-	RabbitmqConsumer  rabbitmq.IConsumer
 	ConnRabbitmq      *amqp.Connection
 	Im                interceptors.InterceptorManager
 	Gorm              *gorm.DB

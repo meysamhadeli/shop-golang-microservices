@@ -9,7 +9,7 @@ import (
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/config"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/contracts"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/features/creating_product/dtos"
-	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/features/events"
+	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/features/creating_product/events"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/models"
 )
 
