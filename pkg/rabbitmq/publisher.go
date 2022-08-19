@@ -65,7 +65,7 @@ func (p publisher) PublishMessage(msg interface{}) error {
 		p.log.Error("Error in publishing message")
 	}
 
-	p.log.Infof("Published message: %s", publishingMsg)
+	p.log.Infof("Published message: %s", publishingMsg.Body)
 	return nil
 }
 

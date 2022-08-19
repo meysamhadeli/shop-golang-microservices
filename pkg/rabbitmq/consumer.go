@@ -86,7 +86,6 @@ func (c consumer) ConsumeMessage(msg interface{}) error {
 
 	go func() {
 		for m := range msgs {
-			c.log.Info("Received message: %s", m.Body)
 			c.handler(q.Name, m, nil)
 		}
 	}()

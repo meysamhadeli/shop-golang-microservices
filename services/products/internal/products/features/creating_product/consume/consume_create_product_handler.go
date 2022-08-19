@@ -9,5 +9,5 @@ func HandleConsumeCreateProduct(queue string, msg amqp.Delivery, err error) {
 	if err != nil {
 		log.Error(err)
 	}
-	log.Infof("Message received on '%s' queue: %s", queue, string(msg.Body))
+	log.Infof("Message received on queue: '%s' with message: %s", queue, string(msg.Body))
 }
