@@ -31,11 +31,11 @@ func (s *Server) Run() error {
 	defer cancel()
 
 	infrastructureConfigurator := configurations.NewInfrastructureConfigurator(s.Log, s.Cfg, s.Echo, s.GrpcServer)
-	err, catalogsCleanup := infrastructureConfigurator.ConfigInfrastructures(ctx)
+	err, productsCleanup, doneChanConsumers := infrastructureConfigurator.ConfigInfrastructures(ctx)
 	if err != nil {
 		return err
 	}
-	defer catalogsCleanup()
+	defer productsCleanup()
 
 	deliveryType := s.Cfg.DeliveryType
 
@@ -76,6 +76,7 @@ func (s *Server) Run() error {
 		s.GrpcServer.GracefulStop()
 	}
 
+	<-doneChanConsumers
 	<-s.DoneCh
 	s.Log.Infof("%s server exited properly", config.GetMicroserviceName(s.Cfg))
 

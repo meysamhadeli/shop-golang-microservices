@@ -74,7 +74,11 @@ func (l *appLogger) InitLogger() {
 		log.SetFormatter(&log.JSONFormatter{})
 	} else {
 		// The TextFormatter is default, you don't actually have to do this.
-		log.SetFormatter(&log.TextFormatter{})
+		log.SetFormatter(&log.TextFormatter{
+			DisableColors: false,
+			ForceColors:   true,
+			FullTimestamp: true,
+		})
 	}
 
 	log.SetLevel(logLevel)

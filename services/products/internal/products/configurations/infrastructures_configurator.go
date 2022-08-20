@@ -31,7 +31,7 @@ func NewInfrastructureConfigurator(log logger.ILogger, cfg *config.Config, echo 
 	return &infrastructureConfigurator{Cfg: cfg, Echo: echo, GrpcServer: grpcServer, Log: log}
 }
 
-func (ic *infrastructureConfigurator) ConfigInfrastructures(ctx context.Context) (error, func()) {
+func (ic *infrastructureConfigurator) ConfigInfrastructures(ctx context.Context) (error, func(), chan struct{}) {
 
 	infrastructure := &shared.InfrastructureConfiguration{Cfg: ic.Cfg, Echo: ic.Echo, GrpcServer: ic.GrpcServer, Log: ic.Log, Validator: validator.New()}
 
@@ -41,13 +41,13 @@ func (ic *infrastructureConfigurator) ConfigInfrastructures(ctx context.Context)
 
 	gorm, err := ic.configGorm()
 	if err != nil {
-		return err, nil
+		return err, nil, nil
 	}
 	infrastructure.Gorm = gorm
 
 	conn, err, rabbitMqCleanup := rabbitmq.NewRabbitMQConn(ic.Cfg.Rabbitmq)
 	if err != nil {
-		return err, nil
+		return err, nil, nil
 	}
 
 	infrastructure.ConnRabbitmq = conn
@@ -58,8 +58,11 @@ func (ic *infrastructureConfigurator) ConfigInfrastructures(ctx context.Context)
 
 	createProductConsumer := rabbitmq.NewConsumer(ic.Cfg.Rabbitmq, infrastructure.ConnRabbitmq, infrastructure.Log, consume.HandleConsumeCreateProduct)
 
+	// Multiple listeners can be specified here
+	chanConsumers := make(chan struct{})
+
 	go func() {
-		err := createProductConsumer.ConsumeMessage(events.ProductCreated{})
+		var err = createProductConsumer.ConsumeMessage(events.ProductCreated{})
 		if err != nil {
 			ic.Log.Error(err)
 		}
@@ -70,13 +73,13 @@ func (ic *infrastructureConfigurator) ConfigInfrastructures(ctx context.Context)
 	ic.configMiddlewares()
 
 	if err != nil {
-		return err, nil
+		return err, nil, nil
 	}
 
 	pc := NewProductsModuleConfigurator(infrastructure)
 	err = pc.ConfigureProductsModule(ctx)
 	if err != nil {
-		return err, nil
+		return err, nil, nil
 	}
 
 	ic.Echo.GET("", func(ec echo.Context) error {
@@ -87,5 +90,5 @@ func (ic *infrastructureConfigurator) ConfigInfrastructures(ctx context.Context)
 		for _, c := range cleanups {
 			defer c()
 		}
-	}
+	}, chanConsumers
 }
