@@ -1,4 +1,4 @@
-package consume
+package consumers
 
 import (
 	log "github.com/sirupsen/logrus"

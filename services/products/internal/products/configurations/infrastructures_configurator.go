@@ -9,7 +9,7 @@ import (
 	"github.com/meysamhadeli/shop-golang-microservices/pkg/logger"
 	"github.com/meysamhadeli/shop-golang-microservices/pkg/rabbitmq"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/config"
-	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/features/creating_product/consume"
+	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/features/creating_product/consumers"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/features/creating_product/events"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/shared"
 	"google.golang.org/grpc"
@@ -56,7 +56,7 @@ func (ic *infrastructureConfigurator) ConfigInfrastructures(ctx context.Context)
 	rabbitMqPublisher := rabbitmq.NewPublisher(ic.Cfg.Rabbitmq, infrastructure.ConnRabbitmq, infrastructure.Log)
 	infrastructure.RabbitmqPublisher = rabbitMqPublisher
 
-	createProductConsumer := rabbitmq.NewConsumer(ic.Cfg.Rabbitmq, infrastructure.ConnRabbitmq, infrastructure.Log, consume.HandleConsumeCreateProduct)
+	createProductConsumer := rabbitmq.NewConsumer(ic.Cfg.Rabbitmq, infrastructure.ConnRabbitmq, infrastructure.Log, consumers.HandleConsumeCreateProduct)
 
 	// Multiple listeners can be specified here
 	chanConsumers := make(chan struct{})
