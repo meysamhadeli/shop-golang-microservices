@@ -3,36 +3,23 @@ module github.com/meysamhadeli/shop-golang-microservices
 go 1.18
 
 require (
-	github.com/EventStore/EventStore-Client-Go v1.0.2
 	github.com/go-playground/validator v9.31.0+incompatible
-	github.com/go-playground/validator/v10 v10.11.0
-	github.com/go-redis/redis/v8 v8.11.5
-	github.com/go-resty/resty/v2 v2.7.0
 	github.com/golang-migrate/migrate/v4 v4.15.2
-	github.com/golang/glog v1.0.0
-	github.com/grpc-ecosystem/go-grpc-middleware v1.3.0
-	github.com/grpc-ecosystem/go-grpc-prometheus v1.2.0
 	github.com/jackc/pgx/v4 v4.17.0
 	github.com/labstack/echo/v4 v4.7.2
 	github.com/mehdihadeli/go-mediatr v1.1.7
-	github.com/microcosm-cc/bluemonday v1.0.19
 	github.com/olivere/elastic/v7 v7.0.32
 	github.com/opentracing/opentracing-go v1.2.0
 	github.com/pkg/errors v0.9.1
 	github.com/satori/go.uuid v1.2.0
-	github.com/segmentio/kafka-go v0.4.33
 	github.com/sirupsen/logrus v1.9.0
 	github.com/spf13/viper v1.12.0
 	github.com/streadway/amqp v1.0.0
 	github.com/swaggo/echo-swagger v1.3.3
-	github.com/uber/jaeger-client-go v2.30.0+incompatible
-	go.mongodb.org/mongo-driver v1.10.1
 	go.uber.org/zap v1.17.0
 	google.golang.org/grpc v1.48.0
-	google.golang.org/protobuf v1.28.1
 	gorm.io/driver/postgres v1.3.8
 	gorm.io/gorm v1.23.8
-	schneider.vip/problem v1.7.0
 )
 
 require (
