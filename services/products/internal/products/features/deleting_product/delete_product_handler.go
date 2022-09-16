@@ -3,25 +3,22 @@ package deleting_product
 import (
 	"context"
 	"github.com/mehdihadeli/go-mediatr"
-	kafkaClient "github.com/meysamhadeli/shop-golang-microservices/pkg/kafka"
 	"github.com/meysamhadeli/shop-golang-microservices/pkg/logger"
+	"github.com/meysamhadeli/shop-golang-microservices/pkg/rabbitmq"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/config"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/contracts"
-	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/contracts/grpc/kafka_messages"
-	"github.com/segmentio/kafka-go"
-	"google.golang.org/protobuf/proto"
-	"time"
+	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/events"
 )
 
 type DeleteProductHandler struct {
-	log           logger.ILogger
-	cfg           *config.Config
-	pgRepo        contracts.ProductRepository
-	kafkaProducer kafkaClient.Producer
+	log               logger.ILogger
+	cfg               *config.Config
+	pgRepo            contracts.ProductRepository
+	rabbitmqPublisher rabbitmq.IPublisher
 }
 
-func NewDeleteProductHandler(log logger.ILogger, cfg *config.Config, pgRepo contracts.ProductRepository, kafkaProducer kafkaClient.Producer) *DeleteProductHandler {
-	return &DeleteProductHandler{log: log, cfg: cfg, pgRepo: pgRepo, kafkaProducer: kafkaProducer}
+func NewDeleteProductHandler(log logger.ILogger, cfg *config.Config, pgRepo contracts.ProductRepository, rabbitmqPublisher rabbitmq.IPublisher) *DeleteProductHandler {
+	return &DeleteProductHandler{log: log, cfg: cfg, pgRepo: pgRepo, rabbitmqPublisher: rabbitmqPublisher}
 }
 
 func (c *DeleteProductHandler) Handle(ctx context.Context, command *DeleteProduct) (*mediatr.Unit, error) {
@@ -30,17 +27,14 @@ func (c *DeleteProductHandler) Handle(ctx context.Context, command *DeleteProduc
 		return nil, err
 	}
 
-	evt := &kafka_messages.ProductDeleted{ProductID: command.ProductID.String()}
-	msgBytes, err := proto.Marshal(evt)
+	err := c.rabbitmqPublisher.PublishMessage(events.ProductDeleted{
+		ProductId: command.ProductID,
+	})
 	if err != nil {
 		return nil, err
 	}
 
-	message := kafka.Message{
-		Topic: c.cfg.KafkaTopics.ProductDeleted.TopicName,
-		Value: msgBytes,
-		Time:  time.Now(),
-	}
+	c.log.Info("DeleteProduct successfully executed")
 
-	return &mediatr.Unit{}, c.kafkaProducer.PublishMessage(ctx, message)
+	return &mediatr.Unit{}, err
 }

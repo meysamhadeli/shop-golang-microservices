@@ -5,12 +5,11 @@ import (
 	"fmt"
 	"github.com/go-playground/validator"
 	"github.com/labstack/echo/v4"
-	"github.com/meysamhadeli/shop-golang-microservices/pkg/interceptors"
 	"github.com/meysamhadeli/shop-golang-microservices/pkg/logger"
 	"github.com/meysamhadeli/shop-golang-microservices/pkg/rabbitmq"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/config"
-	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/features/creating_product/consumers"
-	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/features/creating_product/events"
+	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/consumers"
+	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/events"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/shared"
 	"google.golang.org/grpc"
 	"net/http"
@@ -35,8 +34,6 @@ func (ic *infrastructureConfigurator) ConfigInfrastructures(ctx context.Context)
 
 	infrastructure := &shared.InfrastructureConfiguration{Cfg: ic.Cfg, Echo: ic.Echo, GrpcServer: ic.GrpcServer, Log: ic.Log, Validator: validator.New()}
 
-	infrastructure.Im = interceptors.NewInterceptorManager(ic.Log)
-
 	cleanups := []func(){}
 
 	gorm, err := ic.configGorm()
@@ -57,12 +54,28 @@ func (ic *infrastructureConfigurator) ConfigInfrastructures(ctx context.Context)
 	infrastructure.RabbitmqPublisher = rabbitMqPublisher
 
 	createProductConsumer := rabbitmq.NewConsumer(ic.Cfg.Rabbitmq, infrastructure.ConnRabbitmq, infrastructure.Log, consumers.HandleConsumeCreateProduct)
+	updateProductConsumer := rabbitmq.NewConsumer(ic.Cfg.Rabbitmq, infrastructure.ConnRabbitmq, infrastructure.Log, consumers.HandleConsumeUpdateProduct)
+	deleteProductConsumer := rabbitmq.NewConsumer(ic.Cfg.Rabbitmq, infrastructure.ConnRabbitmq, infrastructure.Log, consumers.HandleConsumeDeleteProduct)
 
 	// Multiple listeners can be specified here
 	chanConsumers := make(chan struct{})
 
 	go func() {
 		var err = createProductConsumer.ConsumeMessage(events.ProductCreated{})
+		if err != nil {
+			ic.Log.Error(err)
+		}
+	}()
+
+	go func() {
+		var err = updateProductConsumer.ConsumeMessage(events.ProductUpdated{})
+		if err != nil {
+			ic.Log.Error(err)
+		}
+	}()
+
+	go func() {
+		var err = deleteProductConsumer.ConsumeMessage(events.ProductDeleted{})
 		if err != nil {
 			ic.Log.Error(err)
 		}

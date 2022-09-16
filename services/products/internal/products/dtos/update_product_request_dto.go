@@ -1,4 +1,4 @@
-package updating_product
+package dtos
 
 import uuid "github.com/satori/go.uuid"
 
@@ -6,7 +6,7 @@ import uuid "github.com/satori/go.uuid"
 
 type UpdateProductRequestDto struct {
 	ProductID   uuid.UUID `json:"-" param:"id"`
-	Name        string    `json:"name"`
+	Name        string    `json:"name" validate:"required"`
 	Description string    `json:"description"`
-	Price       float64   `json:"price"`
+	Price       float64   `json:"price" validate:"required"`
 }

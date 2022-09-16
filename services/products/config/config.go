@@ -10,7 +10,6 @@ import (
 	"os"
 	"strings"
 
-	kafkaClient "github.com/meysamhadeli/shop-golang-microservices/pkg/kafka"
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"
 )
@@ -25,13 +24,11 @@ type Config struct {
 	DeliveryType string                   `mapstructure:"deliveryType"`
 	ServiceName  string                   `mapstructure:"serviceName"`
 	Logger       *logger.Config           `mapstructure:"logger"`
-	KafkaTopics  KafkaTopics              `mapstructure:"kafkaTopics"`
 	Rabbitmq     *rabbitmq.RabbitMQConfig `mapstructure:"rabbitmq"`
 	GRPC         GRPC                     `mapstructure:"grpc"`
 	Http         Http                     `mapstructure:"http"`
 	Context      Context                  `mapstructure:"context"`
 	GormPostgres *gorm_postgres.Config    `mapstructure:"gormPostgres"`
-	Kafka        *kafkaClient.Config      `mapstructure:"kafka"`
 }
 
 type Context struct {
@@ -52,15 +49,6 @@ type Http struct {
 	IgnoreLogUrls       []string `mapstructure:"ignoreLogUrls"`
 	Timeout             int      `mapstructure:"timeout"`
 	Host                string   `mapstructure:"host"`
-}
-
-type KafkaTopics struct {
-	ProductCreate  kafkaClient.TopicConfig `mapstructure:"productCreate"`
-	ProductCreated kafkaClient.TopicConfig `mapstructure:"productCreated"`
-	ProductUpdate  kafkaClient.TopicConfig `mapstructure:"productUpdate"`
-	ProductUpdated kafkaClient.TopicConfig `mapstructure:"productUpdated"`
-	ProductDelete  kafkaClient.TopicConfig `mapstructure:"productDelete"`
-	ProductDeleted kafkaClient.TopicConfig `mapstructure:"productDeleted"`
 }
 
 func InitConfig(env string) (*Config, error) {

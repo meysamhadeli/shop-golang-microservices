@@ -3,15 +3,14 @@ package server
 import (
 	"fmt"
 	"github.com/labstack/echo/v4"
-	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/consts"
-
+	"github.com/meysamhadeli/shop-golang-microservices/pkg/constants"
 	"time"
 )
 
 func (s *Server) RunHttpServer(configEcho func(echoServer *echo.Echo)) error {
-	s.Echo.Server.ReadTimeout = consts.ReadTimeout
-	s.Echo.Server.WriteTimeout = consts.WriteTimeout
-	s.Echo.Server.MaxHeaderBytes = consts.MaxHeaderBytes
+	s.Echo.Server.ReadTimeout = constants.ReadTimeout
+	s.Echo.Server.WriteTimeout = constants.WriteTimeout
+	s.Echo.Server.MaxHeaderBytes = constants.MaxHeaderBytes
 
 	if configEcho != nil {
 		configEcho(s.Echo)

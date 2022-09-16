@@ -3,13 +3,12 @@ package getting_product_by_id
 import (
 	"context"
 	"fmt"
-	"github.com/meysamhadeli/shop-golang-microservices/pkg/http_errors"
 	"github.com/meysamhadeli/shop-golang-microservices/pkg/logger"
 	"github.com/meysamhadeli/shop-golang-microservices/pkg/mapper"
+	customErrors "github.com/meysamhadeli/shop-golang-microservices/pkg/problemDetails/custome_error"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/config"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/contracts"
-	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/dto"
-	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/features/getting_product_by_id/dtos"
+	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/dtos"
 	"github.com/opentracing/opentracing-go"
 )
 
@@ -30,10 +29,11 @@ func (q *GetProductByIdHandler) Handle(ctx context.Context, query *GetProductByI
 	product, err := q.pgRepo.GetProductById(ctx, query.ProductID)
 
 	if err != nil {
-		return nil, http_errors.NewNotFoundError(fmt.Sprintf("product with id %s not found", query.ProductID))
+		notFoundErr := customErrors.NewNotFoundErrorWrap(err, fmt.Sprintf("product with id %s not found", query.ProductID))
+		return nil, notFoundErr
 	}
 
-	productDto, err := mapper.Map[*dto.ProductDto](product)
+	productDto, err := mapper.Map[*dtos.ProductResponseDto](product)
 	if err != nil {
 		return nil, err
 	}

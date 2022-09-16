@@ -6,8 +6,7 @@ import (
 	"github.com/meysamhadeli/shop-golang-microservices/pkg/utils"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/config"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/contracts"
-	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/dto"
-	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/features/searching_product/dtos"
+	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/dtos"
 	"github.com/opentracing/opentracing-go"
 )
 
@@ -31,7 +30,7 @@ func (c *SearchProductsHandler) Handle(ctx context.Context, query *SearchProduct
 		return nil, err
 	}
 
-	listResultDto, err := utils.ListResultToListResultDto[*dto.ProductDto](products)
+	listResultDto, err := utils.ListResultToListResultDto[*dtos.ProductResponseDto](products)
 	if err != nil {
 		return nil, err
 	}

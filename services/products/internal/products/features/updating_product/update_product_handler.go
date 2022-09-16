@@ -2,38 +2,38 @@ package updating_product
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
-	"github.com/mehdihadeli/go-mediatr"
-	"github.com/meysamhadeli/shop-golang-microservices/pkg/http_errors"
-	kafkaClient "github.com/meysamhadeli/shop-golang-microservices/pkg/kafka"
 	"github.com/meysamhadeli/shop-golang-microservices/pkg/logger"
+	"github.com/meysamhadeli/shop-golang-microservices/pkg/mapper"
+	customErrors "github.com/meysamhadeli/shop-golang-microservices/pkg/problemDetails/custome_error"
+	"github.com/meysamhadeli/shop-golang-microservices/pkg/rabbitmq"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/config"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/contracts"
-	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/contracts/grpc/kafka_messages"
-	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/mappings"
+	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/dtos"
+	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/events"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/models"
-	"github.com/segmentio/kafka-go"
-	"google.golang.org/protobuf/proto"
-	"time"
 )
 
 type UpdateProductHandler struct {
-	log           logger.ILogger
-	cfg           *config.Config
-	pgRepo        contracts.ProductRepository
-	kafkaProducer kafkaClient.Producer
+	log               logger.ILogger
+	cfg               *config.Config
+	pgRepo            contracts.ProductRepository
+	rabbitmqPublisher rabbitmq.IPublisher
 }
 
-func NewUpdateProductHandler(log logger.ILogger, cfg *config.Config, pgRepo contracts.ProductRepository, kafkaProducer kafkaClient.Producer) *UpdateProductHandler {
-	return &UpdateProductHandler{log: log, cfg: cfg, pgRepo: pgRepo, kafkaProducer: kafkaProducer}
+func NewUpdateProductHandler(log logger.ILogger, cfg *config.Config, pgRepo contracts.ProductRepository,
+	rabbitmqPublisher rabbitmq.IPublisher) *UpdateProductHandler {
+	return &UpdateProductHandler{log: log, cfg: cfg, pgRepo: pgRepo, rabbitmqPublisher: rabbitmqPublisher}
 }
 
-func (c *UpdateProductHandler) Handle(ctx context.Context, command *UpdateProduct) (*mediatr.Unit, error) {
+func (c *UpdateProductHandler) Handle(ctx context.Context, command *UpdateProduct) (*dtos.UpdateProductResponseDto, error) {
 
 	_, err := c.pgRepo.GetProductById(ctx, command.ProductID)
 
 	if err != nil {
-		return nil, http_errors.NewNotFoundError(fmt.Sprintf("product with id %s not found", command.ProductID))
+		notFoundErr := customErrors.NewNotFoundErrorWrap(err, fmt.Sprintf("product with id %s not found", command.ProductID))
+		return nil, notFoundErr
 	}
 
 	product := &models.Product{ProductID: command.ProductID, Name: command.Name, Description: command.Description, Price: command.Price, UpdatedAt: command.UpdatedAt}
@@ -43,17 +43,17 @@ func (c *UpdateProductHandler) Handle(ctx context.Context, command *UpdateProduc
 		return nil, err
 	}
 
-	evt := &kafka_messages.ProductUpdated{Product: mappings.ProductToGrpcMessage(updatedProduct)}
-	msgBytes, err := proto.Marshal(evt)
+	evt, err := mapper.Map[*events.ProductUpdated](updatedProduct)
 	if err != nil {
 		return nil, err
 	}
 
-	message := kafka.Message{
-		Topic: c.cfg.KafkaTopics.ProductUpdated.TopicName,
-		Value: msgBytes,
-		Time:  time.Now(),
-	}
+	err = c.rabbitmqPublisher.PublishMessage(evt)
 
-	return &mediatr.Unit{}, c.kafkaProducer.PublishMessage(ctx, message)
+	response := &dtos.UpdateProductResponseDto{ProductID: product.ProductID}
+	bytes, _ := json.Marshal(response)
+
+	c.log.Info("UpdateProductResponseDto", string(bytes))
+
+	return response, nil
 }

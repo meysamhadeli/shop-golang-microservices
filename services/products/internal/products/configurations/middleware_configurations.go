@@ -3,7 +3,7 @@ package configurations
 import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	product_constants "github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/consts"
+	"github.com/meysamhadeli/shop-golang-microservices/pkg/constants"
 	middlewares "github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/middlewares"
 	"strings"
 )
@@ -21,11 +21,11 @@ func (ic *infrastructureConfigurator) configMiddlewares() {
 	ic.Echo.Use(middleware.RequestID())
 	ic.Echo.Use(middleware.Logger())
 	ic.Echo.Use(middleware.GzipWithConfig(middleware.GzipConfig{
-		Level: product_constants.GzipLevel,
+		Level: constants.GzipLevel,
 		Skipper: func(c echo.Context) bool {
 			return strings.Contains(c.Request().URL.Path, "swagger")
 		},
 	}))
 
-	ic.Echo.Use(middleware.BodyLimit(product_constants.BodyLimit))
+	ic.Echo.Use(middleware.BodyLimit(constants.BodyLimit))
 }

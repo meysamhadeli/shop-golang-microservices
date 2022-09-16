@@ -3,12 +3,12 @@ package v1
 import (
 	"github.com/labstack/echo/v4"
 	"github.com/mehdihadeli/go-mediatr"
+	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/dtos"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/shared"
 	"net/http"
 
 	"github.com/meysamhadeli/shop-golang-microservices/pkg/utils"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/features/searching_product"
-	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/features/searching_product/dtos"
 )
 
 type searchProductsEndpoint struct {
@@ -30,7 +30,7 @@ func (ep *searchProductsEndpoint) MapRoute() {
 // @Accept json
 // @Produce json
 // @Param searchProductsRequestDto query dtos.SearchProductsRequestDto false "SearchProductsRequestDto"
-// @Success 200 {object} dtos.SearchProductsResponseDto
+// @Success 200 dtos.SearchProductsResponseDto
 // @Router /api/v1/products/search [get]
 func (ep *searchProductsEndpoint) searchProducts() echo.HandlerFunc {
 	return func(c echo.Context) error {
@@ -40,7 +40,6 @@ func (ep *searchProductsEndpoint) searchProducts() echo.HandlerFunc {
 		listQuery, err := utils.GetListQueryFromCtx(c)
 
 		if err != nil {
-			utils.LogResponseError(c, ep.Configuration.Log, err)
 			return err
 		}
 

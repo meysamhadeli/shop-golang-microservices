@@ -3,12 +3,12 @@ package v1
 import (
 	"github.com/labstack/echo/v4"
 	"github.com/mehdihadeli/go-mediatr"
+	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/dtos"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/shared"
 	"net/http"
 
 	"github.com/meysamhadeli/shop-golang-microservices/pkg/utils"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/features/getting_products"
-	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/features/getting_products/dtos"
 )
 
 type getProductsEndpoint struct {
@@ -30,7 +30,7 @@ func (ep *getProductsEndpoint) MapRoute() {
 // @Accept json
 // @Produce json
 // @Param getProductsRequestDto query dtos.GetProductsRequestDto false "GetProductsRequestDto"
-// @Success 200 {object} dtos.GetProductsResponseDto
+// @Success 200 dtos.GetProductsResponseDto
 // @Router /api/v1/products [get]
 func (ep *getProductsEndpoint) getAllProducts() echo.HandlerFunc {
 	return func(c echo.Context) error {
@@ -39,7 +39,6 @@ func (ep *getProductsEndpoint) getAllProducts() echo.HandlerFunc {
 
 		listQuery, err := utils.GetListQueryFromCtx(c)
 		if err != nil {
-			utils.LogResponseError(c, ep.Configuration.Log, err)
 			return err
 		}
 

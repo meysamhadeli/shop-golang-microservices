@@ -3,11 +3,11 @@ package v1
 import (
 	"github.com/labstack/echo/v4"
 	"github.com/mehdihadeli/go-mediatr"
+	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/dtos"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/shared"
 	"net/http"
 
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/features/getting_product_by_id"
-	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/features/getting_product_by_id/dtos"
 )
 
 type getProductByIdEndpoint struct {
@@ -29,7 +29,7 @@ func (ep *getProductByIdEndpoint) MapRoute() {
 // @Accept json
 // @Produce json
 // @Param id path string true "Product ID"
-// @Success 200 {object} dtos.GetProductByIdResponseDto
+// @Success 200 dtos.GetProductByIdResponseDto
 // @Router /api/v1/products/{id} [get]
 func (ep *getProductByIdEndpoint) getProductByID() echo.HandlerFunc {
 	return func(c echo.Context) error {

@@ -3,13 +3,13 @@ package creating_product
 import (
 	"context"
 	"encoding/json"
-	kafkaClient "github.com/meysamhadeli/shop-golang-microservices/pkg/kafka"
 	"github.com/meysamhadeli/shop-golang-microservices/pkg/logger"
+	"github.com/meysamhadeli/shop-golang-microservices/pkg/mapper"
 	"github.com/meysamhadeli/shop-golang-microservices/pkg/rabbitmq"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/config"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/contracts"
-	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/features/creating_product/dtos"
-	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/features/creating_product/events"
+	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/dtos"
+	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/events"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/models"
 )
 
@@ -17,13 +17,12 @@ type CreateProductHandler struct {
 	log               logger.ILogger
 	cfg               *config.Config
 	repository        contracts.ProductRepository
-	kafkaProducer     kafkaClient.Producer
 	rabbitmqPublisher rabbitmq.IPublisher
 }
 
-func NewCreateProductHandler(log logger.ILogger, cfg *config.Config, repository contracts.ProductRepository, kafkaProducer kafkaClient.Producer,
+func NewCreateProductHandler(log logger.ILogger, cfg *config.Config, repository contracts.ProductRepository,
 	rabbitmqPublisher rabbitmq.IPublisher) *CreateProductHandler {
-	return &CreateProductHandler{log: log, cfg: cfg, repository: repository, kafkaProducer: kafkaProducer, rabbitmqPublisher: rabbitmqPublisher}
+	return &CreateProductHandler{log: log, cfg: cfg, repository: repository, rabbitmqPublisher: rabbitmqPublisher}
 }
 
 func (c *CreateProductHandler) Handle(ctx context.Context, command *CreateProduct) (*dtos.CreateProductResponseDto, error) {
@@ -41,7 +40,10 @@ func (c *CreateProductHandler) Handle(ctx context.Context, command *CreateProduc
 		return nil, err
 	}
 
-	evt := &events.ProductCreated{ProductId: createdProduct.ProductID}
+	evt, err := mapper.Map[*events.ProductCreated](createdProduct)
+	if err != nil {
+		return nil, err
+	}
 
 	err = c.rabbitmqPublisher.PublishMessage(evt)
 	if err != nil {

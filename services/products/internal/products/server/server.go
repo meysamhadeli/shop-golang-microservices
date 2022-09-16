@@ -4,10 +4,10 @@ import (
 	"context"
 	"fmt"
 	"github.com/labstack/echo/v4"
+	"github.com/meysamhadeli/shop-golang-microservices/pkg/constants"
 	"github.com/meysamhadeli/shop-golang-microservices/pkg/logger"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/config"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/configurations"
-	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/consts"
 	"google.golang.org/grpc"
 	"os"
 	"os/signal"
@@ -62,7 +62,7 @@ func (s *Server) Run() error {
 	}
 
 	<-ctx.Done()
-	s.WaitShootDown(consts.WaitShotDownDuration)
+	s.WaitShootDown(constants.WaitShotDownDuration)
 
 	switch deliveryType {
 	case "http":

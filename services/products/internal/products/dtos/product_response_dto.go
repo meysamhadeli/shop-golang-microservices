@@ -1,11 +1,11 @@
-package dto
+package dtos
 
 import (
 	uuid "github.com/satori/go.uuid"
 	"time"
 )
 
-type ProductDto struct {
+type ProductResponseDto struct {
 	ProductID   uuid.UUID `json:"productId"`
 	Name        string    `json:"name"`
 	Description string    `json:"description"`

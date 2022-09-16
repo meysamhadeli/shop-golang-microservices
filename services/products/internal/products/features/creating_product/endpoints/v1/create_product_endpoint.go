@@ -5,11 +5,11 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/mehdihadeli/go-mediatr"
 	customErrors "github.com/meysamhadeli/shop-golang-microservices/pkg/problemDetails/custome_error"
+	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/dtos"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/shared"
 	"net/http"
 
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/features/creating_product"
-	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/features/creating_product/dtos"
 )
 
 type createProductEndpoint struct {
@@ -31,7 +31,7 @@ func (ep *createProductEndpoint) MapRoute() {
 // @Accept json
 // @Produce json
 // @Param CreateProductRequestDto body dtos.CreateProductRequestDto true "Product data"
-// @Success 201 {object} dtos.CreateProductResponseDto
+// @Success 201 dtos.CreateProductResponseDto
 // @Router /api/v1/products [post]
 func (ep *createProductEndpoint) createProduct() echo.HandlerFunc {
 	return func(c echo.Context) error {
