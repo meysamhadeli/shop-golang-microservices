@@ -11,7 +11,7 @@ import (
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/consumers"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/events"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/shared"
-	"google.golang.org/grpc"
+	tracesdk "go.opentelemetry.io/otel/sdk/trace"
 	"net/http"
 )
 
@@ -20,31 +20,37 @@ type CatalogsServiceConfigurator interface {
 }
 
 type infrastructureConfigurator struct {
-	Log        logger.ILogger
-	Cfg        *config.Config
-	Echo       *echo.Echo
-	GrpcServer *grpc.Server
+	Log  logger.ILogger
+	Cfg  *config.Config
+	Echo *echo.Echo
 }
 
-func NewInfrastructureConfigurator(log logger.ILogger, cfg *config.Config, echo *echo.Echo, grpcServer *grpc.Server) *infrastructureConfigurator {
-	return &infrastructureConfigurator{Cfg: cfg, Echo: echo, GrpcServer: grpcServer, Log: log}
+func NewInfrastructureConfigurator(log logger.ILogger, cfg *config.Config, echo *echo.Echo) *infrastructureConfigurator {
+	return &infrastructureConfigurator{Cfg: cfg, Echo: echo, Log: log}
 }
 
-func (ic *infrastructureConfigurator) ConfigInfrastructures(ctx context.Context) (error, func(), chan struct{}) {
+func (ic *infrastructureConfigurator) ConfigInfrastructures(ctx context.Context) (error, func(), chan struct{}, *tracesdk.TracerProvider) {
 
-	infrastructure := &shared.InfrastructureConfiguration{Cfg: ic.Cfg, Echo: ic.Echo, GrpcServer: ic.GrpcServer, Log: ic.Log, Validator: validator.New()}
+	infrastructure := &shared.InfrastructureConfiguration{Cfg: ic.Cfg, Echo: ic.Echo, Log: ic.Log, Validator: validator.New()}
 
 	cleanups := []func(){}
 
 	gorm, err := ic.configGorm()
 	if err != nil {
-		return err, nil, nil
+		return err, nil, nil, nil
 	}
 	infrastructure.Gorm = gorm
 
+	tp, err := ic.configOpenTelemetry()
+	infrastructure.JaegerTracer = tp.Tracer(ic.Cfg.Jaeger.TracerName)
+
+	if err != nil {
+		return err, nil, nil, nil
+	}
+
 	conn, err, rabbitMqCleanup := rabbitmq.NewRabbitMQConn(ic.Cfg.Rabbitmq)
 	if err != nil {
-		return err, nil, nil
+		return err, nil, nil, nil
 	}
 
 	infrastructure.ConnRabbitmq = conn
@@ -85,13 +91,13 @@ func (ic *infrastructureConfigurator) ConfigInfrastructures(ctx context.Context)
 	ic.configMiddlewares()
 
 	if err != nil {
-		return err, nil, nil
+		return err, nil, nil, nil
 	}
 
 	pc := NewProductsModuleConfigurator(infrastructure)
 	err = pc.ConfigureProductsModule(ctx)
 	if err != nil {
-		return err, nil, nil
+		return err, nil, nil, nil
 	}
 
 	ic.Echo.GET("", func(ec echo.Context) error {
@@ -102,5 +108,5 @@ func (ic *infrastructureConfigurator) ConfigInfrastructures(ctx context.Context)
 		for _, c := range cleanups {
 			defer c()
 		}
-	}, chanConsumers
+	}, chanConsumers, tp
 }

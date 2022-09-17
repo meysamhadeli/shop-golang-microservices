@@ -29,6 +29,11 @@
   "logger": {
     "level": "debug"
   },
+  "jaeger": {
+    "server": "http://localhost:14268",
+    "serviceName":"products_service",
+    "tracerName": "products_tracer"
+  },
   "gormPostgres": {
     "host": "localhost",
     "port": 5432,

@@ -8,6 +8,7 @@ import (
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/config"
 	v7 "github.com/olivere/elastic/v7"
 	"github.com/streadway/amqp"
+	"go.opentelemetry.io/otel/trace"
 	"google.golang.org/grpc"
 	"gorm.io/gorm"
 )
@@ -18,6 +19,7 @@ type InfrastructureConfiguration struct {
 	Validator         *validator.Validate
 	RabbitmqPublisher rabbitmq.IPublisher
 	ConnRabbitmq      *amqp.Connection
+	JaegerTracer      trace.Tracer
 	Gorm              *gorm.DB
 	Echo              *echo.Echo
 	GrpcServer        *grpc.Server

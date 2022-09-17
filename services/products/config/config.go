@@ -6,6 +6,7 @@ import (
 	"github.com/meysamhadeli/shop-golang-microservices/pkg/constants"
 	"github.com/meysamhadeli/shop-golang-microservices/pkg/gorm_postgres"
 	"github.com/meysamhadeli/shop-golang-microservices/pkg/logger"
+	open_telemetry "github.com/meysamhadeli/shop-golang-microservices/pkg/open-telemetry"
 	"github.com/meysamhadeli/shop-golang-microservices/pkg/rabbitmq"
 	"os"
 	"strings"
@@ -27,6 +28,7 @@ type Config struct {
 	Http         Http                     `mapstructure:"http"`
 	Context      Context                  `mapstructure:"context"`
 	GormPostgres *gorm_postgres.Config    `mapstructure:"gormPostgres"`
+	Jaeger       *open_telemetry.Config   `mapstructure:"jaeger"`
 }
 
 type Context struct {

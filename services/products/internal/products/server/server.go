@@ -29,8 +29,8 @@ func (s *Server) Run() error {
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM, syscall.SIGINT)
 	defer cancel()
 
-	infrastructureConfigurator := configurations.NewInfrastructureConfigurator(s.Log, s.Cfg, s.Echo, s.GrpcServer)
-	err, productsCleanup, doneChanConsumers := infrastructureConfigurator.ConfigInfrastructures(ctx)
+	infrastructureConfigurator := configurations.NewInfrastructureConfigurator(s.Log, s.Cfg, s.Echo)
+	err, productsCleanup, doneChanConsumers, tp := infrastructureConfigurator.ConfigInfrastructures(ctx)
 	if err != nil {
 		return err
 	}
@@ -45,6 +45,10 @@ func (s *Server) Run() error {
 	s.Log.Infof("%s is listening on Http PORT: {%s}", config.GetMicroserviceName(s.Cfg), s.Cfg.Http.Port)
 
 	<-ctx.Done()
+	err = tp.Shutdown(ctx)
+	if err != nil {
+		s.Log.Fatal(err)
+	}
 	s.WaitShootDown(constants.WaitShotDownDuration)
 
 	s.Log.Infof("%s is shutting down Http PORT: {%s}", config.GetMicroserviceName(s.Cfg), s.Cfg.Http.Port)
