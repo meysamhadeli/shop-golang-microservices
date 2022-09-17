@@ -1,9 +1,11 @@
 package rabbitmq
 
 import (
+	"context"
 	"fmt"
 	"github.com/iancoleman/strcase"
 	"github.com/meysamhadeli/shop-golang-microservices/pkg/logger"
+	"github.com/pkg/errors"
 	"github.com/streadway/amqp"
 	"reflect"
 )
@@ -19,7 +21,7 @@ type consumer struct {
 	handler func(queue string, msg amqp.Delivery, err error)
 }
 
-func (c consumer) ConsumeMessage(msg interface{}) error {
+func (c consumer) ConsumeMessage(ctx context.Context, msg interface{}) error {
 
 	ch, err := c.conn.Channel()
 	if err != nil {
@@ -82,17 +84,21 @@ func (c consumer) ConsumeMessage(msg interface{}) error {
 		c.log.Error("Error in consuming message")
 	}
 
-	forever := make(chan struct{})
+	for {
+		select {
+		case <-ctx.Done():
+			c.log.Errorf("consumer ctx done: %v", ctx.Err())
+			return ctx.Err()
 
-	go func() {
-		for m := range msgs {
+		case m, ok := <-msgs:
+			if !ok {
+				c.log.Errorf("NOT OK deliveries channel closed for queue: %s", q.Name)
+				return errors.New("deliveries channel closed")
+			}
+
 			c.handler(q.Name, m, nil)
 		}
-	}()
-
-	c.log.Info("Waiting for messages. To exit press CTRL+C")
-
-	<-forever
+	}
 
 	return nil
 }

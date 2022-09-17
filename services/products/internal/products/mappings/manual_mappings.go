@@ -7,7 +7,7 @@ import (
 
 func ProductToProductResponseDto(product *models.Product) *dtos.ProductResponseDto {
 	return &dtos.ProductResponseDto{
-		ProductID:   product.ProductID,
+		ProductID:   product.ProductId,
 		Name:        product.Name,
 		Description: product.Description,
 		Price:       product.Price,

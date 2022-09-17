@@ -69,7 +69,7 @@ func (p *postgresProductRepository) CreateProduct(ctx context.Context, product *
 func (p *postgresProductRepository) UpdateProduct(ctx context.Context, updateProduct *models.Product) (*models.Product, error) {
 
 	if err := p.gorm.Save(updateProduct).Error; err != nil {
-		return nil, errors.Wrap(err, fmt.Sprintf("error in updating product with id %s into the database.", updateProduct.ProductID))
+		return nil, errors.Wrap(err, fmt.Sprintf("error in updating product with id %s into the database.", updateProduct.ProductId))
 	}
 
 	return updateProduct, nil

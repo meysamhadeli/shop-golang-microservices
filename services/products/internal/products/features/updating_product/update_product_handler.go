@@ -36,7 +36,7 @@ func (c *UpdateProductHandler) Handle(ctx context.Context, command *UpdateProduc
 		return nil, notFoundErr
 	}
 
-	product := &models.Product{ProductID: command.ProductID, Name: command.Name, Description: command.Description, Price: command.Price, UpdatedAt: command.UpdatedAt}
+	product := &models.Product{ProductId: command.ProductID, Name: command.Name, Description: command.Description, Price: command.Price, UpdatedAt: command.UpdatedAt}
 
 	updatedProduct, err := c.pgRepo.UpdateProduct(ctx, product)
 	if err != nil {
@@ -50,7 +50,7 @@ func (c *UpdateProductHandler) Handle(ctx context.Context, command *UpdateProduc
 
 	err = c.rabbitmqPublisher.PublishMessage(evt)
 
-	response := &dtos.UpdateProductResponseDto{ProductID: product.ProductID}
+	response := &dtos.UpdateProductResponseDto{ProductID: product.ProductId}
 	bytes, _ := json.Marshal(response)
 
 	c.log.Info("UpdateProductResponseDto", string(bytes))

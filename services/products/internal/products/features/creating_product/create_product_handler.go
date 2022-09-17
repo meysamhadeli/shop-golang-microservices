@@ -28,7 +28,7 @@ func NewCreateProductHandler(log logger.ILogger, cfg *config.Config, repository 
 func (c *CreateProductHandler) Handle(ctx context.Context, command *CreateProduct) (*dtos.CreateProductResponseDto, error) {
 
 	product := &models.Product{
-		ProductID:   command.ProductID,
+		ProductId:   command.ProductID,
 		Name:        command.Name,
 		Description: command.Description,
 		Price:       command.Price,
@@ -50,7 +50,7 @@ func (c *CreateProductHandler) Handle(ctx context.Context, command *CreateProduc
 		return nil, err
 	}
 
-	response := &dtos.CreateProductResponseDto{ProductID: product.ProductID}
+	response := &dtos.CreateProductResponseDto{ProductID: product.ProductId}
 	bytes, _ := json.Marshal(response)
 
 	c.log.Info("CreateProductResponseDto", string(bytes))

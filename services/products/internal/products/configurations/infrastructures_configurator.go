@@ -60,21 +60,21 @@ func (ic *infrastructureConfigurator) ConfigInfrastructures(ctx context.Context)
 	chanConsumers := make(chan struct{})
 
 	go func() {
-		var err = createProductConsumer.ConsumeMessage(events.ProductCreated{})
+		var err = createProductConsumer.ConsumeMessage(ctx, events.ProductCreated{})
 		if err != nil {
 			ic.Log.Error(err)
 		}
 	}()
 
 	go func() {
-		var err = updateProductConsumer.ConsumeMessage(events.ProductUpdated{})
+		var err = updateProductConsumer.ConsumeMessage(ctx, events.ProductUpdated{})
 		if err != nil {
 			ic.Log.Error(err)
 		}
 	}()
 
 	go func() {
-		var err = deleteProductConsumer.ConsumeMessage(events.ProductDeleted{})
+		var err = deleteProductConsumer.ConsumeMessage(ctx, events.ProductDeleted{})
 		if err != nil {
 			ic.Log.Error(err)
 		}
