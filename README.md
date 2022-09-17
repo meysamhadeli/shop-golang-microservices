@@ -22,6 +22,7 @@ I will try to register future goals and additions in the [Issues](https://github
 - ✔️ **[`swaggo/echo-swagger`](https://github.com/swaggo/echo-swagger))** - echo middleware to automatically generate RESTful API documentation
 - ✔️ **[`mehdihadeli/Go-MediatR`](https://github.com/mehdihadeli/Go-MediatR)** - This package is a Mediator Pattern implementation in golang
 - ✔️ **[`go-playground/validator`](https://github.com/go-playground/validator)** - Package validator implements value validations for structs and individual fields based on tags
+- ✔️ **[`open-telemetry/opentelemetry-go`](https://github.com/open-telemetry/opentelemetry-go)** - Implementation of OpenTelemetry in Go for distributed-tracing
 
 ## Structure of Project
 
