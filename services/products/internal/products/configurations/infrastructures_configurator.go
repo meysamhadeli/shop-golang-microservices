@@ -50,8 +50,7 @@ func (ic *infrastructureConfigurator) ConfigInfrastructures(ctx context.Context)
 	infrastructure.ConnRabbitmq = conn
 	cleanups = append(cleanups, rabbitMqCleanup)
 
-	rabbitMqPublisher := rabbitmq.NewPublisher(ic.Cfg.Rabbitmq, infrastructure.ConnRabbitmq, infrastructure.Log)
-	infrastructure.RabbitmqPublisher = rabbitMqPublisher
+	infrastructure.RabbitmqPublisher = rabbitmq.NewPublisher(ic.Cfg.Rabbitmq, infrastructure.ConnRabbitmq, infrastructure.Log)
 
 	createProductConsumer := rabbitmq.NewConsumer(ic.Cfg.Rabbitmq, infrastructure.ConnRabbitmq, infrastructure.Log, consumers.HandleConsumeCreateProduct)
 	updateProductConsumer := rabbitmq.NewConsumer(ic.Cfg.Rabbitmq, infrastructure.ConnRabbitmq, infrastructure.Log, consumers.HandleConsumeUpdateProduct)

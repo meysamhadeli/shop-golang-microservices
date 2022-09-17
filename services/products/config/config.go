@@ -24,7 +24,6 @@ type Config struct {
 	ServiceName  string                   `mapstructure:"serviceName"`
 	Logger       *logger.Config           `mapstructure:"logger"`
 	Rabbitmq     *rabbitmq.RabbitMQConfig `mapstructure:"rabbitmq"`
-	GRPC         GRPC                     `mapstructure:"grpc"`
 	Http         Http                     `mapstructure:"http"`
 	Context      Context                  `mapstructure:"context"`
 	GormPostgres *gorm_postgres.Config    `mapstructure:"gormPostgres"`
@@ -32,11 +31,6 @@ type Config struct {
 
 type Context struct {
 	Timeout int `mapstructure:"timeout"`
-}
-
-type GRPC struct {
-	Port        string `mapstructure:"port"`
-	Development bool   `mapstructure:"development"`
 }
 
 type Http struct {

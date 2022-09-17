@@ -82,15 +82,16 @@ func (c consumer) ConsumeMessage(msg interface{}) error {
 		c.log.Error("Error in consuming message")
 	}
 
-	var forever chan struct{}
+	forever := make(chan struct{})
 
 	go func() {
-		for msg := range msgs {
-			c.handler(q.Name, msg, nil)
+		for m := range msgs {
+			c.handler(q.Name, m, nil)
 		}
 	}()
 
 	c.log.Info("Waiting for messages. To exit press CTRL+C")
+
 	<-forever
 
 	return nil

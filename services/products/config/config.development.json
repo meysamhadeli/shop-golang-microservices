@@ -4,10 +4,6 @@
   "context": {
     "timeout": 20
   },
-  "grpc": {
-    "port": ":6003",
-    "development": true
-  },
   "rabbitMq": {
     "user": "guest",
     "password": "guest",
@@ -40,44 +36,5 @@
     "password": "postgres",
     "dbName": "products_service",
     "sslMode": false
-  },
-  "kafka": {
-    "brokers": [
-      "localhost:9092"
-    ],
-    "groupID": "products_service_consumer",
-    "initTopics": true
-  },
-  "kafkaTopics": {
-    "productCreate": {
-      "topicName": "product_create",
-      "partitions": 10,
-      "replicationFactor": 1
-    },
-    "productUpdate": {
-      "topicName": "product_update",
-      "partitions": 10,
-      "replicationFactor": 1
-    },
-    "productCreated": {
-      "topicName": "product_created",
-      "partitions": 10,
-      "replicationFactor": 1
-    },
-    "productUpdated": {
-      "topicName": "product_updated",
-      "partitions": 10,
-      "replicationFactor": 1
-    },
-    "productDelete": {
-      "topicName": "product_delete",
-      "partitions": 10,
-      "replicationFactor": 1
-    },
-    "productDeleted": {
-      "topicName": "product_deleted",
-      "partitions": 10,
-      "replicationFactor": 1
-    }
   }
 }
