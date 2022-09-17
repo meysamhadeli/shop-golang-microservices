@@ -2,7 +2,6 @@ package server
 
 import (
 	"context"
-	"fmt"
 	"github.com/labstack/echo/v4"
 	"github.com/meysamhadeli/shop-golang-microservices/pkg/constants"
 	"github.com/meysamhadeli/shop-golang-microservices/pkg/logger"
@@ -37,43 +36,20 @@ func (s *Server) Run() error {
 	}
 	defer productsCleanup()
 
-	deliveryType := s.Cfg.DeliveryType
-
-	switch deliveryType {
-	case "http":
-		go func() {
-			if err := s.RunHttpServer(nil); err != nil {
-				s.Log.Errorf("(s.RunHttpServer) err: {%v}", err)
-				cancel()
-			}
-		}()
-		s.Log.Infof("%s is listening on Http PORT: {%s}", config.GetMicroserviceName(s.Cfg), s.Cfg.Http.Port)
-
-	//case "grpc":
-	//	go func() {
-	//		if err := s.RunGrpcServer(nil); err != nil {
-	//			s.Log.Errorf("(s.RunGrpcServer) err: {%v}", err)
-	//			cancel()
-	//		}
-	//	}()
-	//	s.Log.Infof("%s is listening on Grpc PORT: {%s}", web.GetMicroserviceName(s.Cfg), s.Cfg.GRPC.Port)
-	default:
-		s.Log.Infof(fmt.Sprintf("server type %s is not supported", deliveryType))
-	}
+	go func() {
+		if err := s.RunHttpServer(nil); err != nil {
+			s.Log.Errorf("(s.RunHttpServer) err: {%v}", err)
+			cancel()
+		}
+	}()
+	s.Log.Infof("%s is listening on Http PORT: {%s}", config.GetMicroserviceName(s.Cfg), s.Cfg.Http.Port)
 
 	<-ctx.Done()
 	s.WaitShootDown(constants.WaitShotDownDuration)
 
-	switch deliveryType {
-	case "http":
-		s.Log.Infof("%s is shutting down Http PORT: {%s}", config.GetMicroserviceName(s.Cfg), s.Cfg.Http.Port)
-		if err := s.Echo.Shutdown(ctx); err != nil {
-			s.Log.Warnf("(Shutdown) err: {%v}", err)
-		}
-	case "grpc":
-		s.Log.Infof("%s is shutting down Grpc PORT: {%s}", config.GetMicroserviceName(s.Cfg), s.Cfg.GRPC.Port)
-		s.GrpcServer.Stop()
-		s.GrpcServer.GracefulStop()
+	s.Log.Infof("%s is shutting down Http PORT: {%s}", config.GetMicroserviceName(s.Cfg), s.Cfg.Http.Port)
+	if err := s.Echo.Shutdown(ctx); err != nil {
+		s.Log.Warnf("(Shutdown) err: {%v}", err)
 	}
 
 	<-doneChanConsumers

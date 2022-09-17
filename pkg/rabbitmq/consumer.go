@@ -85,8 +85,8 @@ func (c consumer) ConsumeMessage(msg interface{}) error {
 	var forever chan struct{}
 
 	go func() {
-		for m := range msgs {
-			c.handler(q.Name, m, nil)
+		for msg := range msgs {
+			c.handler(q.Name, msg, nil)
 		}
 	}()
 

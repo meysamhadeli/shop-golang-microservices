@@ -21,7 +21,6 @@ func init() {
 }
 
 type Config struct {
-	DeliveryType string                   `mapstructure:"deliveryType"`
 	ServiceName  string                   `mapstructure:"serviceName"`
 	Logger       *logger.Config           `mapstructure:"logger"`
 	Rabbitmq     *rabbitmq.RabbitMQConfig `mapstructure:"rabbitmq"`
