@@ -15,13 +15,13 @@ I will try to register future goals and additions in the [Issues](https://github
 ## Technologies - Libraries
 
 - ✔️ **[`labstack/echo`](https://github.com/labstack/echo)** - High performance, minimalist Go web framework
-- ✔️ **[`go-gorm/gorm`](https://github.com/go-gorm/gorm)** - The fantastic ORM library for Golang, aims to be developer friendly
+- ✔️ **[`go-gorm/gorm`](https://github.com/go-gorm/gorm)** - The fantastic ORM library for Go, aims to be developer friendly
 - ✔️ **[`sirupsen/logrus`](https://github.com/sirupsen/logrus)** - Logrus is a structured logger for Go
 - ✔️ **[`streadway/amqp`](https://github.com/streadway/amqp)** - Go RabbitMQ Client Library
 - ✔️ **[`spf13/viper`](https://github.com/spf13/viper)** - Go configuration with fangs
 - ✔️ **[`swaggo/echo-swagger`](https://github.com/swaggo/echo-swagger))** - echo middleware to automatically generate RESTful API documentation
-- ✔️ **[`mehdihadeli/Go-MediatR`](https://github.com/mehdihadeli/Go-MediatR)** - This package is a Mediator Pattern implementation in golang
-- ✔️ **[`go-playground/validator`](https://github.com/go-playground/validator)** - Package validator implements value validations for structs and individual fields based on tags
+- ✔️ **[`mehdihadeli/Go-MediatR`](https://github.com/mehdihadeli/Go-MediatR)** - This package is a Mediator Pattern implementation in Go
+- ✔️ **[`go-playground/validator`](https://github.com/go-playground/validator)** - Implements value validations for structs and individual fields based on tags
 - ✔️ **[`open-telemetry/opentelemetry-go`](https://github.com/open-telemetry/opentelemetry-go)** - Implementation of OpenTelemetry in Go for distributed-tracing
 
 ## Structure of Project
