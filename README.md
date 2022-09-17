@@ -19,7 +19,7 @@ I will try to register future goals and additions in the [Issues](https://github
 - ✔️ **[`sirupsen/logrus`](https://github.com/sirupsen/logrus)** - Logrus is a structured logger for Go
 - ✔️ **[`streadway/amqp`](https://github.com/streadway/amqp)** - Go RabbitMQ Client Library
 - ✔️ **[`spf13/viper`](https://github.com/spf13/viper)** - Go configuration with fangs
-- ✔️ **[`swaggo/echo-swagger`](https://github.com/swaggo/echo-swagger))** - echo middleware to automatically generate RESTful API documentation with Swagger 2.0
+- ✔️ **[`swaggo/echo-swagger`](https://github.com/swaggo/echo-swagger))** - echo middleware to automatically generate RESTful API documentation
 - ✔️ **[`mehdihadeli/Go-MediatR`](https://github.com/mehdihadeli/Go-MediatR)** - This package is a Mediator Pattern implementation in golang
 - ✔️ **[`go-playground/validator`](https://github.com/go-playground/validator)** - Package validator implements value validations for structs and individual fields based on tags
 
