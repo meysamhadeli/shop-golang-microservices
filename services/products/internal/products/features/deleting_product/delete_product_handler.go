@@ -27,7 +27,7 @@ func (c *DeleteProductHandler) Handle(ctx context.Context, command *DeleteProduc
 		return nil, err
 	}
 
-	err := c.rabbitmqPublisher.PublishMessage(events.ProductDeleted{
+	err := c.rabbitmqPublisher.PublishMessage(ctx, events.ProductDeleted{
 		ProductId: command.ProductID,
 	})
 	if err != nil {

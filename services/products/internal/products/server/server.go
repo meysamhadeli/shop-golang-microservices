@@ -30,7 +30,7 @@ func (s *Server) Run() error {
 	defer cancel()
 
 	infrastructureConfigurator := configurations.NewInfrastructureConfigurator(s.Log, s.Cfg, s.Echo)
-	err, productsCleanup, doneChanConsumers, tp := infrastructureConfigurator.ConfigInfrastructures(ctx)
+	err, doneChanConsumers, tp, productsCleanup := infrastructureConfigurator.ConfigInfrastructures(ctx)
 	if err != nil {
 		return err
 	}

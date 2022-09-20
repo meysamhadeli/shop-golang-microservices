@@ -29,7 +29,7 @@ func NewInfrastructureConfigurator(log logger.ILogger, cfg *config.Config, echo 
 	return &infrastructureConfigurator{Cfg: cfg, Echo: echo, Log: log}
 }
 
-func (ic *infrastructureConfigurator) ConfigInfrastructures(ctx context.Context) (error, func(), chan struct{}, *tracesdk.TracerProvider) {
+func (ic *infrastructureConfigurator) ConfigInfrastructures(ctx context.Context) (error, chan struct{}, *tracesdk.TracerProvider, func()) {
 
 	infrastructure := &shared.InfrastructureConfiguration{Cfg: ic.Cfg, Echo: ic.Echo, Log: ic.Log, Validator: validator.New()}
 
@@ -37,7 +37,11 @@ func (ic *infrastructureConfigurator) ConfigInfrastructures(ctx context.Context)
 
 	gorm, err := ic.configGorm()
 	if err != nil {
-		return err, nil, nil, nil
+		return err, nil, nil, func() {
+			for _, c := range cleanups {
+				defer c()
+			}
+		}
 	}
 	infrastructure.Gorm = gorm
 
@@ -45,42 +49,55 @@ func (ic *infrastructureConfigurator) ConfigInfrastructures(ctx context.Context)
 	infrastructure.JaegerTracer = tp.Tracer(ic.Cfg.Jaeger.TracerName)
 
 	if err != nil {
-		return err, nil, nil, nil
+		return err, nil, nil, func() {
+			for _, c := range cleanups {
+				defer c()
+			}
+		}
 	}
 
 	conn, err, rabbitMqCleanup := rabbitmq.NewRabbitMQConn(ic.Cfg.Rabbitmq)
 	if err != nil {
-		return err, nil, nil, nil
+		return err, nil, nil, func() {
+			for _, c := range cleanups {
+				defer c()
+			}
+		}
 	}
 
 	infrastructure.ConnRabbitmq = conn
 	cleanups = append(cleanups, rabbitMqCleanup)
 
-	infrastructure.RabbitmqPublisher = rabbitmq.NewPublisher(ic.Cfg.Rabbitmq, infrastructure.ConnRabbitmq, infrastructure.Log)
+	infrastructure.RabbitmqPublisher = rabbitmq.NewPublisher(ic.Cfg.Rabbitmq, infrastructure.ConnRabbitmq, infrastructure.Log, infrastructure.JaegerTracer)
 
-	createProductConsumer := rabbitmq.NewConsumer(ic.Cfg.Rabbitmq, infrastructure.ConnRabbitmq, infrastructure.Log, consumers.HandleConsumeCreateProduct)
-	updateProductConsumer := rabbitmq.NewConsumer(ic.Cfg.Rabbitmq, infrastructure.ConnRabbitmq, infrastructure.Log, consumers.HandleConsumeUpdateProduct)
-	deleteProductConsumer := rabbitmq.NewConsumer(ic.Cfg.Rabbitmq, infrastructure.ConnRabbitmq, infrastructure.Log, consumers.HandleConsumeDeleteProduct)
+	createProductConsumer := rabbitmq.NewConsumer(ic.Cfg.Rabbitmq, infrastructure.ConnRabbitmq, infrastructure.Log, infrastructure.JaegerTracer, consumers.HandleConsumeCreateProduct)
+	updateProductConsumer := rabbitmq.NewConsumer(ic.Cfg.Rabbitmq, infrastructure.ConnRabbitmq, infrastructure.Log, infrastructure.JaegerTracer, consumers.HandleConsumeUpdateProduct)
+	deleteProductConsumer := rabbitmq.NewConsumer(ic.Cfg.Rabbitmq, infrastructure.ConnRabbitmq, infrastructure.Log, infrastructure.JaegerTracer, consumers.HandleConsumeDeleteProduct)
 
 	// Multiple listeners can be specified here
 	chanConsumers := make(chan struct{})
 
 	go func() {
-		var err = createProductConsumer.ConsumeMessage(ctx, events.ProductCreated{})
+		err, createProductConsumerCleanup := createProductConsumer.ConsumeMessage(ctx, events.ProductCreated{})
+		cleanups = append(cleanups, createProductConsumerCleanup)
 		if err != nil {
 			ic.Log.Error(err)
 		}
 	}()
 
 	go func() {
-		var err = updateProductConsumer.ConsumeMessage(ctx, events.ProductUpdated{})
+		var err, updateProductConsumerCleanup = updateProductConsumer.ConsumeMessage(ctx, events.ProductUpdated{})
+		cleanups = append(cleanups, updateProductConsumerCleanup)
+
 		if err != nil {
 			ic.Log.Error(err)
 		}
 	}()
 
 	go func() {
-		var err = deleteProductConsumer.ConsumeMessage(ctx, events.ProductDeleted{})
+		var err, deleteProductConsumerCleanup = deleteProductConsumer.ConsumeMessage(ctx, events.ProductDeleted{})
+		cleanups = append(cleanups, deleteProductConsumerCleanup)
+
 		if err != nil {
 			ic.Log.Error(err)
 		}
@@ -91,22 +108,30 @@ func (ic *infrastructureConfigurator) ConfigInfrastructures(ctx context.Context)
 	ic.configMiddlewares()
 
 	if err != nil {
-		return err, nil, nil, nil
+		return err, nil, nil, func() {
+			for _, c := range cleanups {
+				defer c()
+			}
+		}
 	}
 
 	pc := NewProductsModuleConfigurator(infrastructure)
 	err = pc.ConfigureProductsModule(ctx)
 	if err != nil {
-		return err, nil, nil, nil
+		return err, nil, nil, func() {
+			for _, c := range cleanups {
+				defer c()
+			}
+		}
 	}
 
 	ic.Echo.GET("", func(ec echo.Context) error {
 		return ec.String(http.StatusOK, fmt.Sprintf("%s is running...", config.GetMicroserviceName(ic.Cfg)))
 	})
 
-	return nil, func() {
+	return nil, chanConsumers, tp, func() {
 		for _, c := range cleanups {
 			defer c()
 		}
-	}, chanConsumers, tp
+	}
 }

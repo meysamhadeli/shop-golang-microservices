@@ -48,7 +48,7 @@ func (c *UpdateProductHandler) Handle(ctx context.Context, command *UpdateProduc
 		return nil, err
 	}
 
-	err = c.rabbitmqPublisher.PublishMessage(evt)
+	err = c.rabbitmqPublisher.PublishMessage(ctx, evt)
 
 	response := &dtos.UpdateProductResponseDto{ProductID: product.ProductId}
 	bytes, _ := json.Marshal(response)
