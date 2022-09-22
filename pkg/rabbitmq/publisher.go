@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/iancoleman/strcase"
 	jsoniter "github.com/json-iterator/go"
+	"github.com/labstack/echo/v4"
 	"github.com/meysamhadeli/shop-golang-microservices/pkg/logger"
 	uuid "github.com/satori/go.uuid"
 	"github.com/streadway/amqp"
@@ -59,11 +60,12 @@ func (p publisher) PublishMessage(ctx context.Context, msg interface{}) error {
 	}
 
 	publishingMsg := amqp.Publishing{
-		Body:         data,
-		ContentType:  "application/json",
-		DeliveryMode: amqp.Persistent,
-		MessageId:    uuid.NewV4().String(),
-		Timestamp:    time.Now(),
+		Body:          data,
+		ContentType:   "application/json",
+		DeliveryMode:  amqp.Persistent,
+		MessageId:     uuid.NewV4().String(),
+		Timestamp:     time.Now(),
+		CorrelationId: ctx.Value(echo.HeaderXCorrelationID).(string),
 	}
 
 	err = channel.Publish(snakeTypeName, snakeTypeName, false, false, publishingMsg)

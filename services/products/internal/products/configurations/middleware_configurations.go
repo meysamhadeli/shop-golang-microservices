@@ -14,10 +14,7 @@ func (ic *infrastructureConfigurator) configMiddlewares() {
 
 	ic.Echo.HTTPErrorHandler = middlewares.ProblemDetailsHandler
 
-	middlewareManager := middlewares.NewMiddlewareManager(ic.Log, ic.Cfg)
-
-	ic.Echo.Use(middlewareManager.RequestLoggerMiddleware)
-
+	ic.Echo.Use(middlewares.CorrelationIdMiddleware)
 	ic.Echo.Use(middleware.RequestID())
 	ic.Echo.Use(middleware.Logger())
 	ic.Echo.Use(middleware.GzipWithConfig(middleware.GzipConfig{
