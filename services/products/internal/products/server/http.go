@@ -22,7 +22,7 @@ func (s *Server) RunHttpServer(configEcho func(echoServer *echo.Echo)) error {
 func (s *Server) WaitShootDown(duration time.Duration) {
 	go func() {
 		time.Sleep(duration)
-		s.DoneCh <- struct{}{}
+		s.DoneChServer <- struct{}{}
 	}()
 }
 

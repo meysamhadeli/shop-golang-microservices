@@ -29,7 +29,7 @@ func NewInfrastructureConfigurator(log logger.ILogger, cfg *config.Config, echo 
 	return &infrastructureConfigurator{Cfg: cfg, Echo: echo, Log: log}
 }
 
-func (ic *infrastructureConfigurator) ConfigInfrastructures(ctx context.Context) (error, chan struct{}, *tracesdk.TracerProvider, func()) {
+func (ic *infrastructureConfigurator) ConfigInfrastructures(ctx context.Context) (error, chan error, *tracesdk.TracerProvider, func()) {
 
 	infrastructure := &shared.InfrastructureConfiguration{Cfg: ic.Cfg, Echo: ic.Echo, Log: ic.Log, Validator: validator.New()}
 
@@ -74,8 +74,7 @@ func (ic *infrastructureConfigurator) ConfigInfrastructures(ctx context.Context)
 	updateProductConsumer := rabbitmq.NewConsumer(ic.Cfg.Rabbitmq, infrastructure.ConnRabbitmq, infrastructure.Log, infrastructure.JaegerTracer, consumers.HandleConsumeUpdateProduct)
 	deleteProductConsumer := rabbitmq.NewConsumer(ic.Cfg.Rabbitmq, infrastructure.ConnRabbitmq, infrastructure.Log, infrastructure.JaegerTracer, consumers.HandleConsumeDeleteProduct)
 
-	// Multiple listeners can be specified here
-	chanConsumers := make(chan struct{})
+	foreverChanConsumers := make(chan error)
 
 	go func() {
 		err, createProductConsumerCleanup := createProductConsumer.ConsumeMessage(ctx, events.ProductCreated{})
@@ -129,7 +128,7 @@ func (ic *infrastructureConfigurator) ConfigInfrastructures(ctx context.Context)
 		return ec.String(http.StatusOK, fmt.Sprintf("%s is running...", config.GetMicroserviceName(ic.Cfg)))
 	})
 
-	return nil, chanConsumers, tp, func() {
+	return nil, foreverChanConsumers, tp, func() {
 		for _, c := range cleanups {
 			defer c()
 		}

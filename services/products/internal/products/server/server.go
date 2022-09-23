@@ -14,11 +14,11 @@ import (
 )
 
 type Server struct {
-	Log        logger.ILogger
-	Cfg        *config.Config
-	Echo       *echo.Echo
-	DoneCh     chan struct{}
-	GrpcServer *grpc.Server
+	Log          logger.ILogger
+	Cfg          *config.Config
+	Echo         *echo.Echo
+	DoneChServer chan struct{}
+	GrpcServer   *grpc.Server
 }
 
 func NewServer(log logger.ILogger, cfg *config.Config) *Server {
@@ -57,7 +57,7 @@ func (s *Server) Run() error {
 	}
 
 	<-doneChanConsumers
-	<-s.DoneCh
+	<-s.DoneChServer
 	s.Log.Infof("%s server exited properly", config.GetMicroserviceName(s.Cfg))
 
 	return nil

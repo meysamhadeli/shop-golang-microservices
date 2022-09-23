@@ -90,7 +90,7 @@ func (c consumer) ConsumeMessage(ctx context.Context, msg interface{}) (error, f
 		c.log.Error("Error in consuming message")
 	}
 
-	done := make(chan error)
+	forever := make(chan error)
 
 	go func() {
 		for delivery := range deliveries {
@@ -123,7 +123,7 @@ func (c consumer) ConsumeMessage(ctx context.Context, msg interface{}) (error, f
 
 	c.log.Info("Waiting for messages. To exit press CTRL+C")
 
-	done <- nil
+	forever <- nil
 
 	return nil, func() {
 		_ = ch.Close()

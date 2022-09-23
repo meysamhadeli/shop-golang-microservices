@@ -37,12 +37,14 @@ func (p publisher) PublishMessage(ctx context.Context, msg interface{}) error {
 	channel, err := p.conn.Channel()
 	if err != nil {
 		p.log.Error("Error in opening channel to consume message")
+		return err
 	}
 
 	defer channel.Close()
 
 	if err != nil {
 		p.log.Error("Error in marshalling message to publish message")
+		return err
 	}
 
 	err = channel.ExchangeDeclare(
@@ -57,6 +59,7 @@ func (p publisher) PublishMessage(ctx context.Context, msg interface{}) error {
 
 	if err != nil {
 		p.log.Error("Error in declaring exchange to publish message")
+		return err
 	}
 
 	publishingMsg := amqp.Publishing{
@@ -72,6 +75,7 @@ func (p publisher) PublishMessage(ctx context.Context, msg interface{}) error {
 
 	if err != nil {
 		p.log.Error("Error in publishing message")
+		return err
 	}
 
 	p.log.Infof("Published message: %s", publishingMsg.Body)
