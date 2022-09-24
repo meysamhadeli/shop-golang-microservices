@@ -3,25 +3,36 @@ package middlewares
 import (
 	"github.com/labstack/echo/v4"
 	"github.com/meysamhadeli/shop-golang-microservices/pkg/problemDetails"
-	httpErrors "github.com/meysamhadeli/shop-golang-microservices/pkg/problemDetails/custome_error/utils"
 	log "github.com/sirupsen/logrus"
+	"net/http"
+	"time"
 )
 
 func ProblemDetailsHandler(err error, c echo.Context) {
-	prb := problemDetails.ParseError(err)
 
-	if prb != nil {
-		if !c.Response().Committed {
-			if _, err := prb.WriteTo(c.Response()); err != nil {
-				log.Error(err)
-			}
+	problemDetails.Map(err, func() *problemDetails.ProblemDetail {
+		return &problemDetails.ProblemDetail{
+			Type:      "https://httpstatuses.io/409",
+			Status:    http.StatusConflict,
+			Detail:    err.Error(),
+			Title:     "application rule broken",
+			Timestamp: time.Now(),
 		}
-	} else {
-		if !c.Response().Committed {
-			prb := problemDetails.NewInternalServerProblemDetail(err.Error(), httpErrors.ErrorsWithStack(err))
-			if _, err := prb.WriteTo(c.Response()); err != nil {
-				log.Error(err)
-			}
+	})
+
+	problemDetails.Map(err, func() *problemDetails.ProblemDetail {
+		return &problemDetails.ProblemDetail{
+			Type:      "https://httpstatuses.io/400",
+			Status:    http.StatusBadRequest,
+			Detail:    err.Error(),
+			Title:     "application exception",
+			Timestamp: time.Now(),
+		}
+	})
+
+	if !c.Response().Committed {
+		if _, err := problemDetails.ResolveProblemDetails(err).WriteTo(c.Response()); err != nil {
+			log.Error(err)
 		}
 	}
 }

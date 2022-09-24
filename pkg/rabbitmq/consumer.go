@@ -34,6 +34,7 @@ func (c consumer) ConsumeMessage(ctx context.Context, msg interface{}) (error, f
 	ch, err := c.conn.Channel()
 	if err != nil {
 		c.log.Error("Error in opening channel to consume message")
+		return err, nil
 	}
 
 	typeName := reflect.TypeOf(msg).Name()
@@ -51,6 +52,7 @@ func (c consumer) ConsumeMessage(ctx context.Context, msg interface{}) (error, f
 
 	if err != nil {
 		c.log.Error("Error in declaring exchange to consume message")
+		return err, nil
 	}
 
 	q, err := ch.QueueDeclare(
@@ -64,6 +66,7 @@ func (c consumer) ConsumeMessage(ctx context.Context, msg interface{}) (error, f
 
 	if err != nil {
 		c.log.Error("Error in declaring queue to consume message")
+		return err, nil
 	}
 
 	err = ch.QueueBind(
@@ -74,6 +77,7 @@ func (c consumer) ConsumeMessage(ctx context.Context, msg interface{}) (error, f
 		nil)
 	if err != nil {
 		c.log.Error("Error in binding queue to consume message")
+		return err, nil
 	}
 
 	deliveries, err := ch.Consume(
@@ -88,6 +92,7 @@ func (c consumer) ConsumeMessage(ctx context.Context, msg interface{}) (error, f
 
 	if err != nil {
 		c.log.Error("Error in consuming message")
+		return err, nil
 	}
 
 	forever := make(chan error)
