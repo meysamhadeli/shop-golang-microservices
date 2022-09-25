@@ -8,30 +8,49 @@ import (
 	"time"
 )
 
-func ProblemDetailsHandler(err error, c echo.Context) {
+func ProblemDetailsHandler(error error, c echo.Context) {
 
-	problemDetails.Map(err, func() *problemDetails.ProblemDetail {
+	problemDetails.Map(http.StatusBadRequest, func() *problemDetails.ProblemDetail {
 		return &problemDetails.ProblemDetail{
-			Type:      "https://httpstatuses.io/409",
-			Status:    http.StatusConflict,
-			Detail:    err.Error(),
-			Title:     "application rule broken",
+			Type:      "https://httpstatuses.io/400",
+			Detail:    error.Error(),
+			Title:     "bad-request",
 			Timestamp: time.Now(),
 		}
 	})
 
-	problemDetails.Map(err, func() *problemDetails.ProblemDetail {
+	problemDetails.Map(http.StatusForbidden, func() *problemDetails.ProblemDetail {
 		return &problemDetails.ProblemDetail{
-			Type:      "https://httpstatuses.io/400",
-			Status:    http.StatusBadRequest,
-			Detail:    err.Error(),
-			Title:     "application exception",
+			Type:      "https://httpstatuses.io/403",
+			Status:    http.StatusForbidden,
+			Detail:    error.Error(),
+			Title:     "forbidden",
+			Timestamp: time.Now(),
+		}
+	})
+
+	problemDetails.Map(http.StatusForbidden, func() *problemDetails.ProblemDetail {
+		return &problemDetails.ProblemDetail{
+			Type:      "https://httpstatuses.io/401",
+			Status:    http.StatusUnauthorized,
+			Detail:    error.Error(),
+			Title:     "unauthorized",
+			Timestamp: time.Now(),
+		}
+	})
+
+	problemDetails.Map(http.StatusForbidden, func() *problemDetails.ProblemDetail {
+		return &problemDetails.ProblemDetail{
+			Type:      "https://httpstatuses.io/404",
+			Status:    http.StatusNotFound,
+			Detail:    error.Error(),
+			Title:     "not-fund",
 			Timestamp: time.Now(),
 		}
 	})
 
 	if !c.Response().Committed {
-		if _, err := problemDetails.ResolveEcho(c.Response(), err); err != nil {
+		if _, err := problemDetails.ResolveProblemDetails(c.Response(), error); err != nil {
 			log.Error(err)
 		}
 	}

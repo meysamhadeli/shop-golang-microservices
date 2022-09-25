@@ -3,9 +3,7 @@ package problemDetails
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/labstack/echo/v4"
 	"net/http"
-	"reflect"
 	"time"
 )
 
@@ -19,7 +17,14 @@ type ProblemDetail struct {
 	StackTrace string    `json:"stackTrace,omitempty"`
 }
 
-var mappers = map[reflect.Type]func() *ProblemDetail{}
+// ProblemDetailError represents an error that occurred while handling a request.
+type ProblemDetailError struct {
+	Code     int         `json:"-"`
+	Internal error       `json:"-"`
+	Message  interface{} `json:"-"`
+}
+
+var mappers = map[int]func() *ProblemDetail{}
 
 // WriteTo writes the JSON Problem to an HTTP Response Writer
 func (p *ProblemDetail) writeTo(w http.ResponseWriter) (int, error) {
@@ -28,41 +33,44 @@ func (p *ProblemDetail) writeTo(w http.ResponseWriter) (int, error) {
 }
 
 // Map map error to problem detail
-func Map(error error, funcProblem func() *ProblemDetail) {
-
-	typeError := reflect.TypeOf(error).Elem()
-
-	mappers[typeError] = funcProblem
+func Map(statusCode int, funcProblem func() *ProblemDetail) {
+	mappers[statusCode] = funcProblem
 }
 
-// ResolveEcho retrieve error with format problem detail
-func ResolveEcho(res *echo.Response, err error) (int, error) {
+// ResolveProblemDetails retrieve error with format problem detail
+func ResolveProblemDetails(w http.ResponseWriter, err error) (int, error) {
 
-	typeError := reflect.TypeOf(err).Elem()
-	problem := mappers[typeError]
+	statusCode := err.(*ProblemDetailError).Code
+
+	fmt.Println(mappers)
+
+	problem := mappers[statusCode]
 
 	if problem != nil {
 		problem := problem()
 
-		validationProblems(problem, err)
+		validationProblems(problem, err, statusCode)
 
-		val, err := problem.writeTo(res)
+		val, err := problem.writeTo(w)
 
 		if err != nil {
 			return 0, err
 		}
 
-		return val, nil
+		return val, err
 	}
 
-	defaultProblem := ProblemDetail{
-		Type:      getDefaultType(http.StatusInternalServerError),
-		Status:    http.StatusInternalServerError,
-		Detail:    err.Error(),
-		Timestamp: time.Now(),
+	defaultProblem := func() *ProblemDetail {
+		return &ProblemDetail{
+			Type:      getDefaultType(statusCode),
+			Status:    statusCode,
+			Detail:    err.Error(),
+			Timestamp: time.Now(),
+			Title:     http.StatusText(statusCode),
+		}
 	}
 
-	val, err := defaultProblem.writeTo(res)
+	val, err := defaultProblem().writeTo(w)
 
 	if err != nil {
 		return 0, err
@@ -71,9 +79,20 @@ func ResolveEcho(res *echo.Response, err error) (int, error) {
 	return val, nil
 }
 
-func validationProblems(problem *ProblemDetail, err error) {
+// Error makes it compatible with `error` interface.
+func (he *ProblemDetailError) Error() string {
+	return he.Internal.Error()
+}
+
+func NewError(code int, error error) *ProblemDetailError {
+	newError := &ProblemDetailError{Code: code, Message: http.StatusText(code), Internal: error}
+	return newError
+}
+
+func validationProblems(problem *ProblemDetail, err error, statusCode int) {
+
 	if problem.Status == 0 {
-		problem.Status = http.StatusInternalServerError
+		problem.Status = statusCode
 	}
 	if problem.Timestamp.IsZero() {
 		problem.Timestamp = time.Now()
@@ -83,6 +102,9 @@ func validationProblems(problem *ProblemDetail, err error) {
 	}
 	if problem.Type == "" {
 		problem.Type = getDefaultType(problem.Status)
+	}
+	if problem.Title == "" {
+		problem.Title = http.StatusText(problem.Status)
 	}
 }
 
