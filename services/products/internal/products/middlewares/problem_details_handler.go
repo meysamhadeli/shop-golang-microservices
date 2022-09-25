@@ -31,7 +31,7 @@ func ProblemDetailsHandler(err error, c echo.Context) {
 	})
 
 	if !c.Response().Committed {
-		if _, err := problemDetails.ResolveProblemDetails(err).WriteTo(c.Response()); err != nil {
+		if _, err := problemDetails.ResolveEcho(c.Response(), err); err != nil {
 			log.Error(err)
 		}
 	}

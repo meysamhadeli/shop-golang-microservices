@@ -6,13 +6,13 @@ import (
 	"fmt"
 	"github.com/meysamhadeli/shop-golang-microservices/pkg/logger"
 	"github.com/meysamhadeli/shop-golang-microservices/pkg/mapper"
-	customErrors "github.com/meysamhadeli/shop-golang-microservices/pkg/problemDetails/custome_error"
 	"github.com/meysamhadeli/shop-golang-microservices/pkg/rabbitmq"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/config"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/contracts"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/dtos"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/events"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/models"
+	"github.com/pkg/errors"
 )
 
 type UpdateProductHandler struct {
@@ -32,7 +32,7 @@ func (c *UpdateProductHandler) Handle(ctx context.Context, command *UpdateProduc
 	_, err := c.pgRepo.GetProductById(ctx, command.ProductID)
 
 	if err != nil {
-		notFoundErr := customErrors.NewNotFoundErrorWrap(err, fmt.Sprintf("product with id %s not found", command.ProductID))
+		notFoundErr := errors.Wrap(err, fmt.Sprintf("product with id %s not found", command.ProductID))
 		return nil, notFoundErr
 	}
 

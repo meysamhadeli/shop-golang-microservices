@@ -1,13 +1,11 @@
 package v1
 
 import (
-	"fmt"
 	"github.com/labstack/echo/v4"
 	"github.com/mehdihadeli/go-mediatr"
-	open_telemetry "github.com/meysamhadeli/shop-golang-microservices/pkg/open-telemetry"
-	customErrors "github.com/meysamhadeli/shop-golang-microservices/pkg/problemDetails/custome_error"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/dtos"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/shared"
+	"github.com/pkg/errors"
 	"net/http"
 
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/features/creating_product"
@@ -42,14 +40,14 @@ func (ep *createProductEndpoint) createProduct() echo.HandlerFunc {
 		request := &dtos.CreateProductRequestDto{}
 
 		if err := c.Bind(request); err != nil {
-			badRequestErr := customErrors.NewBadRequestErrorWrap(err, "[createProductEndpoint_handler.Bind] error in the binding request")
-			ep.Configuration.Log.Errorf(fmt.Sprintf("[createProductEndpoint_handler.Bind] err: %v", open_telemetry.TraceWithErr(ctx, ep.Configuration.JaegerTracer, badRequestErr)))
+			badRequestErr := errors.Wrap(err, "[createProductEndpoint_handler.Bind] error in the binding request")
+			ep.Configuration.Log.Error(badRequestErr)
 			return badRequestErr
 		}
 
 		if err := ep.Configuration.Validator.StructCtx(ctx, request); err != nil {
-			validationErr := customErrors.NewValidationErrorWrap(err, "[createProductEndpoint_handler.StructCtx] command validation failed")
-			ep.Configuration.Log.Errorf(fmt.Sprintf("[createProductEndpoint_handler.StructCtx] err: {%v}", open_telemetry.TraceWithErr(ctx, ep.Configuration.JaegerTracer, validationErr)))
+			validationErr := errors.Wrap(err, "[createProductEndpoint_handler.StructCtx] command validation failed")
+			ep.Configuration.Log.Error(validationErr)
 			return validationErr
 		}
 

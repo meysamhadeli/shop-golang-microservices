@@ -1,12 +1,11 @@
 package v1
 
 import (
-	"fmt"
 	"github.com/labstack/echo/v4"
 	"github.com/mehdihadeli/go-mediatr"
-	customErrors "github.com/meysamhadeli/shop-golang-microservices/pkg/problemDetails/custome_error"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/dtos"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/shared"
+	"github.com/pkg/errors"
 	"net/http"
 
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/features/updating_product"
@@ -41,16 +40,16 @@ func (ep *updateProductEndpoint) updateProduct() echo.HandlerFunc {
 
 		request := &dtos.UpdateProductRequestDto{}
 		if err := c.Bind(request); err != nil {
-			badRequestErr := customErrors.NewBadRequestErrorWrap(err, "[updateProductEndpoint_handler.Bind] error in the binding request")
-			ep.Configuration.Log.Errorf(fmt.Sprintf("[updateProductEndpoint_handler.Bind] err: %v", badRequestErr))
+			badRequestErr := errors.Wrap(err, "[updateProductEndpoint_handler.Bind] error in the binding request")
+			ep.Configuration.Log.Error(badRequestErr)
 			return badRequestErr
 		}
 
 		command := updating_product.NewUpdateProduct(request.ProductID, request.Name, request.Description, request.Price)
 
 		if err := ep.Configuration.Validator.StructCtx(ctx, command); err != nil {
-			validationErr := customErrors.NewValidationErrorWrap(err, "[updateProductEndpoint_handler.StructCtx] command validation failed")
-			ep.Configuration.Log.Errorf(fmt.Sprintf("[updateProductEndpoint_handler.StructCtx] err: {%v}", validationErr))
+			validationErr := errors.Wrap(err, "[updateProductEndpoint_handler.StructCtx] command validation failed")
+			ep.Configuration.Log.Error(validationErr)
 			return validationErr
 		}
 

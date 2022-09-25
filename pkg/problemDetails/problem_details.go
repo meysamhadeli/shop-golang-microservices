@@ -3,7 +3,7 @@ package problemDetails
 import (
 	"encoding/json"
 	"fmt"
-	log "github.com/sirupsen/logrus"
+	"github.com/labstack/echo/v4"
 	"net/http"
 	"reflect"
 	"time"
@@ -11,67 +11,92 @@ import (
 
 // ProblemDetail error struct
 type ProblemDetail struct {
-	Status    int       `json:"status,omitempty"`
-	Title     string    `json:"title,omitempty"`
-	Detail    string    `json:"detail,omitempty"`
-	Type      string    `json:"type,omitempty"`
-	Timestamp time.Time `json:"timestamp,omitempty"`
+	Status     int       `json:"status,omitempty"`
+	Title      string    `json:"title,omitempty"`
+	Detail     string    `json:"detail,omitempty"`
+	Type       string    `json:"type,omitempty"`
+	Timestamp  time.Time `json:"timestamp,omitempty"`
+	StackTrace string    `json:"stackTrace,omitempty"`
 }
 
 var mappers = map[reflect.Type]func() *ProblemDetail{}
 
-// Error  Error() interface method
-func (p *ProblemDetail) Error() string {
-	return fmt.Sprintf("Error Title: %s - Error Status: %d - Error Detail: %s", p.Title, p.Status, p.Detail)
-}
-
 // WriteTo writes the JSON Problem to an HTTP Response Writer
-func (p *ProblemDetail) WriteTo(w http.ResponseWriter) (int, error) {
-	log.Error(p.Error())
-
+func (p *ProblemDetail) writeTo(w http.ResponseWriter) (int, error) {
 	p.writeHeaderTo(w)
 	return w.Write(p.json())
 }
 
 // Map map error to problem detail
-func Map(err error, funcProb func() *ProblemDetail) {
+func Map(error error, funcProblem func() *ProblemDetail) {
 
-	typeError := reflect.TypeOf(err).Elem()
+	typeError := reflect.TypeOf(error).Elem()
 
-	mappers[typeError] = funcProb
+	mappers[typeError] = funcProblem
 }
 
-// ResolveProblemDetails retrieve error with format problem detail
-func ResolveProblemDetails(err error) *ProblemDetail {
+// ResolveEcho retrieve error with format problem detail
+func ResolveEcho(res *echo.Response, err error) (int, error) {
 
 	typeError := reflect.TypeOf(err).Elem()
-
 	problem := mappers[typeError]
 
 	if problem != nil {
-		return problem()
+		problem := problem()
+
+		validationProblems(problem, err)
+
+		val, err := problem.writeTo(res)
+
+		if err != nil {
+			return 0, err
+		}
+
+		return val, nil
 	}
 
-	return &ProblemDetail{
-		Type:      "https://httpstatuses.io/500",
+	defaultProblem := ProblemDetail{
+		Type:      getDefaultType(http.StatusInternalServerError),
 		Status:    http.StatusInternalServerError,
 		Detail:    err.Error(),
-		Title:     "Internal Server Error",
 		Timestamp: time.Now(),
+	}
+
+	val, err := defaultProblem.writeTo(res)
+
+	if err != nil {
+		return 0, err
+	}
+
+	return val, nil
+}
+
+func validationProblems(problem *ProblemDetail, err error) {
+	if problem.Status == 0 {
+		problem.Status = http.StatusInternalServerError
+	}
+	if problem.Timestamp.IsZero() {
+		problem.Timestamp = time.Now()
+	}
+	if problem.Detail == "" {
+		problem.Detail = err.Error()
+	}
+	if problem.Type == "" {
+		problem.Type = getDefaultType(problem.Status)
 	}
 }
 
 func (p *ProblemDetail) writeHeaderTo(w http.ResponseWriter) {
 	w.Header().Set("Content-Type", "application/problem+json")
-	status := p.Status
-	if status == 0 {
-		status = http.StatusInternalServerError
-	}
 
-	w.WriteHeader(status)
+	w.WriteHeader(p.Status)
 }
 
 func (p *ProblemDetail) json() []byte {
-	b, _ := json.Marshal(&p)
-	return b
+	res, _ := json.Marshal(&p)
+	return res
+}
+
+func getDefaultType(statusCode int) string {
+	return fmt.Sprintf("https://httpstatuses.io/%d", statusCode)
 }

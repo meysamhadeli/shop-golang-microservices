@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"github.com/meysamhadeli/shop-golang-microservices/pkg/logger"
 	"github.com/meysamhadeli/shop-golang-microservices/pkg/mapper"
-	customErrors "github.com/meysamhadeli/shop-golang-microservices/pkg/problemDetails/custome_error"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/config"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/contracts"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/dtos"
 	"github.com/opentracing/opentracing-go"
+	"github.com/pkg/errors"
 )
 
 type GetProductByIdHandler struct {
@@ -29,7 +29,7 @@ func (q *GetProductByIdHandler) Handle(ctx context.Context, query *GetProductByI
 	product, err := q.pgRepo.GetProductById(ctx, query.ProductID)
 
 	if err != nil {
-		notFoundErr := customErrors.NewNotFoundErrorWrap(err, fmt.Sprintf("product with id %s not found", query.ProductID))
+		notFoundErr := errors.Wrap(err, fmt.Sprintf("product with id %s not found", query.ProductID))
 		return nil, notFoundErr
 	}
 
