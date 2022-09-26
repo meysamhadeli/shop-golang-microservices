@@ -43,7 +43,7 @@ func (ep *updateProductEndpoint) updateProduct() echo.HandlerFunc {
 		if err := c.Bind(request); err != nil {
 			badRequestErr := errors.Wrap(err, "[updateProductEndpoint_handler.Bind] error in the binding request")
 			ep.Configuration.Log.Error(badRequestErr)
-			return problemDetails.NewError(http.StatusBadRequest, badRequestErr)
+			return problemDetails.BadRequestErr(err)
 		}
 
 		command := updating_product.NewUpdateProduct(request.ProductID, request.Name, request.Description, request.Price)
@@ -51,7 +51,7 @@ func (ep *updateProductEndpoint) updateProduct() echo.HandlerFunc {
 		if err := ep.Configuration.Validator.StructCtx(ctx, command); err != nil {
 			validationErr := errors.Wrap(err, "[updateProductEndpoint_handler.StructCtx] command validation failed")
 			ep.Configuration.Log.Error(validationErr)
-			return problemDetails.NewError(http.StatusBadRequest, validationErr)
+			return problemDetails.BadRequestErr(err)
 		}
 
 		_, err := mediatr.Send[*updating_product.UpdateProduct, *mediatr.Unit](ctx, command)

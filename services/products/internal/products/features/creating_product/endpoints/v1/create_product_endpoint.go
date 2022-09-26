@@ -43,13 +43,13 @@ func (ep *createProductEndpoint) createProduct() echo.HandlerFunc {
 		if err := c.Bind(request); err != nil {
 			badRequestErr := errors.Wrap(err, "[createProductEndpoint_handler.Bind] error in the binding request")
 			ep.Configuration.Log.Error(badRequestErr)
-			return echo.NewHTTPError(http.StatusBadRequest, badRequestErr)
+			return problemDetails.BadRequestErr(err)
 		}
 
 		if err := ep.Configuration.Validator.StructCtx(ctx, request); err != nil {
 			validationErr := errors.Wrap(err, "[createProductEndpoint_handler.StructCtx] command validation failed")
 			ep.Configuration.Log.Error(validationErr)
-			return problemDetails.NewError(http.StatusBadRequest, validationErr)
+			return problemDetails.BadRequestErr(err)
 		}
 
 		command := creating_product.NewCreateProduct(request.Name, request.Description, request.Price)

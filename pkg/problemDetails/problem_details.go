@@ -3,6 +3,7 @@ package problemDetails
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/pkg/errors"
 	"net/http"
 	"time"
 )
@@ -17,11 +18,10 @@ type ProblemDetail struct {
 	StackTrace string    `json:"stackTrace,omitempty"`
 }
 
-// ProblemDetailError represents an error that occurred while handling a request.
-type ProblemDetailError struct {
-	Code     int         `json:"-"`
-	Internal error       `json:"-"`
-	Message  interface{} `json:"-"`
+// ProblemDetailError represents an error in problem details
+type problemDetailError struct {
+	Code    int   `json:"-"`
+	Details error `json:"-"`
 }
 
 var mappers = map[int]func() *ProblemDetail{}
@@ -32,17 +32,23 @@ func (p *ProblemDetail) writeTo(w http.ResponseWriter) (int, error) {
 	return w.Write(p.json())
 }
 
-// Map map error to problem detail
+// Map map error to problem details error
 func Map(statusCode int, funcProblem func() *ProblemDetail) {
 	mappers[statusCode] = funcProblem
 }
 
-// ResolveProblemDetails retrieve error with format problem detail
+// ResolveProblemDetails retrieve and resolve error with format problem details error
 func ResolveProblemDetails(w http.ResponseWriter, err error) (int, error) {
 
-	statusCode := err.(*ProblemDetailError).Code
+	var statusCode int
 
-	fmt.Println(mappers)
+	var pe *problemDetailError
+
+	if errors.As(err, &pe) == false {
+		statusCode = http.StatusInternalServerError
+	} else {
+		statusCode = err.(*problemDetailError).Code
+	}
 
 	problem := mappers[statusCode]
 
@@ -79,14 +85,53 @@ func ResolveProblemDetails(w http.ResponseWriter, err error) (int, error) {
 	return val, nil
 }
 
-// Error makes it compatible with `error` interface.
-func (he *ProblemDetailError) Error() string {
-	return he.Internal.Error()
+// Error makes error compatible with `error` interface.
+func (p *problemDetailError) Error() string {
+	if p.Details == nil {
+		return fmt.Sprintf("code=%d", p.Code)
+	}
+	return p.Details.Error()
 }
 
-func NewError(code int, error error) *ProblemDetailError {
-	newError := &ProblemDetailError{Code: code, Message: http.StatusText(code), Internal: error}
+// NewError make custom error compatible with `error` interface.
+func NewError(code int, error error) *problemDetailError {
+	newError := &problemDetailError{Code: code, Details: error}
 	return newError
+}
+
+// BadRequestErr make badRequest error compatible with `error` interface.
+func BadRequestErr(error error) *problemDetailError {
+	return NewError(http.StatusBadRequest, error)
+}
+
+// InternalServerErr make internalServer error compatible with `error` interface.
+func InternalServerErr(error error) *problemDetailError {
+	return NewError(http.StatusInternalServerError, error)
+}
+
+// NotFoundErr make notFound error compatible with `error` interface.
+func NotFoundErr(error error) *problemDetailError {
+	return NewError(http.StatusNotFound, error)
+}
+
+// UnauthorizedErr make unauthorized error compatible with `error` interface.
+func UnauthorizedErr(error error) *problemDetailError {
+	return NewError(http.StatusUnauthorized, error)
+}
+
+// ForbiddenErr make forbidden error compatible with `error` interface.
+func ForbiddenErr(error error) *problemDetailError {
+	return NewError(http.StatusForbidden, error)
+}
+
+// UnsupportedMediaTypeErr make unsupportedMediaType error compatible with `error` interface.
+func UnsupportedMediaTypeErr(error error) *problemDetailError {
+	return NewError(http.StatusUnsupportedMediaType, error)
+}
+
+// BadGatewayErr make badGateway error compatible with `error` interface.
+func BadGatewayErr(error error) *problemDetailError {
+	return NewError(http.StatusBadGateway, error)
 }
 
 func validationProblems(problem *ProblemDetail, err error, statusCode int) {
