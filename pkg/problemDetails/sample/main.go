@@ -15,27 +15,36 @@ func main() {
 
 	e.GET("/example1", example1)
 	e.GET("/example2", example2)
+	e.GET("/example3", example3)
+
 	e.Logger.Fatal(e.Start(":5000"))
 }
 
 // example with built in problem details function error
 func example1(c echo.Context) error {
-	err := errors.New("We have a bad request in our endpoint")
 
+	err := errors.New("We have a bad request in our endpoint")
 	return problemDetails.BadRequestErr(err)
 }
 
 // example with create custom problem details error
 func example2(c echo.Context) error {
-	err := errors.New("We have a request timeout in our endpoint")
 
+	err := errors.New("We have a request timeout in our endpoint")
 	return problemDetails.NewError(http.StatusRequestTimeout, err)
 }
 
-// middleware for handle problem details error on top of echo or gin or ...
+// example with unhandled server error with problem details
+func example3(c echo.Context) error {
+
+	err := errors.New("We have a unhandled server error in our endpoint")
+	return err
+}
+
+// ProblemDetailsHandler middleware for handle problem details error on top of echo or gin or ...
 func ProblemDetailsHandler(error error, c echo.Context) {
 
-	// handle problem details with custom function error (it's optional)
+	// handle problem details with customize problem map error (optional)
 	problemDetails.Map(http.StatusBadRequest, func() *problemDetails.ProblemDetail {
 		return &problemDetails.ProblemDetail{
 			Type:      "https://httpstatuses.io/400",
@@ -45,7 +54,7 @@ func ProblemDetailsHandler(error error, c echo.Context) {
 		}
 	})
 
-	// handle problem details with custom function error (it's optional)
+	// handle problem details with customize problem map error (optional)
 	problemDetails.Map(http.StatusRequestTimeout, func() *problemDetails.ProblemDetail {
 		return &problemDetails.ProblemDetail{
 			Type:      "https://httpstatuses.io/408",
