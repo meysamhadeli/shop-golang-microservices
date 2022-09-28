@@ -3,6 +3,7 @@ package v1
 import (
 	"github.com/labstack/echo/v4"
 	"github.com/mehdihadeli/go-mediatr"
+	"github.com/meysamhadeli/problem-details"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/shared"
 	"net/http"
 
@@ -38,21 +39,21 @@ func (ep *deleteProductEndpoint) deleteProduct() echo.HandlerFunc {
 		request := &deleting_product.DeleteProductRequestDto{}
 		if err := c.Bind(request); err != nil {
 			ep.Configuration.Log.Warn("Bind", err)
-			return err
+			return problem.BadRequestErr(err)
 		}
 
 		command := deleting_product.NewDeleteProduct(request.ProductID)
 
 		if err := ep.Configuration.Validator.StructCtx(ctx, command); err != nil {
 			ep.Configuration.Log.Warn("validate", err)
-			return err
+			return problem.BadRequestErr(err)
 		}
 
 		_, err := mediatr.Send[*deleting_product.DeleteProduct, *mediatr.Unit](ctx, command)
 
 		if err != nil {
 			ep.Configuration.Log.Warn("DeleteProduct", err)
-			return err
+			return problem.BadRequestErr(err)
 		}
 
 		return c.NoContent(http.StatusNoContent)

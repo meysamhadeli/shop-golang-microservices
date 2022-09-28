@@ -3,6 +3,7 @@ package v1
 import (
 	"github.com/labstack/echo/v4"
 	"github.com/mehdihadeli/go-mediatr"
+	"github.com/meysamhadeli/problem-details"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/dtos"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/shared"
 	"net/http"
@@ -39,13 +40,13 @@ func (ep *getProductsEndpoint) getAllProducts() echo.HandlerFunc {
 
 		listQuery, err := utils.GetListQueryFromCtx(c)
 		if err != nil {
-			return err
+			return problem.BadRequestErr(err)
 		}
 
 		request := &dtos.GetProductsRequestDto{ListQuery: listQuery}
 		if err := c.Bind(request); err != nil {
 			ep.Configuration.Log.Warn("Bind", err)
-			return err
+			return problem.BadRequestErr(err)
 		}
 
 		query := &getting_products.GetProducts{ListQuery: request.ListQuery}
@@ -54,7 +55,7 @@ func (ep *getProductsEndpoint) getAllProducts() echo.HandlerFunc {
 
 		if err != nil {
 			ep.Configuration.Log.Warnf("GetProducts", err)
-			return err
+			return problem.BadRequestErr(err)
 		}
 
 		return c.JSON(http.StatusOK, queryResult)

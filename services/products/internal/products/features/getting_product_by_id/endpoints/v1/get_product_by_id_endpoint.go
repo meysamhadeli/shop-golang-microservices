@@ -3,6 +3,7 @@ package v1
 import (
 	"github.com/labstack/echo/v4"
 	"github.com/mehdihadeli/go-mediatr"
+	"github.com/meysamhadeli/problem-details"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/dtos"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/shared"
 	"net/http"
@@ -39,21 +40,21 @@ func (ep *getProductByIdEndpoint) getProductByID() echo.HandlerFunc {
 		request := &dtos.GetProductByIdRequestDto{}
 		if err := c.Bind(request); err != nil {
 			ep.Configuration.Log.Warn("Bind", err)
-			return err
+			return problem.BadRequestErr(err)
 		}
 
 		query := getting_product_by_id.NewGetProductById(request.ProductId)
 
 		if err := ep.Configuration.Validator.StructCtx(ctx, query); err != nil {
 			ep.Configuration.Log.Warn("validate", err)
-			return err
+			return problem.BadRequestErr(err)
 		}
 
 		queryResult, err := mediatr.Send[*getting_product_by_id.GetProductById, *dtos.GetProductByIdResponseDto](ctx, query)
 
 		if err != nil {
 			ep.Configuration.Log.Warn("GetProductById", err)
-			return err
+			return problem.BadRequestErr(err)
 		}
 
 		return c.JSON(http.StatusOK, queryResult)

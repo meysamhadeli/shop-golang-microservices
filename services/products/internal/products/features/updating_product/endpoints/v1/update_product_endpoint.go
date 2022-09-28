@@ -3,7 +3,7 @@ package v1
 import (
 	"github.com/labstack/echo/v4"
 	"github.com/mehdihadeli/go-mediatr"
-	"github.com/meysamhadeli/shop-golang-microservices/pkg/problemDetails"
+	"github.com/meysamhadeli/problem-details"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/dtos"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/shared"
 	"github.com/pkg/errors"
@@ -43,7 +43,7 @@ func (ep *updateProductEndpoint) updateProduct() echo.HandlerFunc {
 		if err := c.Bind(request); err != nil {
 			badRequestErr := errors.Wrap(err, "[updateProductEndpoint_handler.Bind] error in the binding request")
 			ep.Configuration.Log.Error(badRequestErr)
-			return problemDetails.BadRequestErr(err)
+			return problem.BadRequestErr(err)
 		}
 
 		command := updating_product.NewUpdateProduct(request.ProductID, request.Name, request.Description, request.Price)
@@ -51,14 +51,14 @@ func (ep *updateProductEndpoint) updateProduct() echo.HandlerFunc {
 		if err := ep.Configuration.Validator.StructCtx(ctx, command); err != nil {
 			validationErr := errors.Wrap(err, "[updateProductEndpoint_handler.StructCtx] command validation failed")
 			ep.Configuration.Log.Error(validationErr)
-			return problemDetails.BadRequestErr(err)
+			return problem.BadRequestErr(err)
 		}
 
 		_, err := mediatr.Send[*updating_product.UpdateProduct, *mediatr.Unit](ctx, command)
 
 		if err != nil {
 			ep.Configuration.Log.Warnf("UpdateProduct", err)
-			return err
+			return problem.BadRequestErr(err)
 		}
 
 		ep.Configuration.Log.Infof("(product updated) id: {%s}", request.ProductID)

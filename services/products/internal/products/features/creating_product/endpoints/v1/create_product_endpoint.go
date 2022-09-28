@@ -3,7 +3,7 @@ package v1
 import (
 	"github.com/labstack/echo/v4"
 	"github.com/mehdihadeli/go-mediatr"
-	"github.com/meysamhadeli/shop-golang-microservices/pkg/problemDetails"
+	"github.com/meysamhadeli/problem-details"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/dtos"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/shared"
 	"github.com/pkg/errors"
@@ -43,13 +43,13 @@ func (ep *createProductEndpoint) createProduct() echo.HandlerFunc {
 		if err := c.Bind(request); err != nil {
 			badRequestErr := errors.Wrap(err, "[createProductEndpoint_handler.Bind] error in the binding request")
 			ep.Configuration.Log.Error(badRequestErr)
-			return problemDetails.BadRequestErr(err)
+			return problem.BadRequestErr(err)
 		}
 
 		if err := ep.Configuration.Validator.StructCtx(ctx, request); err != nil {
 			validationErr := errors.Wrap(err, "[createProductEndpoint_handler.StructCtx] command validation failed")
 			ep.Configuration.Log.Error(validationErr)
-			return problemDetails.BadRequestErr(err)
+			return problem.BadRequestErr(err)
 		}
 
 		command := creating_product.NewCreateProduct(request.Name, request.Description, request.Price)
@@ -57,7 +57,7 @@ func (ep *createProductEndpoint) createProduct() echo.HandlerFunc {
 
 		if err != nil {
 			ep.Configuration.Log.Errorf("(CreateProduct.Handle) id: {%s}, err: {%v}", command.ProductID, err)
-			return err
+			return problem.BadRequestErr(err)
 		}
 
 		ep.Configuration.Log.Infof("(product created) id: {%s}", command.ProductID)

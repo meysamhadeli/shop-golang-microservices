@@ -52,7 +52,7 @@ func InitConfig(env string) (*Config, error) {
 		if configPathFromEnv != "" {
 			configPath = configPathFromEnv
 		} else {
-			configPath = "./config"
+			configPath = "./services/products/config"
 		}
 	}
 
