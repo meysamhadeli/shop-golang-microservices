@@ -3,7 +3,6 @@ package v1
 import (
 	"github.com/labstack/echo/v4"
 	"github.com/mehdihadeli/go-mediatr"
-	"github.com/meysamhadeli/problem-details"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/dtos"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/shared"
 	"github.com/pkg/errors"
@@ -43,13 +42,13 @@ func (ep *createProductEndpoint) createProduct() echo.HandlerFunc {
 		if err := c.Bind(request); err != nil {
 			badRequestErr := errors.Wrap(err, "[createProductEndpoint_handler.Bind] error in the binding request")
 			ep.Configuration.Log.Error(badRequestErr)
-			return problem.BadRequestErr(err)
+			return echo.NewHTTPError(http.StatusBadRequest, err)
 		}
 
 		if err := ep.Configuration.Validator.StructCtx(ctx, request); err != nil {
 			validationErr := errors.Wrap(err, "[createProductEndpoint_handler.StructCtx] command validation failed")
 			ep.Configuration.Log.Error(validationErr)
-			return problem.BadRequestErr(err)
+			return echo.NewHTTPError(http.StatusBadRequest, err)
 		}
 
 		command := creating_product.NewCreateProduct(request.Name, request.Description, request.Price)
@@ -57,7 +56,7 @@ func (ep *createProductEndpoint) createProduct() echo.HandlerFunc {
 
 		if err != nil {
 			ep.Configuration.Log.Errorf("(CreateProduct.Handle) id: {%s}, err: {%v}", command.ProductID, err)
-			return problem.BadRequestErr(err)
+			return echo.NewHTTPError(http.StatusBadRequest, err)
 		}
 
 		ep.Configuration.Log.Infof("(product created) id: {%s}", command.ProductID)

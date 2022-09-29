@@ -3,7 +3,6 @@ package v1
 import (
 	"github.com/labstack/echo/v4"
 	"github.com/mehdihadeli/go-mediatr"
-	"github.com/meysamhadeli/problem-details"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/dtos"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/shared"
 	"net/http"
@@ -41,7 +40,7 @@ func (ep *searchProductsEndpoint) searchProducts() echo.HandlerFunc {
 		listQuery, err := utils.GetListQueryFromCtx(c)
 
 		if err != nil {
-			return problem.BadRequestErr(err)
+			return echo.NewHTTPError(http.StatusBadRequest, err)
 		}
 
 		request := &dtos.SearchProductsRequestDto{ListQuery: listQuery}
@@ -49,21 +48,21 @@ func (ep *searchProductsEndpoint) searchProducts() echo.HandlerFunc {
 		// https://echo.labstack.com/guide/binding/
 		if err := c.Bind(request); err != nil {
 			ep.Configuration.Log.Warn("Bind", err)
-			return problem.BadRequestErr(err)
+			return echo.NewHTTPError(http.StatusBadRequest, err)
 		}
 
 		query := &searching_product.SearchProducts{SearchText: request.SearchText, ListQuery: request.ListQuery}
 
 		if err := ep.Configuration.Validator.StructCtx(ctx, query); err != nil {
 			ep.Configuration.Log.Errorf("(validate) err: {%v}", err)
-			return problem.BadRequestErr(err)
+			return echo.NewHTTPError(http.StatusBadRequest, err)
 		}
 
 		queryResult, err := mediatr.Send[*searching_product.SearchProducts, *dtos.SearchProductsResponseDto](ctx, query)
 
 		if err != nil {
 			ep.Configuration.Log.Warn("SearchProducts", err)
-			return problem.BadRequestErr(err)
+			return echo.NewHTTPError(http.StatusBadRequest, err)
 		}
 
 		return c.JSON(http.StatusOK, queryResult)
