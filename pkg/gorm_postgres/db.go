@@ -4,23 +4,20 @@ import (
 	"context"
 	"fmt"
 	"github.com/jackc/pgx/v4/pgxpool"
-	"github.com/meysamhadeli/shop-golang-microservices/pkg/migrations"
 	"github.com/meysamhadeli/shop-golang-microservices/pkg/utils"
 	"github.com/pkg/errors"
-	"go.uber.org/zap"
 	gorm_postgres "gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"strings"
 )
 
 type Config struct {
-	Host       string                     `mapstructure:"host"`
-	Port       string                     `mapstructure:"port"`
-	User       string                     `mapstructure:"user"`
-	DBName     string                     `mapstructure:"dbName"`
-	SSLMode    bool                       `mapstructure:"sslMode"`
-	Password   string                     `mapstructure:"password"`
-	Migrations migrations.MigrationParams `mapstructure:"migrations"`
+	Host     string `mapstructure:"host"`
+	Port     string `mapstructure:"port"`
+	User     string `mapstructure:"user"`
+	DBName   string `mapstructure:"dbName"`
+	SSLMode  bool   `mapstructure:"sslMode"`
+	Password string `mapstructure:"password"`
 }
 
 type Gorm struct {
@@ -106,27 +103,6 @@ func createDB(cfg *Config, ctx context.Context) error {
 	}
 
 	defer connPool.Close()
-
-	return nil
-}
-
-func (db *Gorm) Migrate() error {
-	if db.config.Migrations.SkipMigration {
-		zap.L().Info("database migration skipped")
-		return nil
-	}
-
-	mp := migrations.MigrationParams{
-		DbName:        db.config.DBName,
-		VersionTable:  db.config.Migrations.VersionTable,
-		MigrationsDir: db.config.Migrations.MigrationsDir,
-		TargetVersion: db.config.Migrations.TargetVersion,
-	}
-
-	d, _ := db.DB.DB()
-	if err := migrations.RunPostgresMigration(d, mp); err != nil {
-		return err
-	}
 
 	return nil
 }

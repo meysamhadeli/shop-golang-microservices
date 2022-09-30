@@ -7,7 +7,6 @@ import (
 	"github.com/meysamhadeli/shop-golang-microservices/pkg/logger"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/config"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/configurations"
-	"google.golang.org/grpc"
 	"os"
 	"os/signal"
 	"syscall"
@@ -18,7 +17,6 @@ type Server struct {
 	Cfg          *config.Config
 	Echo         *echo.Echo
 	DoneChServer chan struct{}
-	GrpcServer   *grpc.Server
 }
 
 func NewServer(log logger.ILogger, cfg *config.Config) *Server {

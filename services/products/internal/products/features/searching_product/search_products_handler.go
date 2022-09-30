@@ -7,7 +7,6 @@ import (
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/config"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/contracts"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/dtos"
-	"github.com/opentracing/opentracing-go"
 )
 
 type SearchProductsHandler struct {
@@ -21,9 +20,6 @@ func NewSearchProductsHandler(log logger.ILogger, cfg *config.Config, pgRepo con
 }
 
 func (c *SearchProductsHandler) Handle(ctx context.Context, query *SearchProducts) (*dtos.SearchProductsResponseDto, error) {
-
-	span, ctx := opentracing.StartSpanFromContext(ctx, "SearchProductsHandler.Handle")
-	defer span.Finish()
 
 	products, err := c.pgRepo.SearchProducts(ctx, query.SearchText, query.ListQuery)
 	if err != nil {

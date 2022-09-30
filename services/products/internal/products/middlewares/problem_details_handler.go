@@ -44,7 +44,7 @@ func ProblemDetailsHandler(error error, c echo.Context) {
 			Type:      "https://httpstatuses.io/404",
 			Status:    http.StatusNotFound,
 			Detail:    error.Error(),
-			Title:     "not-fund",
+			Title:     "not-found",
 			Timestamp: time.Now(),
 		}
 	})
