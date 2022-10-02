@@ -104,7 +104,7 @@ func (ic *infrastructureConfigurator) ConfigInfrastructures(ctx context.Context)
 
 	ic.configSwagger()
 
-	ic.configMiddlewares()
+	ic.configMiddlewares(ic.Cfg.Jaeger)
 
 	if err != nil {
 		return err, nil, nil, func() {

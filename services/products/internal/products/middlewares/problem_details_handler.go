@@ -14,6 +14,7 @@ func ProblemDetailsHandler(error error, c echo.Context) {
 		return &problem.ProblemDetail{
 			Type:      "https://httpstatuses.io/400",
 			Detail:    error.Error(),
+			Status:    http.StatusBadRequest,
 			Title:     "bad-request",
 			Timestamp: time.Now(),
 		}
