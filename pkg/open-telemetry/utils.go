@@ -2,35 +2,46 @@ package open_telemetry
 
 import (
 	"context"
-	"encoding/json"
-	"go.opentelemetry.io/otel/attribute"
-	"go.opentelemetry.io/otel/codes"
-	"go.opentelemetry.io/otel/trace"
+
+	"go.opentelemetry.io/otel"
 )
 
-func TraceErr(ctx context.Context, tracer trace.Tracer, err error) {
-	_, span := tracer.Start(ctx, "tracer_error")
-	defer span.End()
+//ref: https://devandchill.com/posts/2021/12/go-step-by-step-guide-for-implementing-tracing-on-a-microservices-architecture-2/2/
 
-	span.SetStatus(codes.Error, err.Error())
-	attribute.Bool("error", true)
+type AmqpHeadersCarrier map[string]interface{}
+
+func (a AmqpHeadersCarrier) Get(key string) string {
+	v, ok := a[key]
+	if !ok {
+		return ""
+	}
+	return v.(string)
 }
 
-func TraceWithErr(ctx context.Context, tracer trace.Tracer, err error) error {
-	_, span := tracer.Start(ctx, "tracer_error")
-	defer span.End()
-
-	if err != nil {
-		span.SetStatus(codes.Error, err.Error())
-		attribute.Bool("error", true)
-	}
-	return err
+func (a AmqpHeadersCarrier) Set(key string, value string) {
+	a[key] = value
 }
 
-func ObjToString(obj ...interface{}) (string, error) {
-	value, err := json.Marshal(obj)
-	if err != nil {
-		return *new(string), err
+func (a AmqpHeadersCarrier) Keys() []string {
+	i := 0
+	r := make([]string, len(a))
+
+	for k, _ := range a {
+		r[i] = k
+		i++
 	}
-	return string(value), nil
+
+	return r
+}
+
+// InjectAMQPHeaders injects the tracing from the context into the header map
+func InjectAMQPHeaders(ctx context.Context) map[string]interface{} {
+	h := make(AmqpHeadersCarrier)
+	otel.GetTextMapPropagator().Inject(ctx, h)
+	return h
+}
+
+// ExtractAMQPHeaders extracts the tracing from the header and puts it into the context
+func ExtractAMQPHeaders(ctx context.Context, headers map[string]interface{}) context.Context {
+	return otel.GetTextMapPropagator().Extract(ctx, AmqpHeadersCarrier(headers))
 }

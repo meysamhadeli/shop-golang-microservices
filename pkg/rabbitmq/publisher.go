@@ -6,6 +6,7 @@ import (
 	jsoniter "github.com/json-iterator/go"
 	"github.com/labstack/echo/v4"
 	"github.com/meysamhadeli/shop-golang-microservices/pkg/logger"
+	open_telemetry "github.com/meysamhadeli/shop-golang-microservices/pkg/open-telemetry"
 	uuid "github.com/satori/go.uuid"
 	"github.com/streadway/amqp"
 	"go.opentelemetry.io/otel/attribute"
@@ -28,11 +29,20 @@ type publisher struct {
 func (p publisher) PublishMessage(ctx context.Context, msg interface{}) error {
 
 	data, err := jsoniter.Marshal(msg)
+
+	if err != nil {
+		p.log.Error("Error in marshalling message to publish message")
+		return err
+	}
+
 	typeName := reflect.TypeOf(msg).Elem().Name()
 	snakeTypeName := strcase.ToSnake(typeName)
 
-	_, span := p.jaegerTracer.Start(ctx, typeName)
+	ctx, span := p.jaegerTracer.Start(ctx, typeName)
 	defer span.End()
+
+	// Inject the context in the headers
+	headers := open_telemetry.InjectAMQPHeaders(ctx)
 
 	channel, err := p.conn.Channel()
 	if err != nil {
@@ -41,11 +51,6 @@ func (p publisher) PublishMessage(ctx context.Context, msg interface{}) error {
 	}
 
 	defer channel.Close()
-
-	if err != nil {
-		p.log.Error("Error in marshalling message to publish message")
-		return err
-	}
 
 	err = channel.ExchangeDeclare(
 		snakeTypeName, // name
@@ -69,6 +74,7 @@ func (p publisher) PublishMessage(ctx context.Context, msg interface{}) error {
 		MessageId:     uuid.NewV4().String(),
 		Timestamp:     time.Now(),
 		CorrelationId: ctx.Value(echo.HeaderXCorrelationID).(string),
+		Headers:       headers,
 	}
 
 	err = channel.Publish(snakeTypeName, snakeTypeName, false, false, publishingMsg)
@@ -78,8 +84,14 @@ func (p publisher) PublishMessage(ctx context.Context, msg interface{}) error {
 		return err
 	}
 
-	p.log.Infof("Published message: %s", publishingMsg.Body)
+	h, err := jsoniter.Marshal(headers)
 
+	if err != nil {
+		p.log.Error("Error in marshalling headers to publish message")
+		return err
+	}
+
+	p.log.Infof("Published message: %s", publishingMsg.Body)
 	span.SetAttributes(attribute.Key("message-id").String(publishingMsg.MessageId))
 	span.SetAttributes(attribute.Key("correlation-id").String(publishingMsg.CorrelationId))
 	span.SetAttributes(attribute.Key("exchange").String(snakeTypeName))
@@ -87,6 +99,7 @@ func (p publisher) PublishMessage(ctx context.Context, msg interface{}) error {
 	span.SetAttributes(attribute.Key("content-type").String("application/json"))
 	span.SetAttributes(attribute.Key("timestamp").String(publishingMsg.Timestamp.String()))
 	span.SetAttributes(attribute.Key("body").String(string(publishingMsg.Body)))
+	span.SetAttributes(attribute.Key("headers").String(string(h)))
 
 	return nil
 }

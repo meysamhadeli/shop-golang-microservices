@@ -4,7 +4,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/meysamhadeli/shop-golang-microservices/pkg/constants"
-	middlewares "github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/middlewares"
+	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/middlewares"
 	"strings"
 )
 
@@ -13,6 +13,7 @@ func (ic *infrastructureConfigurator) configMiddlewares() {
 	ic.Echo.HideBanner = false
 
 	ic.Echo.HTTPErrorHandler = middlewares.ProblemDetailsHandler
+	//ic.Echo.Use(otelecho.Middleware(otelConfig.ServiceName))
 
 	ic.Echo.Use(middlewares.CorrelationIdMiddleware)
 	ic.Echo.Use(middleware.RequestID())

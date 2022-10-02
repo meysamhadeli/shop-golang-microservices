@@ -4,7 +4,9 @@ import (
 	"context"
 	"fmt"
 	"github.com/iancoleman/strcase"
+	jsoniter "github.com/json-iterator/go"
 	"github.com/meysamhadeli/shop-golang-microservices/pkg/logger"
+	open_telemetry "github.com/meysamhadeli/shop-golang-microservices/pkg/open-telemetry"
 	"github.com/streadway/amqp"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
@@ -99,12 +101,22 @@ func (c consumer) ConsumeMessage(ctx context.Context, msg interface{}) (error, f
 
 	go func() {
 		for delivery := range deliveries {
+
+			// Extract headers
+			ctx = open_telemetry.ExtractAMQPHeaders(ctx, delivery.Headers)
+
 			err := c.handler(q.Name, delivery)
 			if err != nil {
 				c.log.Error(err.Error())
 			}
 
 			_, span := c.jaegerTracer.Start(ctx, consumerHandlerName)
+
+			h, err := jsoniter.Marshal(delivery.Headers)
+
+			if err != nil {
+				c.log.Errorf("Error in marshalling headers in consumer: %v", string(h))
+			}
 
 			span.SetAttributes(attribute.Key("message-id").String(delivery.MessageId))
 			span.SetAttributes(attribute.Key("correlation-id").String(delivery.CorrelationId))
@@ -114,6 +126,7 @@ func (c consumer) ConsumeMessage(ctx context.Context, msg interface{}) (error, f
 			span.SetAttributes(attribute.Key("ack").Bool(true))
 			span.SetAttributes(attribute.Key("timestamp").String(delivery.Timestamp.String()))
 			span.SetAttributes(attribute.Key("body").String(string(delivery.Body)))
+			span.SetAttributes(attribute.Key("headers").String(string(h)))
 
 			// Cannot use defer inside a for loop
 			time.Sleep(1 * time.Millisecond)
