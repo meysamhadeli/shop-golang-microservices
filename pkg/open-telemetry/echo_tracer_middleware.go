@@ -1,4 +1,4 @@
-package middlewares
+package open_telemetry
 
 import (
 	"errors"
@@ -6,12 +6,11 @@ import (
 	"github.com/labstack/echo/v4"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/codes"
 	"go.opentelemetry.io/otel/propagation"
 	semconv "go.opentelemetry.io/otel/semconv/v1.12.0"
 	oteltrace "go.opentelemetry.io/otel/trace"
 )
-
-// ref: https://github.com/open-telemetry/opentelemetry-go-contrib/blob/main/instrumentation/github.com/labstack/echo/otelecho/echo.go
 
 func EchoTracerMiddleware(serviceName string) echo.MiddlewareFunc {
 
@@ -20,13 +19,9 @@ func EchoTracerMiddleware(serviceName string) echo.MiddlewareFunc {
 
 			request := c.Request()
 			ctx := request.Context()
-			defer func() {
-				request = request.WithContext(ctx)
-				c.SetRequest(request)
-			}()
 
+			// ref: https://github.com/open-telemetry/opentelemetry-go-contrib/blob/main/instrumentation/github.com/labstack/echo/otelecho/echo.go
 			ctx = otel.GetTextMapPropagator().Extract(ctx, propagation.HeaderCarrier(request.Header))
-
 			opts := []oteltrace.SpanStartOption{
 				oteltrace.WithAttributes(semconv.NetAttributesFromHTTPRequest("tcp", request)...),
 				oteltrace.WithAttributes(semconv.EndUserAttributesFromHTTPRequest(request)...),
@@ -44,7 +39,6 @@ func EchoTracerMiddleware(serviceName string) echo.MiddlewareFunc {
 			// pass the span through the request context
 			c.SetRequest(request.WithContext(ctx))
 
-			// serve the request to the next middleware
 			err := next(c)
 
 			// invokes the registered HTTP error handler
@@ -59,15 +53,12 @@ func EchoTracerMiddleware(serviceName string) echo.MiddlewareFunc {
 			}
 
 			if err != nil {
-				span.SetAttributes(attribute.String("echo.error", err.Error()))
+				span.SetStatus(codes.Error, "") // set the spanStatus Error for all error stats codes
+				span.SetAttributes(attribute.String("echo-error", err.Error()))
+				span.SetAttributes(attribute.Int("status-code", c.Response().Status))
 			}
 
-			attrs := semconv.HTTPAttributesFromHTTPStatusCode(c.Response().Status)
-			spanStatus, spanMessage := semconv.SpanStatusFromHTTPStatusCode(c.Response().Status) // set the spanStatus Error for all error stats codes
-			span.SetAttributes(attrs...)
-			span.SetStatus(spanStatus, spanMessage)
-
-			return nil
+			return err
 		}
 	}
 }
