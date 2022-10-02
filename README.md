@@ -2,7 +2,7 @@
 ![Go Version](https://img.shields.io/badge/go%20version-%3E=1.18-61CFDD.svg?style=flat-square)
 [![Gitpod ready-to-code](https://img.shields.io/badge/Gitpod-ready--to--code-blue?logo=gitpod&style=flat-square&color=ff69b4)](https://gitpod.io/#https://github.com/meysamhadeli/shop-golang-microservices)
 
-# shop-golang-microservices
+# Shop Golang Microservices
 
 The main idea of creating this project is implementing an infrastructure for up and running distributed system with the latest technology and architecture like Vertical Slice Architecture, OpenTelemetry, RabbitMq in Golang, and we will not deal mainly with business. 🚀
 
@@ -23,7 +23,7 @@ I will try to register future goals and additions in the [Issues](https://github
 - ✔️ **[`mehdihadeli/Go-MediatR`](https://github.com/mehdihadeli/Go-MediatR)** - This package is a Mediator Pattern implementation in Go
 - ✔️ **[`go-playground/validator`](https://github.com/go-playground/validator)** - Implements value validations for structs and individual fields based on tags
 - ✔️ **[`open-telemetry/opentelemetry-go`](https://github.com/open-telemetry/opentelemetry-go)** - Implementation of OpenTelemetry in Go for distributed-tracing
-- ✔️ **[`meysamhadeli/problem-details`](https://github.com/meysamhadeli/problem-details)** - ProblemDetails is a standard for providing errors from your http api to consuming clients
+- ✔️ **[`meysamhadeli/problem-details`](https://github.com/meysamhadeli/problem-details)** - it's a Error Handler for mapping our error to standardized error payload to client
 
 ## Structure of Project
 
