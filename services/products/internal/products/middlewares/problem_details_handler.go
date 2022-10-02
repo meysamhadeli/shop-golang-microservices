@@ -50,7 +50,7 @@ func ProblemDetailsHandler(error error, c echo.Context) {
 	})
 
 	if !c.Response().Committed {
-		if _, err := problem.ResolveProblemDetails(c.Response(), error); err != nil {
+		if err := problem.ResolveProblemDetails(c.Response(), error); err != nil {
 			log.Error(err)
 		}
 	}
