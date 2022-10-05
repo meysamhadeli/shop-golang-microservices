@@ -3,10 +3,10 @@ package server
 import (
 	"context"
 	"github.com/labstack/echo/v4"
-	"github.com/meysamhadeli/shop-golang-microservices/pkg/constants"
 	"github.com/meysamhadeli/shop-golang-microservices/pkg/logger"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/config"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/configurations"
+	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/constants"
 	"os"
 	"os/signal"
 	"syscall"
@@ -27,20 +27,20 @@ func (s *Server) Run() error {
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM, syscall.SIGINT)
 	defer cancel()
 
-	infrastructureConfigurator := configurations.NewInfrastructureConfigurator(s.Log, s.Cfg, s.Echo)
-	err, doneChanConsumers, tp, productsCleanup := infrastructureConfigurator.ConfigInfrastructures(ctx)
-	if err != nil {
-		return err
-	}
-	defer productsCleanup()
-
 	go func() {
 		if err := s.RunHttpServer(nil); err != nil {
 			s.Log.Errorf("(s.RunHttpServer) err: {%v}", err)
 			cancel()
 		}
 	}()
-	s.Log.Infof("%s is listening on Http PORT: {%s}", config.GetMicroserviceName(s.Cfg), s.Cfg.Http.Port)
+
+	infrastructureConfigurator := configurations.NewInfrastructureConfigurator(s.Log, s.Cfg, s.Echo)
+	err, doneChanConsumers, tp, productsCleanup := infrastructureConfigurator.ConfigInfrastructures(ctx)
+	if err != nil {
+		return err
+	}
+
+	defer productsCleanup()
 
 	<-ctx.Done()
 	err = tp.Shutdown(ctx)
@@ -49,14 +49,14 @@ func (s *Server) Run() error {
 	}
 	s.WaitShootDown(constants.WaitShotDownDuration)
 
-	s.Log.Infof("%s is shutting down Http PORT: {%s}", config.GetMicroserviceName(s.Cfg), s.Cfg.Http.Port)
+	s.Log.Infof("%s is shutting down Http PORT: {%s}", config.GetMicroserviceName(s.Cfg.ServiceName), s.Cfg.Http.Port)
 	if err := s.Echo.Shutdown(ctx); err != nil {
 		s.Log.Warnf("(Shutdown) err: {%v}", err)
 	}
 
 	<-doneChanConsumers
 	<-s.DoneChServer
-	s.Log.Infof("%s server exited properly", config.GetMicroserviceName(s.Cfg))
+	s.Log.Infof("%s server exited properly", config.GetMicroserviceName(s.Cfg.ServiceName))
 
 	return nil
 }

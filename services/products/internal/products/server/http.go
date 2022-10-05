@@ -3,7 +3,7 @@ package server
 import (
 	"fmt"
 	"github.com/labstack/echo/v4"
-	"github.com/meysamhadeli/shop-golang-microservices/pkg/constants"
+	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/constants"
 	"time"
 )
 

@@ -3,11 +3,11 @@ package config
 import (
 	"flag"
 	"fmt"
-	"github.com/meysamhadeli/shop-golang-microservices/pkg/constants"
 	"github.com/meysamhadeli/shop-golang-microservices/pkg/gorm_postgres"
 	"github.com/meysamhadeli/shop-golang-microservices/pkg/logger"
 	open_telemetry "github.com/meysamhadeli/shop-golang-microservices/pkg/open-telemetry"
 	"github.com/meysamhadeli/shop-golang-microservices/pkg/rabbitmq"
+	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/constants"
 	"os"
 	"strings"
 
@@ -73,6 +73,6 @@ func InitConfig(env string) (*Config, error) {
 	return cfg, nil
 }
 
-func GetMicroserviceName(cfg *Config) string {
-	return fmt.Sprintf("(%s)", strings.ToUpper(cfg.ServiceName))
+func GetMicroserviceName(serviceName string) string {
+	return fmt.Sprintf("%s", strings.ToUpper(serviceName))
 }

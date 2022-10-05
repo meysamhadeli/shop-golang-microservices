@@ -9,6 +9,7 @@ import (
 	"github.com/streadway/amqp"
 	"go.opentelemetry.io/otel/trace"
 	"gorm.io/gorm"
+	"net/http"
 )
 
 type InfrastructureConfiguration struct {
@@ -17,6 +18,7 @@ type InfrastructureConfiguration struct {
 	Validator         *validator.Validate
 	RabbitmqPublisher rabbitmq.IPublisher
 	ConnRabbitmq      *amqp.Connection
+	HttpClient        *http.Client
 	JaegerTracer      trace.Tracer
 	Gorm              *gorm.DB
 	Echo              *echo.Echo

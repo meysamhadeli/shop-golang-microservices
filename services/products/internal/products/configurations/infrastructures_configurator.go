@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/go-playground/validator"
 	"github.com/labstack/echo/v4"
+	"github.com/meysamhadeli/shop-golang-microservices/pkg/http_client"
 	"github.com/meysamhadeli/shop-golang-microservices/pkg/logger"
 	"github.com/meysamhadeli/shop-golang-microservices/pkg/rabbitmq"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/config"
@@ -56,6 +57,8 @@ func (ic *infrastructureConfigurator) ConfigInfrastructures(ctx context.Context)
 		}
 	}
 
+	ic.Log.Infof("%s is running", config.GetMicroserviceName(ic.Cfg.ServiceName))
+
 	conn, err, rabbitMqCleanup := rabbitmq.NewRabbitMQConn(ic.Cfg.Rabbitmq)
 	if err != nil {
 		return err, nil, nil, func() {
@@ -102,6 +105,9 @@ func (ic *infrastructureConfigurator) ConfigInfrastructures(ctx context.Context)
 		}
 	}()
 
+	httpClient := http_client.NewHttpClient()
+	infrastructure.HttpClient = httpClient
+
 	ic.configSwagger()
 
 	ic.configMiddlewares(ic.Cfg.Jaeger)
@@ -125,7 +131,7 @@ func (ic *infrastructureConfigurator) ConfigInfrastructures(ctx context.Context)
 	}
 
 	ic.Echo.GET("", func(ec echo.Context) error {
-		return ec.String(http.StatusOK, fmt.Sprintf("%s is running...", config.GetMicroserviceName(ic.Cfg)))
+		return ec.String(http.StatusOK, fmt.Sprintf("%s is running...", config.GetMicroserviceName(ic.Cfg.ServiceName)))
 	})
 
 	return nil, foreverChanConsumers, tp, func() {

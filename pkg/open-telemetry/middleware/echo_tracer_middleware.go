@@ -1,4 +1,4 @@
-package open_telemetry
+package middleware
 
 import (
 	"errors"
@@ -41,18 +41,18 @@ func EchoTracerMiddleware(serviceName string) echo.MiddlewareFunc {
 
 			err := next(c)
 
-			// invokes the registered HTTP error handler
-			c.Error(err)
-
-			var echoError *echo.HTTPError
-
-			// handle *HTTPError error type in Echo
-			if errors.As(err, &echoError) {
-				c.Response().Status = err.(*echo.HTTPError).Code
-				err = err.(*echo.HTTPError).Message.(error)
-			}
-
 			if err != nil {
+				// invokes the registered HTTP error handler
+				c.Error(err)
+
+				var echoError *echo.HTTPError
+
+				// handle *HTTPError error type in Echo
+				if errors.As(err, &echoError) {
+					c.Response().Status = err.(*echo.HTTPError).Code
+					err = err.(*echo.HTTPError).Message.(error)
+				}
+
 				span.SetStatus(codes.Error, "") // set the spanStatus Error for all error stats codes
 				span.SetAttributes(attribute.String("echo-error", err.Error()))
 				span.SetAttributes(attribute.Int("status-code", c.Response().Status))

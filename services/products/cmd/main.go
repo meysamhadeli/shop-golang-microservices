@@ -43,7 +43,6 @@ done:
 
 	appLogger := logger.NewAppLogger(cfg.Logger)
 	appLogger.InitLogger()
-	appLogger.Info(config.GetMicroserviceName(cfg))
 
 	appLogger.Fatal(server.NewServer(appLogger, cfg).Run())
 }
