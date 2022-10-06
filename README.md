@@ -23,7 +23,8 @@ I will try to register future goals and additions in the [Issues](https://github
 - ✔️ **[`mehdihadeli/Go-MediatR`](https://github.com/mehdihadeli/Go-MediatR)** - This package is a Mediator Pattern implementation in Go
 - ✔️ **[`go-playground/validator`](https://github.com/go-playground/validator)** - Implements value validations for structs and individual fields based on tags
 - ✔️ **[`open-telemetry/opentelemetry-go`](https://github.com/open-telemetry/opentelemetry-go)** - Implementation of OpenTelemetry in Go for distributed-tracing
-- ✔️ **[`meysamhadeli/problem-details`](https://github.com/meysamhadeli/problem-details)** - it's a Error Handler for mapping our error to standardized error payload to client
+- ✔️ **[`meysamhadeli/problem-details`](https://github.com/meysamhadeli/problem-details)** - It's a Error Handler for mapping our error to standardized error payload to client
+- ✔️ **[`go-resty/resty`](https://github.com/go-resty/resty)** - Simple HTTP and REST client library for Go (inspired by Ruby rest-client)
 
 ## Structure of Project
 
