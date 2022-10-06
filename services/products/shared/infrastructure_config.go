@@ -2,6 +2,7 @@ package shared
 
 import (
 	"github.com/go-playground/validator"
+	"github.com/go-resty/resty/v2"
 	"github.com/labstack/echo/v4"
 	"github.com/meysamhadeli/shop-golang-microservices/pkg/logger"
 	"github.com/meysamhadeli/shop-golang-microservices/pkg/rabbitmq"
@@ -9,7 +10,6 @@ import (
 	"github.com/streadway/amqp"
 	"go.opentelemetry.io/otel/trace"
 	"gorm.io/gorm"
-	"net/http"
 )
 
 type InfrastructureConfiguration struct {
@@ -18,7 +18,7 @@ type InfrastructureConfiguration struct {
 	Validator         *validator.Validate
 	RabbitmqPublisher rabbitmq.IPublisher
 	ConnRabbitmq      *amqp.Connection
-	HttpClient        *http.Client
+	HttpClient        *resty.Client
 	JaegerTracer      trace.Tracer
 	Gorm              *gorm.DB
 	Echo              *echo.Echo

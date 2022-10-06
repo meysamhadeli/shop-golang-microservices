@@ -45,6 +45,7 @@ require (
 	github.com/go-playground/locales v0.14.0 // indirect
 	github.com/go-playground/universal-translator v0.18.0 // indirect
 	github.com/go-playground/validator/v10 v10.10.0 // indirect
+	github.com/go-resty/resty/v2 v2.7.0 // indirect
 	github.com/goccy/go-json v0.9.7 // indirect
 	github.com/goccy/go-reflect v1.2.0 // indirect
 	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
