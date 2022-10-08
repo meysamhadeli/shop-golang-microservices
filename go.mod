@@ -5,12 +5,13 @@ go 1.18
 require (
 	github.com/ahmetb/go-linq/v3 v3.2.0
 	github.com/go-playground/validator v9.31.0+incompatible
+	github.com/go-resty/resty/v2 v2.7.0
 	github.com/iancoleman/strcase v0.2.0
 	github.com/jackc/pgx/v4 v4.16.1
 	github.com/json-iterator/go v1.1.12
 	github.com/labstack/echo/v4 v4.9.0
 	github.com/mehdihadeli/go-mediatr v1.1.7
-	github.com/meysamhadeli/problem-details v1.2.0
+	github.com/meysamhadeli/problem-details v1.2.2
 	github.com/pkg/errors v0.9.1
 	github.com/satori/go.uuid v1.2.0
 	github.com/sirupsen/logrus v1.9.0
@@ -19,6 +20,7 @@ require (
 	github.com/stretchr/testify v1.8.0
 	github.com/swaggo/echo-swagger v1.3.3
 	github.com/swaggo/swag v1.8.4
+	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.36.1
 	go.opentelemetry.io/otel v1.10.0
 	go.opentelemetry.io/otel/exporters/jaeger v1.10.0
 	go.opentelemetry.io/otel/sdk v1.10.0
@@ -45,7 +47,6 @@ require (
 	github.com/go-playground/locales v0.14.0 // indirect
 	github.com/go-playground/universal-translator v0.18.0 // indirect
 	github.com/go-playground/validator/v10 v10.10.0 // indirect
-	github.com/go-resty/resty/v2 v2.7.0 // indirect
 	github.com/goccy/go-json v0.9.7 // indirect
 	github.com/goccy/go-reflect v1.2.0 // indirect
 	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
@@ -82,7 +83,6 @@ require (
 	github.com/ugorji/go/codec v1.2.7 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasttemplate v1.2.1 // indirect
-	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.36.1 // indirect
 	go.opentelemetry.io/otel/metric v0.32.1 // indirect
 	golang.org/x/crypto v0.0.0-20220722155217-630584e8d5aa // indirect
 	golang.org/x/net v0.0.0-20220805013720-a33c5aa5df48 // indirect
