@@ -12,7 +12,6 @@ import (
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/consumers"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/internal/products/events"
 	"github.com/meysamhadeli/shop-golang-microservices/services/products/shared"
-	tracesdk "go.opentelemetry.io/otel/sdk/trace"
 	"net/http"
 )
 
@@ -30,7 +29,7 @@ func NewInfrastructureConfigurator(log logger.ILogger, cfg *config.Config, echo 
 	return &infrastructureConfigurator{Cfg: cfg, Echo: echo, Log: log}
 }
 
-func (ic *infrastructureConfigurator) ConfigInfrastructures(ctx context.Context) (error, chan error, *tracesdk.TracerProvider, func()) {
+func (ic *infrastructureConfigurator) ConfigInfrastructures(ctx context.Context) (error, chan error, func()) {
 
 	infrastructure := &shared.InfrastructureConfiguration{Cfg: ic.Cfg, Echo: ic.Echo, Log: ic.Log, Validator: validator.New()}
 
@@ -38,34 +37,28 @@ func (ic *infrastructureConfigurator) ConfigInfrastructures(ctx context.Context)
 
 	gorm, err := ic.configGorm()
 	if err != nil {
-		return err, nil, nil, func() {
-			for _, c := range cleanups {
-				defer c()
-			}
-		}
+		return err, nil, nil
 	}
 	infrastructure.Gorm = gorm
 
 	tp, err := ic.configOpenTelemetry()
+	if err != nil {
+		return err, nil, nil
+	}
 	infrastructure.JaegerTracer = tp.Tracer(ic.Cfg.Jaeger.TracerName)
 
-	if err != nil {
-		return err, nil, nil, func() {
-			for _, c := range cleanups {
-				defer c()
-			}
+	cleanups = append(cleanups, func() {
+		err = tp.Shutdown(ctx)
+		if err != nil {
+			ic.Log.Fatal(err)
 		}
-	}
+	})
 
 	ic.Log.Infof("%s is running", config.GetMicroserviceName(ic.Cfg.ServiceName))
 
 	conn, err, rabbitMqCleanup := rabbitmq.NewRabbitMQConn(ic.Cfg.Rabbitmq)
 	if err != nil {
-		return err, nil, nil, func() {
-			for _, c := range cleanups {
-				defer c()
-			}
-		}
+		return err, nil, nil
 	}
 
 	infrastructure.ConnRabbitmq = conn
@@ -111,32 +104,24 @@ func (ic *infrastructureConfigurator) ConfigInfrastructures(ctx context.Context)
 	ic.configSwagger()
 
 	ic.configMiddlewares(ic.Cfg.Jaeger)
-
 	if err != nil {
-		return err, nil, nil, func() {
-			for _, c := range cleanups {
-				defer c()
-			}
-		}
+		return err, nil, nil
 	}
 
 	pc := NewProductsModuleConfigurator(infrastructure)
+
 	err = pc.ConfigureProductsModule(ctx)
 	if err != nil {
-		return err, nil, nil, func() {
-			for _, c := range cleanups {
-				defer c()
-			}
-		}
+		return err, nil, nil
 	}
 
 	ic.Echo.GET("", func(ec echo.Context) error {
 		return ec.String(http.StatusOK, fmt.Sprintf("%s is running...", config.GetMicroserviceName(ic.Cfg.ServiceName)))
 	})
 
-	return nil, foreverChanConsumers, tp, func() {
+	return nil, foreverChanConsumers, func() {
 		for _, c := range cleanups {
-			defer c()
+			c()
 		}
 	}
 }

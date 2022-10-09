@@ -4,7 +4,8 @@ import (
 	"flag"
 	"fmt"
 	"github.com/meysamhadeli/shop-golang-microservices/pkg/gorm_postgres"
-	"github.com/meysamhadeli/shop-golang-microservices/pkg/http/echo/config"
+	grpc "github.com/meysamhadeli/shop-golang-microservices/pkg/grpc/config"
+	echo "github.com/meysamhadeli/shop-golang-microservices/pkg/http/echo/config"
 	"github.com/meysamhadeli/shop-golang-microservices/pkg/logger"
 	open_telemetry "github.com/meysamhadeli/shop-golang-microservices/pkg/open-telemetry"
 	"github.com/meysamhadeli/shop-golang-microservices/pkg/rabbitmq"
@@ -26,7 +27,8 @@ type Config struct {
 	ServiceName  string                   `mapstructure:"serviceName"`
 	Logger       *logger.Config           `mapstructure:"logger"`
 	Rabbitmq     *rabbitmq.RabbitMQConfig `mapstructure:"rabbitmq"`
-	Echo         *config.EchoConfig       `mapstructure:"echo"`
+	Echo         *echo.EchoConfig         `mapstructure:"echo"`
+	Grpc         *grpc.GrpcConfig         `mapstructure:"grpc"`
 	Context      Context                  `mapstructure:"context"`
 	GormPostgres *gorm_postgres.Config    `mapstructure:"gormPostgres"`
 	Jaeger       *open_telemetry.Config   `mapstructure:"jaeger"`

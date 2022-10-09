@@ -26,6 +26,11 @@
       "metrics"
     ]
   },
+  "grpc": {
+    "port": ":6005",
+    "host": "localhost",
+    "development": true
+  },
   "logger": {
     "level": "debug"
   },

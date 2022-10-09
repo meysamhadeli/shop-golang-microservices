@@ -1,9 +1,10 @@
 package server
 
 import (
+	"context"
 	"fmt"
 	"github.com/labstack/echo/v4"
-	echo2 "github.com/meysamhadeli/shop-golang-microservices/pkg/http/echo/config"
+	"github.com/meysamhadeli/shop-golang-microservices/pkg/http/echo/config"
 	"github.com/meysamhadeli/shop-golang-microservices/pkg/logger"
 	"time"
 )
@@ -15,24 +16,42 @@ const (
 )
 
 type EchoServer struct {
-	Log    logger.ILogger
-	Cfg    *echo2.EchoConfig
-	Echo   *echo.Echo
-	DoneCh chan struct{}
+	Log  logger.ILogger
+	Cfg  *config.EchoConfig
+	Echo *echo.Echo
 }
 
-func NewEchoServer(log logger.ILogger, cfg *echo2.EchoConfig) *EchoServer {
+func NewEchoServer(log logger.ILogger, cfg *config.EchoConfig) *EchoServer {
 	return &EchoServer{Log: log, Cfg: cfg, Echo: echo.New()}
 }
 
-func (s *EchoServer) RunHttpServer(configEcho func(echoServer *echo.Echo)) error {
+func (s *EchoServer) RunHttpServer(ctx context.Context, configEcho ...func(echoServer *echo.Echo)) error {
 	s.Echo.Server.ReadTimeout = ReadTimeout
 	s.Echo.Server.WriteTimeout = WriteTimeout
 	s.Echo.Server.MaxHeaderBytes = MaxHeaderBytes
 
-	if configEcho != nil {
-		configEcho(s.Echo)
+	if len(configEcho) > 0 {
+		grpcFunc := configEcho[0]
+		if grpcFunc != nil {
+			grpcFunc(s.Echo)
+		}
 	}
+
+	go func() {
+		for {
+			select {
+			case <-ctx.Done():
+				s.Log.Infof("shutting down Http PORT: {%s}", s.Cfg.Port)
+				err := s.Echo.Shutdown(ctx)
+				if err != nil {
+					s.Log.Fatalf("(Shutdown) err: {%v}", err)
+					return
+				}
+				s.Log.Infof("server exited properly")
+				return
+			}
+		}
+	}()
 
 	return s.Echo.Start(s.Cfg.Port)
 }
