@@ -22,7 +22,7 @@ func NewProductsModuleConfigurator(infrastructure *shared.InfrastructureConfigur
 func (c *productsModuleConfigurator) ConfigureProductsModule(ctx context.Context) error {
 
 	v1 := c.Echo.Group("/api/v1")
-	group := v1.Group("/" + c.Cfg.Http.ProductsPath)
+	group := v1.Group("/" + c.Cfg.Echo.ProductsPath)
 
 	productRepository := repositories_imp.NewPostgresProductRepository(c.Log, c.Cfg, c.Gorm)
 

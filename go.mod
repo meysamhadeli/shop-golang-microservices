@@ -1,6 +1,6 @@
 module github.com/meysamhadeli/shop-golang-microservices
 
-go 1.18
+go 1.19
 
 require (
 	github.com/ahmetb/go-linq/v3 v3.2.0
@@ -11,7 +11,7 @@ require (
 	github.com/json-iterator/go v1.1.12
 	github.com/labstack/echo/v4 v4.9.0
 	github.com/mehdihadeli/go-mediatr v1.1.7
-	github.com/meysamhadeli/problem-details v1.2.2
+	github.com/meysamhadeli/problem-details v1.2.3
 	github.com/pkg/errors v0.9.1
 	github.com/satori/go.uuid v1.2.0
 	github.com/sirupsen/logrus v1.9.0

@@ -12,7 +12,7 @@
     "exchangeName": "products",
     "kind" : "topic"
   },
-  "http": {
+  "echo": {
     "port": ":5000",
     "development": true,
     "timeout": 30,

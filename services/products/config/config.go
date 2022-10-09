@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/meysamhadeli/shop-golang-microservices/pkg/gorm_postgres"
+	"github.com/meysamhadeli/shop-golang-microservices/pkg/http/echo/config"
 	"github.com/meysamhadeli/shop-golang-microservices/pkg/logger"
 	open_telemetry "github.com/meysamhadeli/shop-golang-microservices/pkg/open-telemetry"
 	"github.com/meysamhadeli/shop-golang-microservices/pkg/rabbitmq"
@@ -25,7 +26,7 @@ type Config struct {
 	ServiceName  string                   `mapstructure:"serviceName"`
 	Logger       *logger.Config           `mapstructure:"logger"`
 	Rabbitmq     *rabbitmq.RabbitMQConfig `mapstructure:"rabbitmq"`
-	Http         Http                     `mapstructure:"http"`
+	Echo         *config.EchoConfig       `mapstructure:"echo"`
 	Context      Context                  `mapstructure:"context"`
 	GormPostgres *gorm_postgres.Config    `mapstructure:"gormPostgres"`
 	Jaeger       *open_telemetry.Config   `mapstructure:"jaeger"`
@@ -33,17 +34,6 @@ type Config struct {
 
 type Context struct {
 	Timeout int `mapstructure:"timeout"`
-}
-
-type Http struct {
-	Port                string   `mapstructure:"port" validate:"required"`
-	Development         bool     `mapstructure:"development"`
-	BasePath            string   `mapstructure:"basePath" validate:"required"`
-	ProductsPath        string   `mapstructure:"productsPath" validate:"required"`
-	DebugErrorsResponse bool     `mapstructure:"debugErrorsResponse"`
-	IgnoreLogUrls       []string `mapstructure:"ignoreLogUrls"`
-	Timeout             int      `mapstructure:"timeout"`
-	Host                string   `mapstructure:"host"`
 }
 
 func InitConfig(env string) (*Config, error) {
