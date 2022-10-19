@@ -8,14 +8,11 @@ import (
 	"os"
 )
 
-const dev = "development"
-const production = "production"
-
 func main() {
 
 	env := os.Getenv("APP_ENV")
 	if env == "" {
-		env = dev
+		env = "development"
 	}
 
 	cfg, err := config.InitConfig(env)

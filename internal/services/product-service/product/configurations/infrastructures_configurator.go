@@ -10,7 +10,9 @@ import (
 	rabbitmq2 "github.com/meysamhadeli/shop-golang-microservices/internal/pkg/rabbitmq"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/config"
 	consumers2 "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/consumers"
-	events2 "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/events"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/creating_product/events/v1"
+	events3 "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/deleting_product/events"
+	events2 "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/updating_product/events/v1"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/shared"
 	"net/http"
 )
@@ -73,7 +75,7 @@ func (ic *infrastructureConfigurator) ConfigInfrastructures(ctx context.Context)
 	foreverChanConsumers := make(chan error)
 
 	go func() {
-		err, createProductConsumerCleanup := createProductConsumer.ConsumeMessage(ctx, events2.ProductCreated{})
+		err, createProductConsumerCleanup := createProductConsumer.ConsumeMessage(ctx, v1.ProductCreated{})
 		cleanups = append(cleanups, createProductConsumerCleanup)
 		if err != nil {
 			ic.Log.Error(err)
@@ -90,7 +92,7 @@ func (ic *infrastructureConfigurator) ConfigInfrastructures(ctx context.Context)
 	}()
 
 	go func() {
-		var err, deleteProductConsumerCleanup = deleteProductConsumer.ConsumeMessage(ctx, events2.ProductDeleted{})
+		var err, deleteProductConsumerCleanup = deleteProductConsumer.ConsumeMessage(ctx, events3.ProductDeleted{})
 		cleanups = append(cleanups, deleteProductConsumerCleanup)
 
 		if err != nil {

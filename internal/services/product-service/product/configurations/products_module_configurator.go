@@ -22,7 +22,7 @@ func NewProductsModuleConfigurator(infrastructure *shared.InfrastructureConfigur
 func (c *productsModuleConfigurator) ConfigureProductsModule(ctx context.Context) error {
 
 	v1 := c.Echo.Group("/api/v1")
-	group := v1.Group("/" + c.Cfg.Echo.ProductsPath)
+	group := v1.Group("/products")
 
 	productRepository := repositories_imp.NewPostgresProductRepository(c.Log, c.Cfg, c.Gorm)
 
@@ -37,10 +37,6 @@ func (c *productsModuleConfigurator) ConfigureProductsModule(ctx context.Context
 	}
 
 	c.configEndpoints(ctx, group)
-
-	//if c.Cfg.DeliveryType == "grpc" {
-	//	c.configGrpc(ctx)
-	//}
 
 	return nil
 }

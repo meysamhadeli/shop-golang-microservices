@@ -2,10 +2,11 @@ package utils
 
 import (
 	"fmt"
-	"github.com/labstack/echo/v4"
-	"github.com/meysamhadeli/shop-golang-microservices/pkg/mapper"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/mapper"
 	"math"
 	"strconv"
+
+	"github.com/labstack/echo/v4"
 )
 
 const (
@@ -13,7 +14,7 @@ const (
 	defaultPage = 1
 )
 
-type ListResult[T any] struct {
+type ListResult[T interface{}] struct {
 	Size       int   `json:"size,omitempty" bson:"size"`
 	Page       int   `json:"page,omitempty" bson:"page"`
 	TotalItems int64 `json:"totalItems,omitempty" bson:"totalItems"`
@@ -67,7 +68,6 @@ func NewListQueryFromQueryParams(size string, page string) *ListQuery {
 }
 
 func GetListQueryFromCtx(c echo.Context) (*ListQuery, error) {
-
 	q := &ListQuery{}
 	var page, size, orderBy string
 
@@ -171,7 +171,6 @@ func (q *ListQuery) GetQueryString() string {
 }
 
 func ListResultToListResultDto[TDto any, TModel any](listResult *ListResult[TModel]) (*ListResult[TDto], error) {
-
 	items, err := mapper.Map[[]TDto](listResult.Items)
 	if err != nil {
 		return nil, err

@@ -1,5 +1,5 @@
 definitions:
-  dto.ProductDto:
+  dtos.ProductDto:
     properties:
       createdAt:
         type: string
@@ -14,44 +14,6 @@ definitions:
       updatedAt:
         type: string
     type: object
-  dtos.CreateProductRequestDto:
-    properties:
-      description:
-        type: string
-      name:
-        type: string
-      price:
-        type: number
-    type: object
-  dtos.CreateProductResponseDto:
-    properties:
-      productId:
-        type: string
-    type: object
-  dtos.GetProductByIdResponseDto:
-    properties:
-      product:
-        $ref: '#/definitions/dto.ProductDto'
-    type: object
-  dtos.GetProductsResponseDto:
-    properties:
-      products:
-        type: object
-    type: object
-  dtos.SearchProductsResponseDto:
-    properties:
-      products:
-        type: object
-    type: object
-  updating_product.UpdateProductRequestDto:
-    properties:
-      description:
-        type: string
-      name:
-        type: string
-      price:
-        type: number
-    type: object
   utils.FilterModel:
     properties:
       comparison:
@@ -61,13 +23,49 @@ definitions:
       value:
         type: string
     type: object
+  v1.CreateProductRequestDto:
+    properties:
+      description:
+        type: string
+      name:
+        type: string
+      price:
+        type: number
+    type: object
+  v1.CreateProductResponseDto:
+    properties:
+      productId:
+        type: string
+    type: object
+  v1.GetProductByIdResponseDto:
+    properties:
+      product:
+        $ref: '#/definitions/dtos.ProductDto'
+    type: object
+  v1.GetProductsResponseDto:
+    properties:
+      products:
+        type: object
+    type: object
+  v1.SearchProductsResponseDto:
+    properties:
+      products:
+        type: object
+    type: object
+  v1.UpdateProductRequestDto:
+    properties:
+      description:
+        type: string
+      name:
+        type: string
+      price:
+        type: number
+    required:
+    - name
+    - price
+    type: object
 info:
-  contact:
-    name: Meysam
-    url: https://github.com/meysamhadeli
-  description: Products Service Api.
-  title: Products Service Api.
-  version: "1.0"
+  contact: {}
 paths:
   /api/v1/products:
     get:
@@ -90,7 +88,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/dtos.GetProductsResponseDto'
+            $ref: '#/definitions/v1.GetProductsResponseDto'
       summary: Get all product
       tags:
       - Products
@@ -104,14 +102,14 @@ paths:
         name: CreateProductRequestDto
         required: true
         schema:
-          $ref: '#/definitions/dtos.CreateProductRequestDto'
+          $ref: '#/definitions/v1.CreateProductRequestDto'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/dtos.CreateProductResponseDto'
+            $ref: '#/definitions/v1.CreateProductResponseDto'
       summary: Create product
       tags:
       - Products
@@ -130,7 +128,7 @@ paths:
       - application/json
       responses:
         "204":
-          description: No Content
+          description: ""
       summary: Delete product
       tags:
       - Products
@@ -150,7 +148,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/dtos.GetProductByIdResponseDto'
+            $ref: '#/definitions/v1.GetProductByIdResponseDto'
       summary: Get product
       tags:
       - Products
@@ -164,7 +162,7 @@ paths:
         name: UpdateProductRequestDto
         required: true
         schema:
-          $ref: '#/definitions/updating_product.UpdateProductRequestDto'
+          $ref: '#/definitions/v1.UpdateProductRequestDto'
       - description: Product ID
         in: path
         name: id
@@ -174,7 +172,7 @@ paths:
       - application/json
       responses:
         "204":
-          description: No Content
+          description: ""
       summary: Update product
       tags:
       - Products
@@ -202,7 +200,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/dtos.SearchProductsResponseDto'
+            $ref: '#/definitions/v1.SearchProductsResponseDto'
       summary: Search products
       tags:
       - Products

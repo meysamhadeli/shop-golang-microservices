@@ -65,10 +65,16 @@ proto_products_product_service:
 # ==============================================================================
 # Swagger products Service  #https://github.com/swaggo/swag/issues/817
 
-install_swag:
-	cd services/products/ && 	go install github.com/swaggo/swag/cmd/swag@latest
+install_swag_products:
+	cd internal/services/product-service/ && 	go get -u github.com/swaggo/swag/cmd/swag@latest
+
+install_swag_identities:
+	cd internal/services/identity-service/ && 	go get -u github.com/swaggo/swag/cmd/swag@latest
 
 swagger_products:
 	@echo Starting swagger generating
-	swag init --parseDependency --parseInternal --parseDepth 1 -g ./cmd/main.go -d ./services/products/ -o ./services/products/docs
+	swag init --parseDependency --parseInternal --parseDepth 1 -g ./cmd/main.go -d ./internal/services/product-service/ -o ./internal/services/product-service/docs
 
+swagger_identities:
+	@echo Starting swagger generating
+	swag init --parseDependency --parseInternal --parseDepth 1 -g ./cmd/main.go -d ./internal/services/identity-service/ -o ./internal/services/identity-service/docs

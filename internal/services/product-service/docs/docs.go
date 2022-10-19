@@ -10,10 +10,7 @@ const docTemplate = `{
     "info": {
         "description": "{{escape .Description}}",
         "title": "{{.Title}}",
-        "contact": {
-            "name": "Meysam",
-            "url": "https://github.com/meysamhadeli"
-        },
+        "contact": {},
         "version": "{{.Version}}"
     },
     "host": "{{.Host}}",
@@ -53,7 +50,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/dtos.GetProductsResponseDto"
+                            "$ref": "#/definitions/v1.GetProductsResponseDto"
                         }
                     }
                 }
@@ -77,7 +74,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dtos.CreateProductRequestDto"
+                            "$ref": "#/definitions/v1.CreateProductRequestDto"
                         }
                     }
                 ],
@@ -85,7 +82,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/dtos.CreateProductResponseDto"
+                            "$ref": "#/definitions/v1.CreateProductResponseDto"
                         }
                     }
                 }
@@ -130,7 +127,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/dtos.SearchProductsResponseDto"
+                            "$ref": "#/definitions/v1.SearchProductsResponseDto"
                         }
                     }
                 }
@@ -162,7 +159,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/dtos.GetProductByIdResponseDto"
+                            "$ref": "#/definitions/v1.GetProductByIdResponseDto"
                         }
                     }
                 }
@@ -186,7 +183,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/updating_product.UpdateProductRequestDto"
+                            "$ref": "#/definitions/v1.UpdateProductRequestDto"
                         }
                     },
                     {
@@ -199,7 +196,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "204": {
-                        "description": "No Content"
+                        "description": ""
                     }
                 }
             },
@@ -226,14 +223,14 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "204": {
-                        "description": "No Content"
+                        "description": ""
                     }
                 }
             }
         }
     },
     "definitions": {
-        "dto.ProductDto": {
+        "dtos.ProductDto": {
             "type": "object",
             "properties": {
                 "createdAt": {
@@ -256,66 +253,6 @@ const docTemplate = `{
                 }
             }
         },
-        "dtos.CreateProductRequestDto": {
-            "type": "object",
-            "properties": {
-                "description": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "price": {
-                    "type": "number"
-                }
-            }
-        },
-        "dtos.CreateProductResponseDto": {
-            "type": "object",
-            "properties": {
-                "productId": {
-                    "type": "string"
-                }
-            }
-        },
-        "dtos.GetProductByIdResponseDto": {
-            "type": "object",
-            "properties": {
-                "product": {
-                    "$ref": "#/definitions/dto.ProductDto"
-                }
-            }
-        },
-        "dtos.GetProductsResponseDto": {
-            "type": "object",
-            "properties": {
-                "products": {
-                    "type": "object"
-                }
-            }
-        },
-        "dtos.SearchProductsResponseDto": {
-            "type": "object",
-            "properties": {
-                "products": {
-                    "type": "object"
-                }
-            }
-        },
-        "updating_product.UpdateProductRequestDto": {
-            "type": "object",
-            "properties": {
-                "description": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "price": {
-                    "type": "number"
-                }
-            }
-        },
         "utils.FilterModel": {
             "type": "object",
             "properties": {
@@ -329,18 +266,82 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
+        },
+        "v1.CreateProductRequestDto": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "price": {
+                    "type": "number"
+                }
+            }
+        },
+        "v1.CreateProductResponseDto": {
+            "type": "object",
+            "properties": {
+                "productId": {
+                    "type": "string"
+                }
+            }
+        },
+        "v1.GetProductByIdResponseDto": {
+            "type": "object",
+            "properties": {
+                "product": {
+                    "$ref": "#/definitions/dtos.ProductDto"
+                }
+            }
+        },
+        "v1.GetProductsResponseDto": {
+            "type": "object",
+            "properties": {
+                "products": {
+                    "type": "object"
+                }
+            }
+        },
+        "v1.SearchProductsResponseDto": {
+            "type": "object",
+            "properties": {
+                "products": {
+                    "type": "object"
+                }
+            }
+        },
+        "v1.UpdateProductRequestDto": {
+            "type": "object",
+            "required": [
+                "name",
+                "price"
+            ],
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "price": {
+                    "type": "number"
+                }
+            }
         }
     }
 }`
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "1.0",
+	Version:          "",
 	Host:             "",
 	BasePath:         "",
 	Schemes:          []string{},
-	Title:            "Products Service Api.",
-	Description:      "Products Service Api.",
+	Title:            "",
+	Description:      "",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 }
