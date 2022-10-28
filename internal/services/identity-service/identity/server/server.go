@@ -6,7 +6,7 @@ import (
 	echo "github.com/meysamhadeli/shop-golang-microservices/internal/pkg/http/echo/server"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/logger"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/identity-service/config"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/services/identity-service/user/configurations"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/services/identity-service/identity/configurations"
 	"os"
 	"os/signal"
 	"syscall"
@@ -30,20 +30,20 @@ func (s *Server) Run() error {
 
 	go func() {
 		if err := echoServer.RunHttpServer(ctx); err != nil {
-			s.Log.Errorf("(s.RunHttpServer) err: {%v}", err)
 			cancel()
+			s.Log.Fatalf("(s.RunHttpServer) err: {%v}", err)
 		}
 	}()
 
 	go func() {
 		if err := grpcServer.RunGrpcServer(ctx); err != nil {
-			s.Log.Errorf("(s.RunGrpcServer) err: {%v}", err)
 			cancel()
+			s.Log.Fatalf("(s.RunGrpcServer) err: {%v}", err)
 		}
 	}()
 
 	infrastructureConfigurator := configurations.NewInfrastructureConfigurator(s.Log, s.Cfg, echoServer.Echo)
-	err, productsCleanup := infrastructureConfigurator.ConfigInfrastructures(ctx)
+	err, identitiesCleanup := infrastructureConfigurator.ConfigInfrastructures(ctx)
 	if err != nil {
 		return err
 	}
@@ -51,7 +51,7 @@ func (s *Server) Run() error {
 	<-ctx.Done()
 
 	defer func() {
-		productsCleanup()
+		identitiesCleanup()
 	}()
 
 	return err

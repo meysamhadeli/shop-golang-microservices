@@ -23,5 +23,8 @@ func main() {
 	appLogger := logger.NewAppLogger(cfg.Logger)
 	appLogger.InitLogger()
 
-	appLogger.Fatal(server.NewServer(appLogger, cfg).Run())
+	err = server.NewServer(appLogger, cfg).Run()
+	if err != nil {
+		appLogger.Fatal(err)
+	}
 }

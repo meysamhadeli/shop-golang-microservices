@@ -11,7 +11,6 @@ import (
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/creating_product/dtos/v1"
 	v12 "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/creating_product/events/v1"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/models"
-	"go.opentelemetry.io/otel/trace"
 )
 
 type CreateProductHandler struct {
@@ -19,12 +18,11 @@ type CreateProductHandler struct {
 	cfg               *config.Config
 	repository        contracts.ProductRepository
 	rabbitmqPublisher rabbitmq.IPublisher
-	jaegerTracer      trace.Tracer
 }
 
 func NewCreateProductHandler(log logger.ILogger, cfg *config.Config, repository contracts.ProductRepository,
-	rabbitmqPublisher rabbitmq.IPublisher, jaegerTracer trace.Tracer) *CreateProductHandler {
-	return &CreateProductHandler{log: log, cfg: cfg, repository: repository, rabbitmqPublisher: rabbitmqPublisher, jaegerTracer: jaegerTracer}
+	rabbitmqPublisher rabbitmq.IPublisher) *CreateProductHandler {
+	return &CreateProductHandler{log: log, cfg: cfg, repository: repository, rabbitmqPublisher: rabbitmqPublisher}
 }
 
 func (c *CreateProductHandler) Handle(ctx context.Context, command *CreateProduct) (*v1.CreateProductResponseDto, error) {

@@ -30,20 +30,20 @@ func (s *Server) Run() error {
 
 	go func() {
 		if err := echoServer.RunHttpServer(ctx); err != nil {
-			s.Log.Errorf("(s.RunHttpServer) err: {%v}", err)
 			cancel()
+			s.Log.Errorf("(s.RunHttpServer) err: {%v}", err)
 		}
 	}()
 
 	go func() {
 		if err := grpcServer.RunGrpcServer(ctx); err != nil {
-			s.Log.Errorf("(s.RunGrpcServer) err: {%v}", err)
 			cancel()
+			s.Log.Errorf("(s.RunGrpcServer) err: {%v}", err)
 		}
 	}()
 
 	infrastructureConfigurator := configurations.NewInfrastructureConfigurator(s.Log, s.Cfg, echoServer.Echo)
-	err, doneChanConsumers, productsCleanup := infrastructureConfigurator.ConfigInfrastructures(ctx)
+	err, productsCleanup := infrastructureConfigurator.ConfigInfrastructures(ctx)
 	if err != nil {
 		return err
 	}
@@ -52,7 +52,6 @@ func (s *Server) Run() error {
 
 	defer func() {
 		productsCleanup()
-		<-doneChanConsumers
 	}()
 
 	return err

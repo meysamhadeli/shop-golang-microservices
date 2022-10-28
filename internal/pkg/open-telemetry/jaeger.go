@@ -21,7 +21,7 @@ type Config struct {
 func TracerProvider(cfg *Config) (*tracesdk.TracerProvider, error) {
 	var serverUrl = fmt.Sprintf(cfg.Server+"%s", "/api/traces")
 	// Create the Jaeger exporter
-	exp, err := jaeger.New(jaeger.WithCollectorEndpoint(jaeger.WithEndpoint(serverUrl)))
+	exporter, err := jaeger.New(jaeger.WithCollectorEndpoint(jaeger.WithEndpoint(serverUrl)))
 	if err != nil {
 		return nil, err
 	}
@@ -34,7 +34,7 @@ func TracerProvider(cfg *Config) (*tracesdk.TracerProvider, error) {
 
 	tp := tracesdk.NewTracerProvider(
 		// Always be sure to batch in production.
-		tracesdk.WithBatcher(exp),
+		tracesdk.WithBatcher(exporter),
 		// Record information about this application in a Resource.
 		tracesdk.WithResource(resource.NewWithAttributes(
 			semconv.SchemaURL,

@@ -2,9 +2,9 @@ package configurations
 
 import (
 	"context"
+	repositories_imp "github.com/meysamhadeli/shop-golang-microservices/internal/services/identity-service/identity/data/repositories"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/services/identity-service/identity/mappings"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/identity-service/shared"
-	repositories_imp "github.com/meysamhadeli/shop-golang-microservices/internal/services/identity-service/user/data/repositories"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/services/identity-service/user/mappings"
 )
 
 type UsersModuleConfigurator interface {

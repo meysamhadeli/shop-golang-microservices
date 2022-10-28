@@ -5,7 +5,7 @@ import (
 	"github.com/jackc/pgx/v4/pgxpool"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/logger"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/identity-service/config"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/services/identity-service/user/models"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/services/identity-service/identity/models"
 	"github.com/pkg/errors"
 	"gorm.io/gorm"
 )

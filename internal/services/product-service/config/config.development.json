@@ -26,8 +26,7 @@
     ]
   },
   "grpc": {
-    "port": ":6005",
-    "host": "localhost",
+    "port": ":6500",
     "development": true
   },
   "logger": {

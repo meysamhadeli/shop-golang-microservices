@@ -6,8 +6,8 @@ import (
 	echo_middleware "github.com/meysamhadeli/shop-golang-microservices/internal/pkg/http/echo/middleware"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/open-telemetry"
 	otel_middleware "github.com/meysamhadeli/shop-golang-microservices/internal/pkg/open-telemetry/middleware"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/services/identity-service/user/constants"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/services/identity-service/user/middlewares"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/services/identity-service/identity/constants"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/services/identity-service/identity/middlewares"
 	"strings"
 )
 

@@ -2,8 +2,8 @@ package mappings
 
 import (
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/mapper"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/services/identity-service/user/dtos"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/services/identity-service/user/models"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/services/identity-service/identity/dtos"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/services/identity-service/identity/models"
 )
 
 func ConfigureMappings() error {

@@ -19,7 +19,7 @@ import (
 func (c *productsModuleConfigurator) configProductsMediator(pgRepo contracts.ProductRepository) error {
 
 	//https://stackoverflow.com/questions/72034479/how-to-implement-generic-interfaces
-	err := mediatr.RegisterRequestHandler[*v17.CreateProduct, *create_dtos.CreateProductResponseDto](v17.NewCreateProductHandler(c.Log, c.Cfg, pgRepo, c.RabbitmqPublisher, c.JaegerTracer))
+	err := mediatr.RegisterRequestHandler[*v17.CreateProduct, *create_dtos.CreateProductResponseDto](v17.NewCreateProductHandler(c.Log, c.Cfg, pgRepo, c.RabbitmqPublisher))
 	if err != nil {
 		return err
 	}

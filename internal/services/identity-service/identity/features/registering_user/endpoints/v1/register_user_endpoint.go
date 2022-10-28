@@ -3,9 +3,9 @@ package v1
 import (
 	"github.com/labstack/echo/v4"
 	"github.com/mehdihadeli/go-mediatr"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/services/identity-service/identity/dtos"
+	v1 "github.com/meysamhadeli/shop-golang-microservices/internal/services/identity-service/identity/features/registering_user/commands/v1"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/identity-service/shared"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/services/identity-service/user/dtos"
-	v1 "github.com/meysamhadeli/shop-golang-microservices/internal/services/identity-service/user/features/registering_user/commands/v1"
 	"github.com/pkg/errors"
 	"net/http"
 )
