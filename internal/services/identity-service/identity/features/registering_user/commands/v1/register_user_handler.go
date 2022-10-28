@@ -6,11 +6,11 @@ import (
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/logger"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/mapper"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/rabbitmq"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/utils"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/identity-service/config"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/services/identity-service/user/contracts"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/services/identity-service/user/dtos"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/services/identity-service/user/models"
-	"go.opentelemetry.io/otel/trace"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/services/identity-service/identity/contracts"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/services/identity-service/identity/dtos"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/services/identity-service/identity/models"
 )
 
 type RegisterUserHandler struct {
@@ -18,20 +18,24 @@ type RegisterUserHandler struct {
 	cfg               *config.Config
 	repository        contracts.UserRepository
 	rabbitmqPublisher rabbitmq.IPublisher
-	jaegerTracer      trace.Tracer
 }
 
 func NewRegisterUserHandler(log logger.ILogger, cfg *config.Config, repository contracts.UserRepository,
-	rabbitmqPublisher rabbitmq.IPublisher, jaegerTracer trace.Tracer) *RegisterUserHandler {
-	return &RegisterUserHandler{log: log, cfg: cfg, repository: repository, rabbitmqPublisher: rabbitmqPublisher, jaegerTracer: jaegerTracer}
+	rabbitmqPublisher rabbitmq.IPublisher) *RegisterUserHandler {
+	return &RegisterUserHandler{log: log, cfg: cfg, repository: repository, rabbitmqPublisher: rabbitmqPublisher}
 }
 
 func (c *RegisterUserHandler) Handle(ctx context.Context, command *RegisterUser) (*dtos.RegisterUserResponseDto, error) {
 
+	pass, err := utils.HashPassword(command.Password)
+	if err != nil {
+		return nil, err
+	}
+
 	product := &models.User{
 		UserId:    command.UserId,
 		Email:     command.Email,
-		Password:  command.Password,
+		Password:  pass,
 		UserName:  command.UserName,
 		LastName:  command.LastName,
 		FirstName: command.FirstName,

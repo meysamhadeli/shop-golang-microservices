@@ -3,7 +3,7 @@ package main
 import (
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/logger"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/identity-service/config"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/services/identity-service/user/server"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/services/identity-service/identity/server"
 	log "github.com/sirupsen/logrus"
 	"os"
 )
@@ -23,5 +23,8 @@ func main() {
 	appLogger := logger.NewAppLogger(cfg.Logger)
 	appLogger.InitLogger()
 
-	appLogger.Fatal(server.NewServer(appLogger, cfg).Run())
+	err = server.NewServer(appLogger, cfg).Run()
+	if err != nil {
+		appLogger.Fatal(err)
+	}
 }

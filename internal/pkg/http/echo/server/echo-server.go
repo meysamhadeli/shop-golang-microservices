@@ -31,9 +31,9 @@ func (s *EchoServer) RunHttpServer(ctx context.Context, configEcho ...func(echoS
 	s.Echo.Server.MaxHeaderBytes = MaxHeaderBytes
 
 	if len(configEcho) > 0 {
-		grpcFunc := configEcho[0]
-		if grpcFunc != nil {
-			grpcFunc(s.Echo)
+		httpFunc := configEcho[0]
+		if httpFunc != nil {
+			httpFunc(s.Echo)
 		}
 	}
 
@@ -41,13 +41,13 @@ func (s *EchoServer) RunHttpServer(ctx context.Context, configEcho ...func(echoS
 		for {
 			select {
 			case <-ctx.Done():
-				s.Log.Infof("shutting down Http PORT: {%s}", s.Cfg.Port)
+				s.Log.Errorf("shutting down Http PORT: {%s}", s.Cfg.Port)
 				err := s.Echo.Shutdown(ctx)
 				if err != nil {
-					s.Log.Fatalf("(Shutdown) err: {%v}", err)
+					s.Log.Errorf("(Shutdown) err: {%v}", err)
 					return
 				}
-				s.Log.Infof("server exited properly")
+				s.Log.Error("server exited properly")
 				return
 			}
 		}

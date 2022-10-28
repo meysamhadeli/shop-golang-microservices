@@ -44,13 +44,6 @@ func (ic *infrastructureConfigurator) ConfigInfrastructures(ctx context.Context)
 	}
 	infrastructure.JaegerTracer = tp.Tracer(ic.Cfg.Jaeger.TracerName)
 
-	cleanups = append(cleanups, func() {
-		err = tp.Shutdown(ctx)
-		if err != nil {
-			ic.Log.Fatal(err)
-		}
-	})
-
 	ic.Log.Infof("%s is running", config.GetMicroserviceName(ic.Cfg.ServiceName))
 
 	httpClient := http_client.NewHttpClient()

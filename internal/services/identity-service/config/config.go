@@ -9,7 +9,7 @@ import (
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/logger"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/open-telemetry"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/rabbitmq"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/services/identity-service/user/constants"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/services/identity-service/identity/constants"
 	"os"
 	"strings"
 

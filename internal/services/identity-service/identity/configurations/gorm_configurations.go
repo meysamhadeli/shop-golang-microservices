@@ -2,7 +2,7 @@ package configurations
 
 import (
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/gorm_postgres"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/services/identity-service/user/models"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/services/identity-service/identity/models"
 	"gorm.io/gorm"
 )
 
