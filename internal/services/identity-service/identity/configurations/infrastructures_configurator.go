@@ -52,9 +52,8 @@ func (ic *infrastructureConfigurator) ConfigInfrastructures(ctx context.Context)
 	ic.configSwagger()
 
 	ic.configMiddlewares(ic.Cfg.Jaeger)
-	if err != nil {
-		return err, nil
-	}
+
+	ic.configureOauth2()
 
 	pc := NewUsersModuleConfigurator(infrastructure)
 

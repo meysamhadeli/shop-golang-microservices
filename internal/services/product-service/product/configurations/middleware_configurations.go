@@ -16,6 +16,7 @@ func (ic *infrastructureConfigurator) configMiddlewares(otelCfg *open_telemetry.
 	ic.Echo.HideBanner = false
 
 	ic.Echo.Use(middleware.Logger())
+
 	ic.Echo.HTTPErrorHandler = middlewares.ProblemDetailsHandler
 	ic.Echo.Use(otel_middleware.EchoTracerMiddleware(otelCfg.ServiceName))
 
