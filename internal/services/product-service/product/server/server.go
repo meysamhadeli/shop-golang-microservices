@@ -2,7 +2,7 @@ package server
 
 import (
 	"context"
-	grpc "github.com/meysamhadeli/shop-golang-microservices/internal/pkg/grpc/server"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/grpc"
 	echo "github.com/meysamhadeli/shop-golang-microservices/internal/pkg/http/echo/server"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/logger"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/config"

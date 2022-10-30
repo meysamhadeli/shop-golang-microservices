@@ -63,6 +63,12 @@ func RunOauthServer(e *echo.Echo) {
 		return
 	})
 
+	srv.SetClientScopeHandler(func(tgr *oauth2.TokenGenerateRequest) (allowed bool, err error) {
+		if tgr.Scope == "all" {
+			allowed = true
+		}
+		return
+	})
 	// for using querystring
 	srv.SetAllowGetAccessRequest(true)
 	srv.SetClientInfoHandler(server.ClientFormHandler)
@@ -91,7 +97,7 @@ func validateBearerToken(c echo.Context) error {
 func token(c echo.Context) error {
 	err := srv.HandleTokenRequest(c.Response().Writer, c.Request())
 	if err != nil {
-		return echo.NewHTTPError(http.StatusUnauthorized, err)
+		return err
 	}
 	return nil
 }
