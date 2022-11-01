@@ -9,6 +9,7 @@ import (
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/logger"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/identity-service/config"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/identity-service/shared"
+	"google.golang.org/grpc"
 	"net/http"
 )
 
@@ -17,18 +18,22 @@ type CatalogsServiceConfigurator interface {
 }
 
 type infrastructureConfigurator struct {
-	Log  logger.ILogger
-	Cfg  *config.Config
-	Echo *echo.Echo
+	Log        logger.ILogger
+	Cfg        *config.Config
+	Echo       *echo.Echo
+	GrpcServer *grpc.Server
 }
 
-func NewInfrastructureConfigurator(log logger.ILogger, cfg *config.Config, echo *echo.Echo) *infrastructureConfigurator {
-	return &infrastructureConfigurator{Cfg: cfg, Echo: echo, Log: log}
+func NewInfrastructureConfigurator(log logger.ILogger, cfg *config.Config, echo *echo.Echo, grpcServer *grpc.Server) *infrastructureConfigurator {
+	return &infrastructureConfigurator{Cfg: cfg, Echo: echo, Log: log, GrpcServer: grpcServer}
 }
 
 func (ic *infrastructureConfigurator) ConfigInfrastructures(ctx context.Context) (error, func()) {
 
 	infrastructure := &shared.InfrastructureConfiguration{Cfg: ic.Cfg, Echo: ic.Echo, Log: ic.Log, Validator: validator.New()}
+
+	// todo: fix error inject
+	ConfigIdentityGrpc(ctx, ic.GrpcServer, infrastructure)
 
 	cleanups := []func(){}
 
