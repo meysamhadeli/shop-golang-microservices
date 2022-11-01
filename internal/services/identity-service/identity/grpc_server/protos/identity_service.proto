@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package identity_service;
+
+option go_package = "./;identity_service";
+
+service IdentityService {
+rpc GetUserById(GetUserByIdReq) returns (GetUserByIdRes);
+}
+
+message User {
+string UserId = 1;
+string Name = 2;
+}
+
+message GetUserByIdReq {
+string UserId = 1;
+}
+
+message GetUserByIdRes {
+User User = 1;
+}

@@ -1,10 +1,10 @@
 package middleware
 
 import (
-	"fmt"
 	"github.com/go-oauth2/oauth2/v4/generates"
 	"github.com/golang-jwt/jwt"
 	"github.com/labstack/echo/v4"
+	"github.com/pkg/errors"
 	"net/http"
 	"strings"
 )
@@ -17,11 +17,11 @@ func ValidateBearerToken() echo.MiddlewareFunc {
 			// Parse and verify jwt access token
 			auth, ok := bearerAuth(c.Request())
 			if !ok {
-				return fmt.Errorf("parse jwt access token error")
+				return echo.NewHTTPError(http.StatusUnauthorized, errors.New("parse jwt access token error"))
 			}
 			token, err := jwt.ParseWithClaims(auth, &generates.JWTAccessClaims{}, func(t *jwt.Token) (interface{}, error) {
 				if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
-					return nil, fmt.Errorf("parse signing method error")
+					return nil, echo.NewHTTPError(http.StatusUnauthorized, errors.New("parse signing method error"))
 				}
 				return []byte("secret"), nil
 			})

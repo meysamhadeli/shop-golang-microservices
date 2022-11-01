@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/go-playground/validator"
 	"github.com/labstack/echo/v4"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/grpc"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/http_client"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/logger"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/rabbitmq"
@@ -36,6 +37,15 @@ func (ic *infrastructureConfigurator) ConfigInfrastructures(ctx context.Context)
 	infrastructure := &shared.InfrastructureConfiguration{Cfg: ic.Cfg, Echo: ic.Echo, Log: ic.Log, Validator: validator.New()}
 
 	cleanups := []func(){}
+
+	grpcClient, err := grpc.NewGrpcClient(ic.Cfg.Grpc)
+	if err != nil {
+		return err, nil
+	}
+	cleanups = append(cleanups, func() {
+		_ = grpcClient.Close()
+	})
+	infrastructure.GrpcClient = grpcClient
 
 	gorm, err := ic.configGorm()
 	if err != nil {

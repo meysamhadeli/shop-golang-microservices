@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/grpc"
 	echo "github.com/meysamhadeli/shop-golang-microservices/internal/pkg/http/echo/server"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/logger"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/identity-service/config"
@@ -25,15 +26,23 @@ func (s *Server) Run() error {
 	defer cancel()
 
 	echoServer := echo.NewEchoServer(s.Log, s.Cfg.Echo)
+	grpcServer := grpc.NewGrpcServer(s.Log, s.Cfg.Grpc)
 
 	go func() {
 		if err := echoServer.RunHttpServer(ctx); err != nil {
 			cancel()
-			s.Log.Fatalf("(s.RunHttpServer) err: {%v}", err)
+			s.Log.Errorf("(s.RunHttpServer) err: {%v}", err)
 		}
 	}()
 
-	infrastructureConfigurator := configurations.NewInfrastructureConfigurator(s.Log, s.Cfg, echoServer.Echo)
+	go func() {
+		if err := grpcServer.RunGrpcServer(ctx); err != nil {
+			cancel()
+			s.Log.Errorf("(s.RunGrpcServer) err: {%v}", err)
+		}
+	}()
+
+	infrastructureConfigurator := configurations.NewInfrastructureConfigurator(s.Log, s.Cfg, echoServer.Echo, grpcServer.Grpc)
 	err, identitiesCleanup := infrastructureConfigurator.ConfigInfrastructures(ctx)
 	if err != nil {
 		return err
