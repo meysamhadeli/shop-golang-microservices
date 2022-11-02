@@ -89,6 +89,8 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/v1.GetProductsResponseDto'
+      security:
+      - ApiKeyAuth: []
       summary: Get all product
       tags:
       - Products
@@ -110,6 +112,8 @@ paths:
           description: Created
           schema:
             $ref: '#/definitions/v1.CreateProductResponseDto'
+      security:
+      - ApiKeyAuth: []
       summary: Create product
       tags:
       - Products
@@ -129,6 +133,8 @@ paths:
       responses:
         "204":
           description: ""
+      security:
+      - ApiKeyAuth: []
       summary: Delete product
       tags:
       - Products
@@ -149,6 +155,8 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/v1.GetProductByIdResponseDto'
+      security:
+      - ApiKeyAuth: []
       summary: Get product
       tags:
       - Products
@@ -173,6 +181,8 @@ paths:
       responses:
         "204":
           description: ""
+      security:
+      - ApiKeyAuth: []
       summary: Update product
       tags:
       - Products
@@ -201,7 +211,14 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/v1.SearchProductsResponseDto'
+      security:
+      - ApiKeyAuth: []
       summary: Search products
       tags:
       - Products
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

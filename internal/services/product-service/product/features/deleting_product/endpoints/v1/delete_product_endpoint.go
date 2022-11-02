@@ -3,6 +3,7 @@ package v1
 import (
 	"github.com/labstack/echo/v4"
 	"github.com/mehdihadeli/go-mediatr"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/http/echo/middleware"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/deleting_product/commands/v1"
 	v12 "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/deleting_product/dtos/v1"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/shared"
@@ -18,7 +19,7 @@ func NewDeleteProductEndpoint(productEndpointBase *shared.ProductEndpointBase[sh
 }
 
 func (ep *deleteProductEndpoint) MapRoute() {
-	ep.ProductsGroup.DELETE("/:id", ep.deleteProduct())
+	ep.ProductsGroup.DELETE("/:id", ep.deleteProduct(), middleware.ValidateBearerToken())
 }
 
 // DeleteProduct
@@ -29,6 +30,7 @@ func (ep *deleteProductEndpoint) MapRoute() {
 // @Produce     json
 // @Success     204
 // @Param       id path string true "Product ID"
+// @Security ApiKeyAuth
 // @Router      /api/v1/products/{id} [delete]
 func (ep *deleteProductEndpoint) deleteProduct() echo.HandlerFunc {
 	return func(c echo.Context) error {

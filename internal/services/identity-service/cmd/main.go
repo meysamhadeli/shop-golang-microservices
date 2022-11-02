@@ -8,6 +8,9 @@ import (
 	"os"
 )
 
+// @securityDefinitions.apikey ApiKeyAuth
+// @in header
+// @name Authorization
 func main() {
 
 	env := os.Getenv("APP_ENV")

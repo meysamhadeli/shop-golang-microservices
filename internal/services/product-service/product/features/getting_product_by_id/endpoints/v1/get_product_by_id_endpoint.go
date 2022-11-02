@@ -3,6 +3,7 @@ package v1
 import (
 	"github.com/labstack/echo/v4"
 	"github.com/mehdihadeli/go-mediatr"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/http/echo/middleware"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/getting_product_by_id/dtos/v1"
 	v12 "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/getting_product_by_id/queries/v1"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/shared"
@@ -18,7 +19,7 @@ func NewGetProductByIdEndpoint(productEndpointBase *shared.ProductEndpointBase[s
 }
 
 func (ep *getProductByIdEndpoint) MapRoute() {
-	ep.ProductsGroup.GET("/:id", ep.getProductByID())
+	ep.ProductsGroup.GET("/:id", ep.getProductByID(), middleware.ValidateBearerToken())
 }
 
 // GetProductByID
@@ -29,6 +30,7 @@ func (ep *getProductByIdEndpoint) MapRoute() {
 // @Produce     json
 // @Param       id  path     string true "Product ID"
 // @Success     200 {object} v1.GetProductByIdResponseDto
+// @Security ApiKeyAuth
 // @Router      /api/v1/products/{id} [get]
 func (ep *getProductByIdEndpoint) getProductByID() echo.HandlerFunc {
 	return func(c echo.Context) error {

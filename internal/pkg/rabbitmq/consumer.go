@@ -154,7 +154,7 @@ func (c consumer) ConsumeMessage(ctx context.Context, msg interface{}) error {
 		}
 	}()
 
-	c.log.Info("Waiting for messages. To exit press CTRL+C")
+	c.log.Infof("Waiting for messages in queue :%s. To exit press CTRL+C", q.Name)
 
 	return nil
 }
