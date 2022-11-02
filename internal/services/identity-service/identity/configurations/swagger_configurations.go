@@ -7,7 +7,7 @@ import (
 
 func (ic *infrastructureConfigurator) configSwagger() {
 	docs.SwaggerInfo.Version = "1.0"
-	docs.SwaggerInfo.Title = "Users Service Api"
-	docs.SwaggerInfo.Description = "Users Service Api"
+	docs.SwaggerInfo.Title = "Identities Service Api"
+	docs.SwaggerInfo.Description = "Identities Service Api"
 	ic.Echo.GET("/swagger/*", echoSwagger.WrapHandler)
 }

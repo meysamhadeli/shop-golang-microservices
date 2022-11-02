@@ -3,6 +3,7 @@ package v1
 import (
 	"github.com/labstack/echo/v4"
 	"github.com/mehdihadeli/go-mediatr"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/http/echo/middleware"
 	commands_v1 "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/updating_product/commands/v1"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/updating_product/dtos/v1"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/shared"
@@ -19,7 +20,7 @@ func NewUpdateProductEndpoint(productEndpointBase *shared.ProductEndpointBase[sh
 }
 
 func (ep *updateProductEndpoint) MapRoute() {
-	ep.ProductsGroup.PUT("/:id", ep.updateProduct())
+	ep.ProductsGroup.PUT("/:id", ep.updateProduct(), middleware.ValidateBearerToken())
 }
 
 // UpdateProduct
@@ -31,6 +32,7 @@ func (ep *updateProductEndpoint) MapRoute() {
 // @Param       UpdateProductRequestDto body v1.UpdateProductRequestDto true "Product data"
 // @Param       id                      path string                       true "Product ID"
 // @Success     204
+// @Security ApiKeyAuth
 // @Router      /api/v1/products/{id} [put]
 func (ep *updateProductEndpoint) updateProduct() echo.HandlerFunc {
 	return func(c echo.Context) error {

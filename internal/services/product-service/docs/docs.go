@@ -18,6 +18,11 @@ const docTemplate = `{
     "paths": {
         "/api/v1/products": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Get all products",
                 "consumes": [
                     "application/json"
@@ -56,6 +61,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Create new product item",
                 "consumes": [
                     "application/json"
@@ -90,6 +100,11 @@ const docTemplate = `{
         },
         "/api/v1/products/search": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Search products",
                 "consumes": [
                     "application/json"
@@ -135,6 +150,11 @@ const docTemplate = `{
         },
         "/api/v1/products/{id}": {
             "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Get product by id",
                 "consumes": [
                     "application/json"
@@ -165,6 +185,11 @@ const docTemplate = `{
                 }
             },
             "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Update existing product",
                 "consumes": [
                     "application/json"
@@ -201,6 +226,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Delete existing product",
                 "consumes": [
                     "application/json"
@@ -330,6 +360,13 @@ const docTemplate = `{
                     "type": "number"
                 }
             }
+        }
+    },
+    "securityDefinitions": {
+        "ApiKeyAuth": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
         }
     }
 }`

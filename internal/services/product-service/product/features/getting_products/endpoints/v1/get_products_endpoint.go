@@ -3,6 +3,7 @@ package v1
 import (
 	"github.com/labstack/echo/v4"
 	"github.com/mehdihadeli/go-mediatr"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/http/echo/middleware"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/utils"
 	v1 "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/getting_products/dtos/v1"
 	query_v1 "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/getting_products/queries/v1"
@@ -19,7 +20,7 @@ func NewGetProductsEndpoint(productEndpointBase *shared.ProductEndpointBase[shar
 }
 
 func (ep *getProductsEndpoint) MapRoute() {
-	ep.ProductsGroup.GET("", ep.getAllProducts())
+	ep.ProductsGroup.GET("", ep.getAllProducts(), middleware.ValidateBearerToken())
 }
 
 // GetAllProducts
@@ -30,6 +31,7 @@ func (ep *getProductsEndpoint) MapRoute() {
 // @Produce json
 // @Param GetProductsRequestDto query v1.GetProductsRequestDto false "GetProductsRequestDto"
 // @Success 200 {object} v1.GetProductsResponseDto
+// @Security ApiKeyAuth
 // @Router /api/v1/products [get]
 func (ep *getProductsEndpoint) getAllProducts() echo.HandlerFunc {
 	return func(c echo.Context) error {
