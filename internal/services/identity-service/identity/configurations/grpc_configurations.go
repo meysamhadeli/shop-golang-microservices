@@ -8,7 +8,7 @@ import (
 	"google.golang.org/grpc"
 )
 
-func ConfigIdentityGrpc(ctx context.Context, server *grpc.Server, infra *shared.InfrastructureConfiguration) {
+func ConfigIdentityGrpcServer(ctx context.Context, server *grpc.Server, infra *shared.InfrastructureConfiguration) {
 
 	identityGrpcService := services.NewIdentityGrpcServerService(infra)
 

@@ -4,7 +4,6 @@ import (
 	"github.com/go-playground/validator"
 	"github.com/go-resty/resty/v2"
 	"github.com/labstack/echo/v4"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/grpc"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/logger"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/rabbitmq"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/config"
@@ -23,7 +22,6 @@ type InfrastructureConfiguration struct {
 	JaegerTracer      trace.Tracer
 	Gorm              *gorm.DB
 	Echo              *echo.Echo
-	GrpcClient        grpc.GrpcClient
 }
 
 type ProductEndpointBase[T any] struct {

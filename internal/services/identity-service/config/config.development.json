@@ -25,7 +25,7 @@
       "metrics"
     ]
   },
-  "grpc": {
+  "identityGrpcServer": {
     "port": ":6600",
     "host": "localhost",
     "development": true

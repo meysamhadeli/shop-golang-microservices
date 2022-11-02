@@ -32,9 +32,6 @@ func (ic *infrastructureConfigurator) ConfigInfrastructures(ctx context.Context)
 
 	infrastructure := &shared.InfrastructureConfiguration{Cfg: ic.Cfg, Echo: ic.Echo, Log: ic.Log, Validator: validator.New()}
 
-	// todo: fix error inject
-	ConfigIdentityGrpc(ctx, ic.GrpcServer, infrastructure)
-
 	cleanups := []func(){}
 
 	gorm, err := ic.configGorm()
@@ -59,6 +56,8 @@ func (ic *infrastructureConfigurator) ConfigInfrastructures(ctx context.Context)
 	ic.configMiddlewares(ic.Cfg.Jaeger)
 
 	ic.configureOauth2()
+
+	ConfigIdentityGrpcServer(ctx, ic.GrpcServer, infrastructure)
 
 	pc := NewUsersModuleConfigurator(infrastructure)
 
