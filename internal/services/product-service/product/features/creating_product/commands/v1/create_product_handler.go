@@ -16,22 +16,22 @@ import (
 )
 
 type CreateProductHandler struct {
-	log               logger.ILogger
-	cfg               *config.Config
-	repository        contracts.ProductRepository
-	rabbitmqPublisher rabbitmq.IPublisher
-	GrpcClient        grpc.GrpcClient
+	log                logger.ILogger
+	cfg                *config.Config
+	repository         contracts.ProductRepository
+	rabbitmqPublisher  rabbitmq.IPublisher
+	IdentityGrpcClient grpc.GrpcClient
 }
 
 func NewCreateProductHandler(log logger.ILogger, cfg *config.Config, repository contracts.ProductRepository,
-	rabbitmqPublisher rabbitmq.IPublisher, grpcClient grpc.GrpcClient) *CreateProductHandler {
-	return &CreateProductHandler{log: log, cfg: cfg, repository: repository, rabbitmqPublisher: rabbitmqPublisher, GrpcClient: grpcClient}
+	rabbitmqPublisher rabbitmq.IPublisher, identityGrpcClient grpc.GrpcClient) *CreateProductHandler {
+	return &CreateProductHandler{log: log, cfg: cfg, repository: repository, rabbitmqPublisher: rabbitmqPublisher, IdentityGrpcClient: identityGrpcClient}
 }
 
 func (c *CreateProductHandler) Handle(ctx context.Context, command *CreateProduct) (*v1.CreateProductResponseDto, error) {
 
 	// simple call grpcClient
-	identityGrpcClient := identity_service.NewIdentityServiceClient(c.GrpcClient.GetGrpcConnection())
+	identityGrpcClient := identity_service.NewIdentityServiceClient(c.IdentityGrpcClient.GetGrpcConnection())
 	user, err := identityGrpcClient.GetUserById(ctx, &identity_service.GetUserByIdReq{UserId: "1"})
 	if err != nil {
 		return nil, err

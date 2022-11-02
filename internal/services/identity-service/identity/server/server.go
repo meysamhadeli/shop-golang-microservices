@@ -26,7 +26,7 @@ func (s *Server) Run() error {
 	defer cancel()
 
 	echoServer := echo.NewEchoServer(s.Log, s.Cfg.Echo)
-	grpcServer := grpc.NewGrpcServer(s.Log, s.Cfg.Grpc)
+	grpcServer := grpc.NewGrpcServer(s.Log, s.Cfg.IdentityGrpcServer)
 
 	go func() {
 		if err := echoServer.RunHttpServer(ctx); err != nil {
@@ -35,18 +35,19 @@ func (s *Server) Run() error {
 		}
 	}()
 
+	infrastructureConfigurator := configurations.NewInfrastructureConfigurator(s.Log, s.Cfg, echoServer.Echo, grpcServer.Grpc)
+	err, identitiesCleanup := infrastructureConfigurator.ConfigInfrastructures(ctx)
+
+	if err != nil {
+		return err
+	}
+
 	go func() {
 		if err := grpcServer.RunGrpcServer(ctx); err != nil {
 			cancel()
 			s.Log.Errorf("(s.RunGrpcServer) err: {%v}", err)
 		}
 	}()
-
-	infrastructureConfigurator := configurations.NewInfrastructureConfigurator(s.Log, s.Cfg, echoServer.Echo, grpcServer.Grpc)
-	err, identitiesCleanup := infrastructureConfigurator.ConfigInfrastructures(ctx)
-	if err != nil {
-		return err
-	}
 
 	<-ctx.Done()
 

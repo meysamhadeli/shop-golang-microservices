@@ -2,6 +2,7 @@ package configurations
 
 import (
 	"context"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/grpc"
 	repositories_imp "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/data/repositories"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/mappings"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/shared"
@@ -13,10 +14,11 @@ type ProductsModuleConfigurator interface {
 
 type productsModuleConfigurator struct {
 	*shared.InfrastructureConfiguration
+	IdentityGrpcClient grpc.GrpcClient
 }
 
-func NewProductsModuleConfigurator(infrastructure *shared.InfrastructureConfiguration) *productsModuleConfigurator {
-	return &productsModuleConfigurator{InfrastructureConfiguration: infrastructure}
+func NewProductsModuleConfigurator(infrastructure *shared.InfrastructureConfiguration, identityGrpcClient grpc.GrpcClient) *productsModuleConfigurator {
+	return &productsModuleConfigurator{InfrastructureConfiguration: infrastructure, IdentityGrpcClient: identityGrpcClient}
 }
 
 func (c *productsModuleConfigurator) ConfigureProductsModule(ctx context.Context) error {

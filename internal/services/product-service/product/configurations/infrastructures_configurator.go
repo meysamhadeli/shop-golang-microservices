@@ -38,14 +38,13 @@ func (ic *infrastructureConfigurator) ConfigInfrastructures(ctx context.Context)
 
 	cleanups := []func(){}
 
-	grpcClient, err := grpc.NewGrpcClient(ic.Cfg.Grpc)
+	identityGrpcClient, err := grpc.NewGrpcClient(ic.Cfg.IdentityGrpcClient)
 	if err != nil {
 		return err, nil
 	}
 	cleanups = append(cleanups, func() {
-		_ = grpcClient.Close()
+		_ = identityGrpcClient.Close()
 	})
-	infrastructure.GrpcClient = grpcClient
 
 	gorm, err := ic.configGorm()
 	if err != nil {
@@ -106,7 +105,7 @@ func (ic *infrastructureConfigurator) ConfigInfrastructures(ctx context.Context)
 		return err, nil
 	}
 
-	pc := NewProductsModuleConfigurator(infrastructure)
+	pc := NewProductsModuleConfigurator(infrastructure, identityGrpcClient)
 
 	err = pc.ConfigureProductsModule(ctx)
 	if err != nil {

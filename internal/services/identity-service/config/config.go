@@ -24,14 +24,14 @@ func init() {
 }
 
 type Config struct {
-	ServiceName  string                   `mapstructure:"serviceName"`
-	Logger       *logger.Config           `mapstructure:"logger"`
-	Rabbitmq     *rabbitmq.RabbitMQConfig `mapstructure:"rabbitmq"`
-	Echo         *echo.EchoConfig         `mapstructure:"echo"`
-	Grpc         *grpc.GrpcConfig         `mapstructure:"grpc"`
-	Context      Context                  `mapstructure:"context"`
-	GormPostgres *gorm_postgres.Config    `mapstructure:"gormPostgres"`
-	Jaeger       *open_telemetry.Config   `mapstructure:"jaeger"`
+	ServiceName        string                   `mapstructure:"serviceName"`
+	Logger             *logger.Config           `mapstructure:"logger"`
+	Rabbitmq           *rabbitmq.RabbitMQConfig `mapstructure:"rabbitmq"`
+	Echo               *echo.EchoConfig         `mapstructure:"echo"`
+	IdentityGrpcServer *grpc.GrpcConfig         `mapstructure:"identityGrpcServer"`
+	Context            Context                  `mapstructure:"context"`
+	GormPostgres       *gorm_postgres.Config    `mapstructure:"gormPostgres"`
+	Jaeger             *open_telemetry.Config   `mapstructure:"jaeger"`
 }
 
 type Context struct {
