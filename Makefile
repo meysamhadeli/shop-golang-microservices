@@ -1,43 +1,22 @@
 .PHONY:
 
+# ==============================================================================
+# Run Services
 run_products_service:
-	cd services/products/ && 	go run ./cmd/main.go
+	cd internal/services/product-service/ && 	go run ./cmd/main.go
+
+run_identities_service:
+	cd internal/services/identity-service/ && 	go run ./cmd/main.go
 
 # ==============================================================================
 # Docker Compose
 docker-compose_infra_up:
-	@echo Starting infrastructure docker-compose
-	docker-compose -f deployments/docker-compose/docker-compose.infrastructure.yaml up --build
+	@echo Starting infrastructure docker-compose up
+	docker-compose -f deployments/docker-compose/infrastructure.yaml up --build
 
 docker-compose_infra_down:
-	@echo Stoping infrastructure docker-compose
-	docker-compose -f deployments/docker-compose/docker-compose.infrastructure.yaml down
-
-# ==============================================================================
-# Docker
-
-FILES := $(shell docker ps -aq)
-
-docker_path:
-	@echo $(FILES)
-
-docker_down:
-	docker stop $(FILES)
-	docker rm $(FILES)
-
-docker_clean:
-	docker system prune -f
-
-docker_logs:
-	docker logs -f $(FILES)
-
-
-# ==============================================================================
-# Linters https://golangci-lint.run/usage/install/
-
-run-linter:
-	@echo Starting linters
-	golangci-lint run ./...
+	@echo Stoping infrastructure docker-compose down
+	docker-compose -f deployments/docker-compose/infrastructure.yaml down
 
 # ==============================================================================
 # Proto Identity Service
@@ -58,11 +37,7 @@ proto_identities_get_user_by_id_service:
 # ==============================================================================
 # Swagger products Service  #https://github.com/swaggo/swag/issues/817
 
-install_swag_products:
-	cd internal/services/product-service/ && 	go get -u github.com/swaggo/swag/cmd/swag@latest
-
-install_swag_identities:
-	cd internal/services/identity-service/ && 	go get -u github.com/swaggo/swag/cmd/swag@latest
+## go install github.com/swaggo/swag/cmd/swag@latest
 
 swagger_products:
 	@echo Starting swagger generating

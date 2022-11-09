@@ -3,6 +3,7 @@ package v1
 import (
 	"github.com/labstack/echo/v4"
 	"github.com/mehdihadeli/go-mediatr"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/http/echo/middleware"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/identity-service/identity/dtos"
 	v1 "github.com/meysamhadeli/shop-golang-microservices/internal/services/identity-service/identity/features/registering_user/commands/v1"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/identity-service/shared"
@@ -19,7 +20,7 @@ func NewCreteUserEndpoint(endpointBase *shared.IdentityEndpointBase[shared.Infra
 }
 
 func (ep *registerUserEndpoint) MapRoute() {
-	ep.ProductsGroup.POST("", ep.createUser())
+	ep.ProductsGroup.POST("", ep.createUser(), middleware.ValidateBearerToken())
 }
 
 // RegisterUser
@@ -30,6 +31,7 @@ func (ep *registerUserEndpoint) MapRoute() {
 // @Produce json
 // @Param RegisterUserRequestDto body dtos.RegisterUserRequestDto true "User data"
 // @Success 201 {object} dtos.RegisterUserResponseDto
+// @Security ApiKeyAuth
 // @Router /api/v1/users [post]
 func (ep *registerUserEndpoint) createUser() echo.HandlerFunc {
 	return func(c echo.Context) error {

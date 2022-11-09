@@ -49,6 +49,8 @@ paths:
           description: Created
           schema:
             $ref: '#/definitions/dtos.RegisterUserResponseDto'
+      security:
+      - ApiKeyAuth: []
       summary: Register user
       tags:
       - Users

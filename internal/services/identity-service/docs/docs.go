@@ -18,6 +18,11 @@ const docTemplate = `{
     "paths": {
         "/api/v1/users": {
             "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
                 "description": "Create new user",
                 "consumes": [
                     "application/json"
