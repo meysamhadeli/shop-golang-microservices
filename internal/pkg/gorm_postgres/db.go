@@ -2,10 +2,11 @@ package gorm_postgres
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
-	"github.com/jackc/pgx/v4/pgxpool"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/utils"
 	"github.com/pkg/errors"
+	"github.com/uptrace/bun/driver/pgdriver"
 	gorm_postgres "gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"strings"
@@ -13,7 +14,7 @@ import (
 
 type Config struct {
 	Host     string `mapstructure:"host"`
-	Port     string `mapstructure:"port"`
+	Port     int    `mapstructure:"port"`
 	User     string `mapstructure:"user"`
 	DBName   string `mapstructure:"dbName"`
 	SSLMode  bool   `mapstructure:"sslMode"`
@@ -28,19 +29,18 @@ type Gorm struct {
 func NewGorm(cfg *Config) (*gorm.DB, error) {
 
 	var dataSourceName string
-	ctx := context.Background()
 
 	if cfg.DBName == "" {
 		return nil, errors.New("DBName is required in the config.")
 	}
 
-	err := createDB(cfg, ctx)
+	err := createDB(cfg)
 
 	if err != nil {
 		return nil, err
 	}
 
-	dataSourceName = fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s",
+	dataSourceName = fmt.Sprintf("host=%s port=%d user=%s dbname=%s password=%s",
 		cfg.Host,
 		cfg.Port,
 		cfg.User,
@@ -61,26 +61,20 @@ func (db *Gorm) Close() {
 	_ = d.Close()
 }
 
-func createDB(cfg *Config, ctx context.Context) error {
-	datasource := fmt.Sprintf("host=%s port=%s user=%s password=%s",
-		cfg.Host,
-		cfg.Port,
+func createDB(cfg *Config) error {
+
+	datasource := fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=disable",
 		cfg.User,
 		cfg.Password,
+		cfg.Host,
+		cfg.Port,
+		"postgres",
 	)
 
-	poolCfg, err := pgxpool.ParseConfig(datasource)
-	if err != nil {
-		return err
-	}
-
-	connPool, err := pgxpool.ConnectConfig(ctx, poolCfg)
-	if err != nil {
-		return errors.Wrap(err, "pgx.ConnectConfig")
-	}
+	sqldb := sql.OpenDB(pgdriver.NewConnector(pgdriver.WithDSN(datasource)))
 
 	var exists int
-	rows, err := connPool.Query(context.Background(), fmt.Sprintf("SELECT 1 FROM  pg_catalog.pg_database WHERE datname='%s'", cfg.DBName))
+	rows, err := sqldb.Query(fmt.Sprintf("SELECT 1 FROM  pg_catalog.pg_database WHERE datname='%s'", cfg.DBName))
 	if err != nil {
 		return err
 	}
@@ -96,12 +90,12 @@ func createDB(cfg *Config, ctx context.Context) error {
 		return nil
 	}
 
-	_, err = connPool.Exec(context.Background(), fmt.Sprintf("CREATE DATABASE %s", cfg.DBName))
+	_, err = sqldb.Exec(fmt.Sprintf("CREATE DATABASE %s", cfg.DBName))
 	if err != nil {
 		return err
 	}
 
-	defer connPool.Close()
+	defer sqldb.Close()
 
 	return nil
 }

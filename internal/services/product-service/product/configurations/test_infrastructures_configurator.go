@@ -5,12 +5,13 @@ import (
 	"fmt"
 	"github.com/go-playground/validator"
 	"github.com/labstack/echo/v4"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/gorm_postgres"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/grpc"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/http_client"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/logger"
 	open_telemetry "github.com/meysamhadeli/shop-golang-microservices/internal/pkg/open-telemetry"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/rabbitmq"
+	gorm_test "github.com/meysamhadeli/shop-golang-microservices/internal/pkg/test/container/testcontainer/gorm"
+	rabbitmq_test "github.com/meysamhadeli/shop-golang-microservices/internal/pkg/test/container/testcontainer/rabbitmq"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/config"
 	consumers2 "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/consumers"
 	v1 "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/creating_product/events/v1"
@@ -18,19 +19,21 @@ import (
 	events2 "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/updating_product/events/v1"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/shared"
 	"net/http"
+	"testing"
 )
 
-type infrastructureConfigurator struct {
+type testInfrastructureConfigurator struct {
 	Log  logger.ILogger
 	Cfg  *config.Config
 	Echo *echo.Echo
+	t    *testing.T
 }
 
-func NewInfrastructureConfigurator(log logger.ILogger, cfg *config.Config, echo *echo.Echo) *infrastructureConfigurator {
-	return &infrastructureConfigurator{Cfg: cfg, Echo: echo, Log: log}
+func NewTestInfrastructureConfigurator(log logger.ILogger, cfg *config.Config, echo *echo.Echo) *testInfrastructureConfigurator {
+	return &testInfrastructureConfigurator{Cfg: cfg, Echo: echo, Log: log}
 }
 
-func (ic *infrastructureConfigurator) ConfigInfrastructures(ctx context.Context) (error, func()) {
+func (ic *testInfrastructureConfigurator) ConfigInfrastructures(ctx context.Context) (error, func()) {
 
 	infrastructure := &shared.InfrastructureConfiguration{Cfg: ic.Cfg, Echo: ic.Echo, Log: ic.Log, Validator: validator.New()}
 
@@ -44,8 +47,7 @@ func (ic *infrastructureConfigurator) ConfigInfrastructures(ctx context.Context)
 		_ = identityGrpcClient.Close()
 	})
 
-	gorm, err := gorm_postgres.NewGorm(ic.Cfg.GormPostgres)
-
+	gorm, err := gorm_test.NewGormTestContainers().Start(ctx, ic.t)
 	if err != nil {
 		return err, nil
 	}
@@ -66,7 +68,7 @@ func (ic *infrastructureConfigurator) ConfigInfrastructures(ctx context.Context)
 
 	ic.Log.Infof("%s is running", config.GetMicroserviceName(ic.Cfg.ServiceName))
 
-	conn, err, rabbitMqCleanup := rabbitmq.NewRabbitMQConn(ic.Cfg.Rabbitmq)
+	conn, err, rabbitMqCleanup := rabbitmq_test.NewRabbitMQTestContainers().Start(ctx, ic.t)
 	if err != nil {
 		return err, nil
 	}

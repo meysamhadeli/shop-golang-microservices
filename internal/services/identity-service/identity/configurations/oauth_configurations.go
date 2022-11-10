@@ -1,9 +1,10 @@
 package configurations
 
 import (
+	"github.com/labstack/echo/v4"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/oauth2"
 )
 
-func (ic *infrastructureConfigurator) configureOauth2() {
-	oauth2.RunOauthServer(ic.Echo)
+func configureOauth2(e *echo.Echo) {
+	oauth2.RunOauthServer(e)
 }
