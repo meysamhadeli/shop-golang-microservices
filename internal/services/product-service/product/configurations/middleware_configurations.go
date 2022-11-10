@@ -11,23 +11,23 @@ import (
 	"strings"
 )
 
-func (ic *infrastructureConfigurator) configMiddlewares(otelCfg *open_telemetry.Config) {
+func configMiddlewares(e *echo.Echo, otelCfg *open_telemetry.Config) {
 
-	ic.Echo.HideBanner = false
+	e.HideBanner = false
 
-	ic.Echo.Use(middleware.Logger())
+	e.Use(middleware.Logger())
 
-	ic.Echo.HTTPErrorHandler = middlewares.ProblemDetailsHandler
-	ic.Echo.Use(otel_middleware.EchoTracerMiddleware(otelCfg.ServiceName))
+	e.HTTPErrorHandler = middlewares.ProblemDetailsHandler
+	e.Use(otel_middleware.EchoTracerMiddleware(otelCfg.ServiceName))
 
-	ic.Echo.Use(echo_middleware.CorrelationIdMiddleware)
-	ic.Echo.Use(middleware.RequestID())
-	ic.Echo.Use(middleware.GzipWithConfig(middleware.GzipConfig{
+	e.Use(echo_middleware.CorrelationIdMiddleware)
+	e.Use(middleware.RequestID())
+	e.Use(middleware.GzipWithConfig(middleware.GzipConfig{
 		Level: constants.GzipLevel,
 		Skipper: func(c echo.Context) bool {
 			return strings.Contains(c.Request().URL.Path, "swagger")
 		},
 	}))
 
-	ic.Echo.Use(middleware.BodyLimit(constants.BodyLimit))
+	e.Use(middleware.BodyLimit(constants.BodyLimit))
 }

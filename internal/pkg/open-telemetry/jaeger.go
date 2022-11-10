@@ -1,7 +1,9 @@
 package open_telemetry
 
 import (
+	"context"
 	"fmt"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/logger"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/exporters/jaeger"
@@ -18,7 +20,7 @@ type Config struct {
 	TracerName  string `mapstructure:"tracerName"`
 }
 
-func TracerProvider(cfg *Config) (*tracesdk.TracerProvider, error) {
+func TracerProvider(ctx context.Context, cfg *Config, log logger.ILogger) (*tracesdk.TracerProvider, error) {
 	var serverUrl = fmt.Sprintf(cfg.Server+"%s", "/api/traces")
 	// Create the Jaeger exporter
 	exporter, err := jaeger.New(jaeger.WithCollectorEndpoint(jaeger.WithEndpoint(serverUrl)))
@@ -42,6 +44,19 @@ func TracerProvider(cfg *Config) (*tracesdk.TracerProvider, error) {
 			attribute.String("environment", env),
 		)),
 	)
+
+	go func() {
+		for {
+			select {
+			case <-ctx.Done():
+				err = tp.Shutdown(ctx)
+				log.Error("open-telemetry exited properly")
+				if err != nil {
+					return
+				}
+			}
+		}
+	}()
 
 	otel.SetTracerProvider(tp)
 	otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(propagation.TraceContext{}))

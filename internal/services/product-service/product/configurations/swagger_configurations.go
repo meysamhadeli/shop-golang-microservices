@@ -1,14 +1,15 @@
 package configurations
 
 import (
+	"github.com/labstack/echo/v4"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/docs"
 	echoSwagger "github.com/swaggo/echo-swagger"
 )
 
-func (ic *infrastructureConfigurator) configSwagger() {
+func configSwagger(e *echo.Echo) {
 
 	docs.SwaggerInfo.Version = "1.0"
 	docs.SwaggerInfo.Title = "Products Service Api"
 	docs.SwaggerInfo.Description = "Products Service Api"
-	ic.Echo.GET("/swagger/*", echoSwagger.WrapHandler)
+	e.GET("/swagger/*", echoSwagger.WrapHandler)
 }

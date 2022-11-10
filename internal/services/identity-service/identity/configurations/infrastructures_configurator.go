@@ -5,17 +5,15 @@ import (
 	"fmt"
 	"github.com/go-playground/validator"
 	"github.com/labstack/echo/v4"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/gorm_postgres"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/http_client"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/logger"
+	open_telemetry "github.com/meysamhadeli/shop-golang-microservices/internal/pkg/open-telemetry"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/identity-service/config"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/identity-service/shared"
 	"google.golang.org/grpc"
 	"net/http"
 )
-
-type CatalogsServiceConfigurator interface {
-	ConfigureProductsModule() error
-}
 
 type infrastructureConfigurator struct {
 	Log        logger.ILogger
@@ -34,16 +32,19 @@ func (ic *infrastructureConfigurator) ConfigInfrastructures(ctx context.Context)
 
 	cleanups := []func(){}
 
-	gorm, err := ic.configGorm()
+	gorm, err := gorm_postgres.NewGorm(ic.Cfg.GormPostgres)
+
 	if err != nil {
 		return err, nil
 	}
 	infrastructure.Gorm = gorm
 
-	tp, err := ic.configOpenTelemetry()
+	tp, err := open_telemetry.TracerProvider(ctx, ic.Cfg.Jaeger, ic.Log)
 	if err != nil {
+		ic.Log.Fatal(err)
 		return err, nil
 	}
+
 	infrastructure.JaegerTracer = tp.Tracer(ic.Cfg.Jaeger.TracerName)
 
 	ic.Log.Infof("%s is running", config.GetMicroserviceName(ic.Cfg.ServiceName))
@@ -51,11 +52,11 @@ func (ic *infrastructureConfigurator) ConfigInfrastructures(ctx context.Context)
 	httpClient := http_client.NewHttpClient()
 	infrastructure.HttpClient = httpClient
 
-	ic.configSwagger()
+	configSwagger(ic.Echo)
 
-	ic.configMiddlewares(ic.Cfg.Jaeger)
+	configMiddlewares(ic.Echo, ic.Cfg.Jaeger)
 
-	ic.configureOauth2()
+	configureOauth2(ic.Echo)
 
 	ConfigIdentityGrpcServer(ctx, ic.GrpcServer, infrastructure)
 
