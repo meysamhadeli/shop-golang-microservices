@@ -10,7 +10,7 @@ require (
 	github.com/go-resty/resty/v2 v2.7.0
 	github.com/jackc/pgx/v4 v4.16.1
 	github.com/labstack/echo/v4 v4.9.1
-	github.com/mehdihadeli/go-mediatr v1.1.8
+	github.com/mehdihadeli/go-mediatr v1.1.9
 	github.com/meysamhadeli/problem-details v1.2.4
 	github.com/meysamhadeli/shop-golang-microservices/internal/pkg v0.0.0-00010101000000-000000000000
 	github.com/pkg/errors v0.9.1
