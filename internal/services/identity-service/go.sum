@@ -347,8 +347,8 @@ github.com/mattn/go-isatty v0.0.7/go.mod h1:Iq45c/XA43vh69/j3iqttzPXn0bhXyGjM0Hd
 github.com/mattn/go-isatty v0.0.12/go.mod h1:cbi8OIDigv2wuxKPP5vlRcQ1OAZbq2CE4Kysco4FUpU=
 github.com/mattn/go-isatty v0.0.14 h1:yVuAays6BHfxijgZPzw+3Zlu5yQgKGP2/hcQbHb7S9Y=
 github.com/mattn/go-isatty v0.0.14/go.mod h1:7GGIvUiUoEMVVmxf/4nioHXj79iQHKdU27kJ6hsGG94=
-github.com/mehdihadeli/go-mediatr v1.1.8 h1:Gc4EUoL7Lx7vFupoUx5T/1W2wjRMpKq4Zm0+B4RXKKU=
-github.com/mehdihadeli/go-mediatr v1.1.8/go.mod h1:lwgZl7qVL/RKomObBblhG3uEte/r4nJDV95Vd+nGrMw=
+github.com/mehdihadeli/go-mediatr v1.1.9 h1:WDbVxuc7j7jEKdeENYB1SSdfJwXsH/pTNbIWuHDwB6o=
+github.com/mehdihadeli/go-mediatr v1.1.9/go.mod h1:lwgZl7qVL/RKomObBblhG3uEte/r4nJDV95Vd+nGrMw=
 github.com/meysamhadeli/problem-details v1.2.4 h1:lahRZ4IM0H3B+8yYWN0zX/olPKHlplKRlldtpRNf8ag=
 github.com/meysamhadeli/problem-details v1.2.4/go.mod h1:n17OvjZmKryjP249Zz9ca1xxka7LBqgL5XjSF9hxdVA=
 github.com/mitchellh/mapstructure v1.5.0 h1:jeMsZIYE/09sWLaz43PL7Gy6RuMjD2eJVyuac5Z2hdY=
