@@ -2,7 +2,7 @@ package configurations
 
 import (
 	"github.com/mehdihadeli/go-mediatr"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/contracts"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/contracts/data"
 	v17 "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/creating_product/commands/v1"
 	create_dtos "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/creating_product/dtos/v1"
 	v16 "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/deleting_product/commands/v1"
@@ -16,7 +16,7 @@ import (
 	v12 "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/updating_product/dtos/v1"
 )
 
-func (c *productsModuleConfigurator) configProductsMediator(pgRepo contracts.ProductRepository) error {
+func (c *productsModuleConfigurator) configProductsMediator(pgRepo data.ProductRepository) error {
 
 	//https://stackoverflow.com/questions/72034479/how-to-implement-generic-interfaces
 	err := mediatr.RegisterRequestHandler[*v17.CreateProduct, *create_dtos.CreateProductResponseDto](v17.NewCreateProductHandler(c.Log, c.Cfg, pgRepo, c.RabbitmqPublisher, c.IdentityGrpcClient))

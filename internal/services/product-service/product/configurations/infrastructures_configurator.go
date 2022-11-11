@@ -16,7 +16,8 @@ import (
 	v1 "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/creating_product/events/v1"
 	events3 "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/deleting_product/events"
 	events2 "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/updating_product/events/v1"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/shared"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/models"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/shared/contracts"
 	"net/http"
 )
 
@@ -32,7 +33,7 @@ func NewInfrastructureConfigurator(log logger.ILogger, cfg *config.Config, echo 
 
 func (ic *infrastructureConfigurator) ConfigInfrastructures(ctx context.Context) (error, func()) {
 
-	infrastructure := &shared.InfrastructureConfiguration{Cfg: ic.Cfg, Echo: ic.Echo, Log: ic.Log, Validator: validator.New()}
+	infrastructure := &contracts.InfrastructureConfiguration{Cfg: ic.Cfg, Echo: ic.Echo, Log: ic.Log, Validator: validator.New()}
 
 	cleanups := []func(){}
 
@@ -51,7 +52,7 @@ func (ic *infrastructureConfigurator) ConfigInfrastructures(ctx context.Context)
 	}
 	infrastructure.Gorm = gorm
 
-	err = migrateProducts(gorm)
+	err = gorm.AutoMigrate(&models.Product{})
 	if err != nil {
 		return err, nil
 	}

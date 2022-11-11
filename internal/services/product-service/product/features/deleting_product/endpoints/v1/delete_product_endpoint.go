@@ -6,15 +6,15 @@ import (
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/http/echo/middleware"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/deleting_product/commands/v1"
 	v12 "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/deleting_product/dtos/v1"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/shared"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/shared/contracts"
 	"net/http"
 )
 
 type deleteProductEndpoint struct {
-	*shared.ProductEndpointBase[shared.InfrastructureConfiguration]
+	*contracts.ProductEndpointBase[contracts.InfrastructureConfiguration]
 }
 
-func NewDeleteProductEndpoint(productEndpointBase *shared.ProductEndpointBase[shared.InfrastructureConfiguration]) *deleteProductEndpoint {
+func NewDeleteProductEndpoint(productEndpointBase *contracts.ProductEndpointBase[contracts.InfrastructureConfiguration]) *deleteProductEndpoint {
 	return &deleteProductEndpoint{productEndpointBase}
 }
 

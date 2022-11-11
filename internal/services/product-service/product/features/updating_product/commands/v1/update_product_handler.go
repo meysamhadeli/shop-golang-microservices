@@ -8,7 +8,7 @@ import (
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/mapper"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/rabbitmq"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/config"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/contracts"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/contracts/data"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/updating_product/dtos/v1"
 	events_v1 "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/updating_product/events/v1"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/models"
@@ -18,11 +18,11 @@ import (
 type UpdateProductHandler struct {
 	log               logger.ILogger
 	cfg               *config.Config
-	pgRepo            contracts.ProductRepository
+	pgRepo            data.ProductRepository
 	rabbitmqPublisher rabbitmq.IPublisher
 }
 
-func NewUpdateProductHandler(log logger.ILogger, cfg *config.Config, pgRepo contracts.ProductRepository,
+func NewUpdateProductHandler(log logger.ILogger, cfg *config.Config, pgRepo data.ProductRepository,
 	rabbitmqPublisher rabbitmq.IPublisher) *UpdateProductHandler {
 	return &UpdateProductHandler{log: log, cfg: cfg, pgRepo: pgRepo, rabbitmqPublisher: rabbitmqPublisher}
 }

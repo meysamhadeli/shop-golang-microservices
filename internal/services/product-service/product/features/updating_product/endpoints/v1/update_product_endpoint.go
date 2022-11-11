@@ -6,16 +6,16 @@ import (
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/http/echo/middleware"
 	commands_v1 "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/updating_product/commands/v1"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/updating_product/dtos/v1"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/shared"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/shared/contracts"
 	"github.com/pkg/errors"
 	"net/http"
 )
 
 type updateProductEndpoint struct {
-	*shared.ProductEndpointBase[shared.InfrastructureConfiguration]
+	*contracts.ProductEndpointBase[contracts.InfrastructureConfiguration]
 }
 
-func NewUpdateProductEndpoint(productEndpointBase *shared.ProductEndpointBase[shared.InfrastructureConfiguration]) *updateProductEndpoint {
+func NewUpdateProductEndpoint(productEndpointBase *contracts.ProductEndpointBase[contracts.InfrastructureConfiguration]) *updateProductEndpoint {
 	return &updateProductEndpoint{productEndpointBase}
 }
 

@@ -3,15 +3,15 @@ package services
 import (
 	"context"
 	identity_service "github.com/meysamhadeli/shop-golang-microservices/internal/services/identity-service/identity/grpc_server/protos"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/services/identity-service/shared"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/services/identity-service/shared/contracts"
 	uuid "github.com/satori/go.uuid"
 )
 
 type IdentityGrpcServerService struct {
-	*shared.InfrastructureConfiguration
+	*contracts.InfrastructureConfiguration
 }
 
-func NewIdentityGrpcServerService(infra *shared.InfrastructureConfiguration) *IdentityGrpcServerService {
+func NewIdentityGrpcServerService(infra *contracts.InfrastructureConfiguration) *IdentityGrpcServerService {
 	return &IdentityGrpcServerService{InfrastructureConfiguration: infra}
 }
 

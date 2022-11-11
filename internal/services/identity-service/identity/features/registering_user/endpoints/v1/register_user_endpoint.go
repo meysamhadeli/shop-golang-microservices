@@ -6,16 +6,16 @@ import (
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/http/echo/middleware"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/identity-service/identity/dtos"
 	v1 "github.com/meysamhadeli/shop-golang-microservices/internal/services/identity-service/identity/features/registering_user/commands/v1"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/services/identity-service/shared"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/services/identity-service/shared/contracts"
 	"github.com/pkg/errors"
 	"net/http"
 )
 
 type registerUserEndpoint struct {
-	*shared.IdentityEndpointBase[shared.InfrastructureConfiguration]
+	*contracts.IdentityEndpointBase[contracts.InfrastructureConfiguration]
 }
 
-func NewCreteUserEndpoint(endpointBase *shared.IdentityEndpointBase[shared.InfrastructureConfiguration]) *registerUserEndpoint {
+func NewCreteUserEndpoint(endpointBase *contracts.IdentityEndpointBase[contracts.InfrastructureConfiguration]) *registerUserEndpoint {
 	return &registerUserEndpoint{endpointBase}
 }
 

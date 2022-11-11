@@ -67,13 +67,19 @@ func (p publisher) PublishMessage(ctx context.Context, msg interface{}) error {
 		return err
 	}
 
+	correlationId := ""
+
+	if ctx.Value(echo.HeaderXCorrelationID) != nil {
+		correlationId = ctx.Value(echo.HeaderXCorrelationID).(string)
+	}
+
 	publishingMsg := amqp.Publishing{
 		Body:          data,
 		ContentType:   "application/json",
 		DeliveryMode:  amqp.Persistent,
 		MessageId:     uuid.NewV4().String(),
 		Timestamp:     time.Now(),
-		CorrelationId: ctx.Value(echo.HeaderXCorrelationID).(string),
+		CorrelationId: correlationId,
 		Headers:       headers,
 	}
 

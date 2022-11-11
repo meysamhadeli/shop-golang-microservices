@@ -10,7 +10,8 @@ import (
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/logger"
 	open_telemetry "github.com/meysamhadeli/shop-golang-microservices/internal/pkg/open-telemetry"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/identity-service/config"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/services/identity-service/shared"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/services/identity-service/identity/models"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/services/identity-service/shared/contracts"
 	"google.golang.org/grpc"
 	"net/http"
 )
@@ -28,7 +29,7 @@ func NewInfrastructureConfigurator(log logger.ILogger, cfg *config.Config, echo 
 
 func (ic *infrastructureConfigurator) ConfigInfrastructures(ctx context.Context) (error, func()) {
 
-	infrastructure := &shared.InfrastructureConfiguration{Cfg: ic.Cfg, Echo: ic.Echo, Log: ic.Log, Validator: validator.New()}
+	infrastructure := &contracts.InfrastructureConfiguration{Cfg: ic.Cfg, Echo: ic.Echo, Log: ic.Log, Validator: validator.New()}
 
 	cleanups := []func(){}
 
@@ -38,6 +39,11 @@ func (ic *infrastructureConfigurator) ConfigInfrastructures(ctx context.Context)
 		return err, nil
 	}
 	infrastructure.Gorm = gorm
+
+	err = gorm.AutoMigrate(&models.User{})
+	if err != nil {
+		return err, nil
+	}
 
 	tp, err := open_telemetry.TracerProvider(ctx, ic.Cfg.Jaeger, ic.Log)
 	if err != nil {
