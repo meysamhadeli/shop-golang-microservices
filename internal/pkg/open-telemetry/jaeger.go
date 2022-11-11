@@ -50,7 +50,7 @@ func TracerProvider(ctx context.Context, cfg *Config, log logger.ILogger) (*trac
 			select {
 			case <-ctx.Done():
 				err = tp.Shutdown(ctx)
-				log.Error("open-telemetry exited properly")
+				log.Info("open-telemetry exited properly")
 				if err != nil {
 					return
 				}

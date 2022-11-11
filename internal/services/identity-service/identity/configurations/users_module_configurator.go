@@ -4,7 +4,7 @@ import (
 	"context"
 	repositories_imp "github.com/meysamhadeli/shop-golang-microservices/internal/services/identity-service/identity/data/repositories"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/identity-service/identity/mappings"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/services/identity-service/shared"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/services/identity-service/shared/contracts"
 )
 
 type UsersModuleConfigurator interface {
@@ -12,10 +12,10 @@ type UsersModuleConfigurator interface {
 }
 
 type usersModuleConfigurator struct {
-	*shared.InfrastructureConfiguration
+	*contracts.InfrastructureConfiguration
 }
 
-func NewUsersModuleConfigurator(infrastructure *shared.InfrastructureConfiguration) *usersModuleConfigurator {
+func NewUsersModuleConfigurator(infrastructure *contracts.InfrastructureConfiguration) *usersModuleConfigurator {
 	return &usersModuleConfigurator{InfrastructureConfiguration: infrastructure}
 }
 

@@ -9,12 +9,12 @@ import (
 	getting_products "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/getting_products/endpoints/v1"
 	searching_products "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/searching_product/endpoints/v1"
 	updating_product "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/updating_product/endpoints/v1"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/shared"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/shared/contracts"
 )
 
 func (c *productsModuleConfigurator) configEndpoints(ctx context.Context, group *echo.Group) {
 
-	productEndpointBase := &shared.ProductEndpointBase[shared.InfrastructureConfiguration]{
+	productEndpointBase := &contracts.ProductEndpointBase[contracts.InfrastructureConfiguration]{
 		ProductsGroup: group,
 		Configuration: *c.InfrastructureConfiguration,
 	}

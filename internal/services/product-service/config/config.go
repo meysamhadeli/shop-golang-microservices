@@ -11,6 +11,8 @@ import (
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/rabbitmq"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/constants"
 	"os"
+	"path/filepath"
+	"runtime"
 	"strings"
 
 	"github.com/pkg/errors"
@@ -44,7 +46,14 @@ func InitConfig(env string) (*Config, error) {
 		if configPathFromEnv != "" {
 			configPath = configPathFromEnv
 		} else {
-			configPath = "./config"
+			//https://stackoverflow.com/questions/31873396/is-it-possible-to-get-the-current-root-of-package-structure-as-a-string-in-golan
+			//https://stackoverflow.com/questions/18537257/how-to-get-the-directory-of-the-currently-running-file
+			d, err := dirname()
+			if err != nil {
+				return nil, err
+			}
+
+			configPath = d
 		}
 	}
 
@@ -67,4 +76,20 @@ func InitConfig(env string) (*Config, error) {
 
 func GetMicroserviceName(serviceName string) string {
 	return fmt.Sprintf("%s", strings.ToUpper(serviceName))
+}
+
+func filename() (string, error) {
+	_, filename, _, ok := runtime.Caller(0)
+	if !ok {
+		return "", errors.New("unable to get the current filename")
+	}
+	return filename, nil
+}
+
+func dirname() (string, error) {
+	filename, err := filename()
+	if err != nil {
+		return "", err
+	}
+	return filepath.Dir(filename), nil
 }

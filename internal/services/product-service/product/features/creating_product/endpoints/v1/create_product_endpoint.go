@@ -6,16 +6,16 @@ import (
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/http/echo/middleware"
 	commands_v1 "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/creating_product/commands/v1"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/creating_product/dtos/v1"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/shared"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/shared/contracts"
 	"github.com/pkg/errors"
 	"net/http"
 )
 
 type createProductEndpoint struct {
-	*shared.ProductEndpointBase[shared.InfrastructureConfiguration]
+	*contracts.ProductEndpointBase[contracts.InfrastructureConfiguration]
 }
 
-func NewCreteProductEndpoint(endpointBase *shared.ProductEndpointBase[shared.InfrastructureConfiguration]) *createProductEndpoint {
+func NewCreteProductEndpoint(endpointBase *contracts.ProductEndpointBase[contracts.InfrastructureConfiguration]) *createProductEndpoint {
 	return &createProductEndpoint{endpointBase}
 }
 

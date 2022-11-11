@@ -8,22 +8,21 @@ import (
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/mapper"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/rabbitmq"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/config"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/contracts"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/contracts/data"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/creating_product/dtos/v1"
 	v12 "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/creating_product/events/v1"
-	identity_service "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/grpc_client/protos"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/models"
 )
 
 type CreateProductHandler struct {
 	log                logger.ILogger
 	cfg                *config.Config
-	repository         contracts.ProductRepository
+	repository         data.ProductRepository
 	rabbitmqPublisher  rabbitmq.IPublisher
 	IdentityGrpcClient grpc.GrpcClient
 }
 
-func NewCreateProductHandler(log logger.ILogger, cfg *config.Config, repository contracts.ProductRepository,
+func NewCreateProductHandler(log logger.ILogger, cfg *config.Config, repository data.ProductRepository,
 	rabbitmqPublisher rabbitmq.IPublisher, identityGrpcClient grpc.GrpcClient) *CreateProductHandler {
 	return &CreateProductHandler{log: log, cfg: cfg, repository: repository, rabbitmqPublisher: rabbitmqPublisher, IdentityGrpcClient: identityGrpcClient}
 }
@@ -31,13 +30,13 @@ func NewCreateProductHandler(log logger.ILogger, cfg *config.Config, repository 
 func (c *CreateProductHandler) Handle(ctx context.Context, command *CreateProduct) (*v1.CreateProductResponseDto, error) {
 
 	// simple call grpcClient
-	identityGrpcClient := identity_service.NewIdentityServiceClient(c.IdentityGrpcClient.GetGrpcConnection())
-	user, err := identityGrpcClient.GetUserById(ctx, &identity_service.GetUserByIdReq{UserId: "1"})
-	if err != nil {
-		return nil, err
-	}
+	//identityGrpcClient := identity_service.NewIdentityServiceClient(c.IdentityGrpcClient.GetGrpcConnection())
+	//user, err := identityGrpcClient.GetUserById(ctx, &identity_service.GetUserByIdReq{UserId: "1"})
+	//if err != nil {
+	//	return nil, err
+	//}
 
-	c.log.Infof("userId: %s", user.User.UserId)
+	//c.log.Infof("userId: %s", user.User.UserId)
 
 	product := &models.Product{
 		ProductId:   command.ProductID,

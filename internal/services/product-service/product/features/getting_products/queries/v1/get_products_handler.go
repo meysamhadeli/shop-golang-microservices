@@ -5,7 +5,7 @@ import (
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/logger"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/utils"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/config"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/contracts"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/contracts/data"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/dtos"
 	v1 "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/getting_products/dtos/v1"
 )
@@ -13,10 +13,10 @@ import (
 type GetProductsHandler struct {
 	log    logger.ILogger
 	cfg    *config.Config
-	pgRepo contracts.ProductRepository
+	pgRepo data.ProductRepository
 }
 
-func NewGetProductsHandler(log logger.ILogger, cfg *config.Config, pgRepo contracts.ProductRepository) *GetProductsHandler {
+func NewGetProductsHandler(log logger.ILogger, cfg *config.Config, pgRepo data.ProductRepository) *GetProductsHandler {
 	return &GetProductsHandler{log: log, cfg: cfg, pgRepo: pgRepo}
 }
 

@@ -7,15 +7,15 @@ import (
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/utils"
 	v1 "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/getting_products/dtos/v1"
 	query_v1 "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/getting_products/queries/v1"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/shared"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/shared/contracts"
 	"net/http"
 )
 
 type getProductsEndpoint struct {
-	*shared.ProductEndpointBase[shared.InfrastructureConfiguration]
+	*contracts.ProductEndpointBase[contracts.InfrastructureConfiguration]
 }
 
-func NewGetProductsEndpoint(productEndpointBase *shared.ProductEndpointBase[shared.InfrastructureConfiguration]) *getProductsEndpoint {
+func NewGetProductsEndpoint(productEndpointBase *contracts.ProductEndpointBase[contracts.InfrastructureConfiguration]) *getProductsEndpoint {
 	return &getProductsEndpoint{productEndpointBase}
 }
 

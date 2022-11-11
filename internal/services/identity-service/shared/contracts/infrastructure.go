@@ -1,4 +1,4 @@
-package shared
+package contracts
 
 import (
 	"github.com/go-playground/validator"

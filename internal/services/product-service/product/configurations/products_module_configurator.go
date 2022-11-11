@@ -5,7 +5,7 @@ import (
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/grpc"
 	repositories_imp "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/data/repositories"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/mappings"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/shared"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/shared/contracts"
 )
 
 type ProductsModuleConfigurator interface {
@@ -13,11 +13,11 @@ type ProductsModuleConfigurator interface {
 }
 
 type productsModuleConfigurator struct {
-	*shared.InfrastructureConfiguration
+	*contracts.InfrastructureConfiguration
 	IdentityGrpcClient grpc.GrpcClient
 }
 
-func NewProductsModuleConfigurator(infrastructure *shared.InfrastructureConfiguration, identityGrpcClient grpc.GrpcClient) *productsModuleConfigurator {
+func NewProductsModuleConfigurator(infrastructure *contracts.InfrastructureConfiguration, identityGrpcClient grpc.GrpcClient) *productsModuleConfigurator {
 	return &productsModuleConfigurator{InfrastructureConfiguration: infrastructure, IdentityGrpcClient: identityGrpcClient}
 }
 

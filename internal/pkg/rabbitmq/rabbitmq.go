@@ -13,7 +13,6 @@ type RabbitMQConfig struct {
 	Password     string
 	ExchangeName string
 	Kind         string
-	VirtualHost  string `mapstructure:"virtualHost"`
 }
 
 // Initialize new channel for rabbitmq
