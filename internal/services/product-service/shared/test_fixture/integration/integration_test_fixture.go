@@ -2,8 +2,6 @@ package integration
 
 import (
 	"context"
-	"github.com/go-playground/validator"
-	"github.com/labstack/echo/v4"
 	"github.com/mehdihadeli/go-mediatr"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/grpc"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/logger"
@@ -17,7 +15,7 @@ import (
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/data/repositories"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/mappings"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/models"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/shared/contracts"
+	"github.com/streadway/amqp"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 	"go.opentelemetry.io/otel/trace"
@@ -33,6 +31,7 @@ type IntegrationTestFixture struct {
 	Ctx                context.Context
 	Tracer             trace.Tracer
 	RabbitMqPublisher  rabbitmq.IPublisher
+	RabbitMqConn       *amqp.Connection
 }
 
 func NewIntegrationTestFixture(t *testing.T) *IntegrationTestFixture {
@@ -42,16 +41,12 @@ func NewIntegrationTestFixture(t *testing.T) *IntegrationTestFixture {
 	log := logger.NewAppLogger(cfg.Logger)
 	log.InitLogger()
 
-	e := echo.New()
-
 	ctx, cancel := context.WithCancel(context.Background())
 
 	err := mappings.ConfigureMappings()
 	if err != nil {
 		require.FailNow(t, err.Error())
 	}
-
-	_ = &contracts.InfrastructureConfiguration{Cfg: cfg, Echo: e, Log: log, Validator: validator.New()}
 
 	cleanups := []func(){}
 
@@ -110,6 +105,7 @@ func NewIntegrationTestFixture(t *testing.T) *IntegrationTestFixture {
 		IdentityGrpcClient: identityGrpcClient,
 		Tracer:             jaegerTracer,
 		RabbitMqPublisher:  rabbitmqPublisher,
+		RabbitMqConn:       conn,
 	}
 
 	return integration

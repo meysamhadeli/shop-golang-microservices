@@ -54,7 +54,7 @@ func (ep *updateProductEndpoint) updateProduct() echo.HandlerFunc {
 			return echo.NewHTTPError(http.StatusBadRequest, err)
 		}
 
-		_, err := mediatr.Send[*commands_v1.UpdateProduct, *mediatr.Unit](ctx, command)
+		_, err := mediatr.Send[*commands_v1.UpdateProduct, *v1.UpdateProductResponseDto](ctx, command)
 
 		if err != nil {
 			ep.Configuration.Log.Warnf("UpdateProduct", err)

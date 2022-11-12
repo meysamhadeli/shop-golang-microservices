@@ -1,0 +1,63 @@
+# https://github.com/Huachao/vscode-restclient
+@identity-api=http://localhost:5002
+@product-api=http://localhost:5000
+
+################################# Identity API #################################
+
+###
+# @name ApiRoot_Identity
+GET {{identity-api}}
+###
+
+
+###
+# @name Token
+GET {{identity-api}}/connect/token?grant_type=password&client_id=clientId&client_secret=clientSecret&scope=all&username=admin&password=admin
+Content-Type: application/json
+accept: application/json
+###
+
+
+###
+# @name Validate-Token
+GET {{identity-api}}/validate-token
+Content-Type: application/json
+authorization: Bearer {{Token.response.body.access_token}}
+accept: application/json
+###
+
+################################# Product API #################################
+
+###
+# @name ApiRoot_Product
+GET {{product-api}}
+###
+
+###
+# @name Create
+Post {{product-api}}/api/v1/products
+accept: application/json
+Content-Type: application/json
+authorization: Bearer {{Token.response.body.access_token}}
+
+{
+  "description": "test-desc",
+  "name": "test-product",
+  "price": 20
+}
+###
+
+###
+# @name Update
+Put {{product-api}}/api/v1/products/232e696b-d8f9-4261-a87b-9b69a8cdb5b2
+accept: application/json
+Content-Type: application/json
+authorization: Bearer {{Token.response.body.access_token}}
+
+{
+  "description": "test-desc",
+  "name": "test-product",
+  "price": 40
+}
+###
+

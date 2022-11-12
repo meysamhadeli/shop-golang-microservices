@@ -8,6 +8,7 @@ import (
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/gorm_postgres"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/http_client"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/logger"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/oauth2"
 	open_telemetry "github.com/meysamhadeli/shop-golang-microservices/internal/pkg/open-telemetry"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/identity-service/config"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/identity-service/identity/models"
@@ -62,7 +63,7 @@ func (ic *infrastructureConfigurator) ConfigInfrastructures(ctx context.Context)
 
 	configMiddlewares(ic.Echo, ic.Cfg.Jaeger)
 
-	configureOauth2(ic.Echo)
+	oauth2.RunOauthServer(ic.Echo)
 
 	ConfigIdentityGrpcServer(ctx, ic.GrpcServer, infrastructure)
 
