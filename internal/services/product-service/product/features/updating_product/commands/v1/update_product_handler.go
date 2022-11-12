@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/grpc"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/logger"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/mapper"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/rabbitmq"
@@ -11,25 +12,36 @@ import (
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/contracts/data"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/updating_product/dtos/v1"
 	events_v1 "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/updating_product/events/v1"
+	identity_service "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/grpc_client/protos"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/models"
 	"github.com/pkg/errors"
 )
 
 type UpdateProductHandler struct {
-	log               logger.ILogger
-	cfg               *config.Config
-	pgRepo            data.ProductRepository
-	rabbitmqPublisher rabbitmq.IPublisher
+	log                logger.ILogger
+	cfg                *config.Config
+	pgRepo             data.ProductRepository
+	rabbitmqPublisher  rabbitmq.IPublisher
+	IdentityGrpcClient grpc.GrpcClient
 }
 
 func NewUpdateProductHandler(log logger.ILogger, cfg *config.Config, pgRepo data.ProductRepository,
-	rabbitmqPublisher rabbitmq.IPublisher) *UpdateProductHandler {
-	return &UpdateProductHandler{log: log, cfg: cfg, pgRepo: pgRepo, rabbitmqPublisher: rabbitmqPublisher}
+	rabbitmqPublisher rabbitmq.IPublisher, identityGrpcClient grpc.GrpcClient) *UpdateProductHandler {
+	return &UpdateProductHandler{log: log, cfg: cfg, pgRepo: pgRepo, rabbitmqPublisher: rabbitmqPublisher, IdentityGrpcClient: identityGrpcClient}
 }
 
 func (c *UpdateProductHandler) Handle(ctx context.Context, command *UpdateProduct) (*v1.UpdateProductResponseDto, error) {
 
-	_, err := c.pgRepo.GetProductById(ctx, command.ProductID)
+	//simple call grpcClient
+	identityGrpcClient := identity_service.NewIdentityServiceClient(c.IdentityGrpcClient.GetGrpcConnection())
+	user, err := identityGrpcClient.GetUserById(ctx, &identity_service.GetUserByIdReq{UserId: "1"})
+	if err != nil {
+		return nil, err
+	}
+
+	c.log.Infof("userId: %s", user.User.UserId)
+
+	_, err = c.pgRepo.GetProductById(ctx, command.ProductID)
 
 	if err != nil {
 		notFoundErr := errors.Wrap(err, fmt.Sprintf("product with id %s not found", command.ProductID))

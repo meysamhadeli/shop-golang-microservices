@@ -3,8 +3,12 @@ package v1
 import (
 	"github.com/brianvoe/gofakeit/v6"
 	"github.com/mehdihadeli/go-mediatr"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/rabbitmq"
+	consumers2 "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/consumers"
 	v1 "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/creating_product/dtos/v1"
+	events_v1 "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/creating_product/events/v1"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/shared/test_fixture/integration"
+	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 	"testing"
 )
@@ -37,8 +41,15 @@ func (c *createProductIntegrationTests) BeforeTest(suiteName, testName string) {
 
 func (c *createProductIntegrationTests) SetupTest() {
 	c.T().Log("SetupTest")
+
 	err := mediatr.RegisterRequestHandler[*CreateProduct, *v1.CreateProductResponseDto](NewCreateProductHandler(c.Log, c.Cfg, c.ProductRepository, c.RabbitMqPublisher, c.IdentityGrpcClient))
 	c.Require().NoError(err)
+
+	createProductConsumer := rabbitmq.NewConsumer(c.Cfg.Rabbitmq, c.RabbitMqConn, c.Log, c.Tracer, consumers2.HandleConsumeCreateProduct)
+	err = createProductConsumer.ConsumeMessage(c.Ctx, events_v1.ProductCreated{})
+	if err != nil {
+		require.FailNow(c.T(), err.Error())
+	}
 }
 
 func (c *createProductIntegrationTests) TearDownTest() {
