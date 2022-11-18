@@ -6,6 +6,21 @@
 
 The main idea of creating this project is implementing an infrastructure for up and running distributed system with the latest technology and architecture like Vertical Slice Architecture, OpenTelemetry, RabbitMq in Golang, and we will not deal mainly with business. 🚀
 
+## The Goals of This Project
+
+- :sparkle: Using `Vertical Slice Architecture` for architecture level.
+- :sparkle: Using `Rabbitmq` for `Event Driven Architecture` between our microservices.
+- :sparkle: Using `gRPC` for internal communication between our microservices.
+- :sparkle: Using `CQRS` implementation with `go-mediatr` library.
+- :sparkle: Using `Postgres` for database in our microservices.
+- :sparkle: Using `Integration Testing` for testing level.
+- :sparkle: Using `go-playground/validator` for validating input data in the REST calls.
+- :sparkle: Using `Docker-Compose` for our deployment mechanism.
+- :sparkle: Using `OpenTelemetry` for distributed tracing.
+- :sparkle: Using `OAuth2` for implementation authentication and authorization.
+- :sparkle: Using `Echo framework` for RESTFul api.
+- :sparkle: Using `Swagger` with swaggo/swag library.
+
 ## Plan
 
 > 🌀This project is a work in progress, new features will be added over time.🌀
