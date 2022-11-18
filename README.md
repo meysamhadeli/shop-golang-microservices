@@ -13,13 +13,13 @@ The main idea of creating this project is implementing an infrastructure for up 
 - :sparkle: Using `gRPC` for internal communication between our microservices with `grpc/grpc-go` library.
 - :sparkle: Using `CQRS` implementation with `mehdihadeli/Go-MediatR` library.
 - :sparkle: Using `Postgres` for database in our microservices with `go-gorm/gorm` library.
-- :sparkle: Using `Integration Testing` for testing level.
 - :sparkle: Using `go-playground/validator` for validating input data in the REST calls.
-- :sparkle: Using `Docker-Compose` for our deployment mechanism.
 - :sparkle: Using `OpenTelemetry` for distributed tracing with `open-telemetry/opentelemetry-go` library.
 - :sparkle: Using `OAuth2` for implementation authentication and authorization with `go-oauth2/oauth2` library.
 - :sparkle: Using `Echo framework` for RESTFul api.
 - :sparkle: Using `Swagger` with `swaggo/swag` library.
+- :sparkle: Using `Integration Testing` for testing level.
+- :sparkle: Using `Docker-Compose` for our deployment mechanism.
 
 ## Plan
 
