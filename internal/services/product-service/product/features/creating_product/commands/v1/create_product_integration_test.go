@@ -27,7 +27,10 @@ func (c *createProductIntegrationTests) Test_Should_Create_New_Product_To_DB() {
 	result, err := mediatr.Send[*CreateProduct, *v1.CreateProductResponseDto](c.Ctx, command)
 	c.Require().NoError(err)
 
-	isConsumed := c.RabbitMqConsumer.IsConsume(v1_event.ProductCreated{})
+	isPublished := c.RabbitMqPublisher.IsPublished(v1_event.ProductCreated{})
+	c.Assert().Equal(true, isPublished)
+
+	isConsumed := c.RabbitMqConsumer.IsConsumed(v1_event.ProductCreated{})
 	c.Assert().Equal(true, isConsumed)
 
 	c.Require().NoError(err)

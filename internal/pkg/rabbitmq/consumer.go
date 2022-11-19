@@ -17,12 +17,12 @@ import (
 	"time"
 )
 
-var consumeMessages []string
-
 type IConsumer interface {
 	ConsumeMessage(ctx context.Context, msg interface{}) error
-	IsConsume(msg interface{}) bool
+	IsConsumed(msg interface{}) bool
 }
+
+var consumedMessages []string
 
 type consumer struct {
 	cfg          *RabbitMQConfig
@@ -128,7 +128,7 @@ func (c consumer) ConsumeMessage(ctx context.Context, msg interface{}) error {
 					c.log.Error(err.Error())
 				}
 
-				consumeMessages = append(consumeMessages, snakeTypeName)
+				consumedMessages = append(consumedMessages, snakeTypeName)
 
 				_, span := c.jaegerTracer.Start(ctx, consumerHandlerName)
 
@@ -165,7 +165,7 @@ func (c consumer) ConsumeMessage(ctx context.Context, msg interface{}) error {
 	return nil
 }
 
-func (c consumer) IsConsume(msg interface{}) bool {
+func (c consumer) IsConsumed(msg interface{}) bool {
 	timeOutTime := 20 * time.Second
 	startTime := time.Now()
 	timeOutExpired := false
@@ -184,7 +184,7 @@ func (c consumer) IsConsume(msg interface{}) bool {
 		typeName := reflect.TypeOf(msg).Name()
 		snakeTypeName := strcase.ToSnake(typeName)
 
-		isConsumed = linq.From(consumeMessages).Contains(snakeTypeName)
+		isConsumed = linq.From(consumedMessages).Contains(snakeTypeName)
 
 		timeOutExpired = time.Now().Sub(startTime) > timeOutTime
 	}

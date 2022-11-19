@@ -2,6 +2,7 @@ package rabbitmq
 
 import (
 	"context"
+	"github.com/ahmetb/go-linq/v3"
 	"github.com/iancoleman/strcase"
 	jsoniter "github.com/json-iterator/go"
 	"github.com/labstack/echo/v4"
@@ -17,7 +18,10 @@ import (
 
 type IPublisher interface {
 	PublishMessage(ctx context.Context, msg interface{}) error
+	IsPublished(msg interface{}) bool
 }
+
+var publishedMessages []string
 
 type publisher struct {
 	cfg          *RabbitMQConfig
@@ -90,6 +94,8 @@ func (p publisher) PublishMessage(ctx context.Context, msg interface{}) error {
 		return err
 	}
 
+	publishedMessages = append(publishedMessages, snakeTypeName)
+
 	h, err := jsoniter.Marshal(headers)
 
 	if err != nil {
@@ -108,6 +114,15 @@ func (p publisher) PublishMessage(ctx context.Context, msg interface{}) error {
 	span.SetAttributes(attribute.Key("headers").String(string(h)))
 
 	return nil
+}
+
+func (p publisher) IsPublished(msg interface{}) bool {
+
+	typeName := reflect.TypeOf(msg).Name()
+	snakeTypeName := strcase.ToSnake(typeName)
+	isPublished := linq.From(publishedMessages).Contains(snakeTypeName)
+
+	return isPublished
 }
 
 func NewPublisher(cfg *RabbitMQConfig, conn *amqp.Connection, log logger.ILogger, jaegerTracer trace.Tracer) *publisher {
