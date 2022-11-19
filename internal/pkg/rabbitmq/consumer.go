@@ -3,6 +3,7 @@ package rabbitmq
 import (
 	"context"
 	"fmt"
+	"github.com/ahmetb/go-linq/v3"
 	"github.com/iancoleman/strcase"
 	jsoniter "github.com/json-iterator/go"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/logger"
@@ -16,8 +17,11 @@ import (
 	"time"
 )
 
+var consumeMessages []string
+
 type IConsumer interface {
 	ConsumeMessage(ctx context.Context, msg interface{}) error
+	IsConsume(msg interface{}) bool
 }
 
 type consumer struct {
@@ -124,6 +128,8 @@ func (c consumer) ConsumeMessage(ctx context.Context, msg interface{}) error {
 					c.log.Error(err.Error())
 				}
 
+				consumeMessages = append(consumeMessages, snakeTypeName)
+
 				_, span := c.jaegerTracer.Start(ctx, consumerHandlerName)
 
 				h, err := jsoniter.Marshal(delivery.Headers)
@@ -157,6 +163,31 @@ func (c consumer) ConsumeMessage(ctx context.Context, msg interface{}) error {
 	c.log.Infof("Waiting for messages in queue :%s. To exit press CTRL+C", q.Name)
 
 	return nil
+}
+
+func (c consumer) IsConsume(msg interface{}) bool {
+	timeOutTime := 20 * time.Second
+	startTime := time.Now()
+	timeOutExpired := false
+	isConsumed := false
+
+	for {
+		if timeOutExpired {
+			return false
+		}
+		if isConsumed {
+			return true
+		}
+
+		time.Sleep(time.Second * 2)
+
+		typeName := reflect.TypeOf(msg).Name()
+		snakeTypeName := strcase.ToSnake(typeName)
+
+		isConsumed = linq.From(consumeMessages).Contains(snakeTypeName)
+
+		timeOutExpired = time.Now().Sub(startTime) > timeOutTime
+	}
 }
 
 func NewConsumer(cfg *RabbitMQConfig, conn *amqp.Connection, log logger.ILogger, jaegerTracer trace.Tracer, handler func(queue string, msg amqp.Delivery) error) *consumer {

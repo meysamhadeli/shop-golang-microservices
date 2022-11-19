@@ -29,8 +29,9 @@ type IntegrationTestFixture struct {
 	ProductRepository  data.ProductRepository
 	IdentityGrpcClient grpc.GrpcClient
 	Ctx                context.Context
-	Tracer             trace.Tracer
+	JaegerTracer       trace.Tracer
 	RabbitMqPublisher  rabbitmq.IPublisher
+	RabbitMqConsumer   rabbitmq.IConsumer
 	RabbitMqConn       *amqp.Connection
 }
 
@@ -103,7 +104,7 @@ func NewIntegrationTestFixture(t *testing.T) *IntegrationTestFixture {
 		Ctx:                ctx,
 		ProductRepository:  ProductRepository,
 		IdentityGrpcClient: identityGrpcClient,
-		Tracer:             jaegerTracer,
+		JaegerTracer:       jaegerTracer,
 		RabbitMqPublisher:  rabbitmqPublisher,
 		RabbitMqConn:       conn,
 	}
