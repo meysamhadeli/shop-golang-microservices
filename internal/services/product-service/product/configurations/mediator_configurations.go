@@ -9,6 +9,7 @@ import (
 	get_by_id_dtos "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/getting_product_by_id/dtos/v1"
 	v15 "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/getting_product_by_id/queries/v1"
 	get_dtos "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/getting_products/dtos/v1"
+	queries_v1 "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/getting_products/queries/v1"
 	search_dtos "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/searching_product/dtos/v1"
 	v14 "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/searching_product/queries/v1"
 	v13 "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/updating_product/commands/v1"
@@ -23,7 +24,7 @@ func (c *productsModuleConfigurator) configProductsMediator(pgRepo data.ProductR
 		return err
 	}
 
-	err = mediatr.RegisterRequestHandler[*search_dtos.GetProducts, *get_dtos.GetProductsResponseDto](search_dtos.NewGetProductsHandler(c.Log, c.Cfg, pgRepo))
+	err = mediatr.RegisterRequestHandler[*queries_v1.GetProducts, *get_dtos.GetProductsResponseDto](queries_v1.NewGetProductsHandler(c.Log, c.Cfg, pgRepo))
 	if err != nil {
 		return err
 	}
