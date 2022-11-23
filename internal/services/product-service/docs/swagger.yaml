@@ -1,4 +1,9 @@
 definitions:
+  dtos.GetProductsResponseDto:
+    properties:
+      products:
+        $ref: '#/definitions/utils.ListResult-dtos_ProductDto'
+    type: object
   dtos.ProductDto:
     properties:
       createdAt:
@@ -14,6 +19,39 @@ definitions:
       updatedAt:
         type: string
     type: object
+  dtos.RegisterUserRequestDto:
+    properties:
+      email:
+        type: string
+      firstName:
+        type: string
+      lastName:
+        type: string
+      password:
+        type: string
+      userName:
+        type: string
+    type: object
+  dtos.RegisterUserResponseDto:
+    properties:
+      email:
+        type: string
+      firstName:
+        type: string
+      lastName:
+        type: string
+      password:
+        type: string
+      userId:
+        type: string
+      userName:
+        type: string
+    type: object
+  dtos_v1.SearchProductsResponseDto:
+    properties:
+      products:
+        $ref: '#/definitions/utils.ListResult-dtos_ProductDto'
+    type: object
   utils.FilterModel:
     properties:
       comparison:
@@ -22,6 +60,21 @@ definitions:
         type: string
       value:
         type: string
+    type: object
+  utils.ListResult-dtos_ProductDto:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/dtos.ProductDto'
+        type: array
+      page:
+        type: integer
+      size:
+        type: integer
+      totalItems:
+        type: integer
+      totalPage:
+        type: integer
     type: object
   v1.CreateProductRequestDto:
     properties:
@@ -41,16 +94,6 @@ definitions:
     properties:
       product:
         $ref: '#/definitions/dtos.ProductDto'
-    type: object
-  v1.GetProductsResponseDto:
-    properties:
-      products:
-        type: object
-    type: object
-  v1.SearchProductsResponseDto:
-    properties:
-      products:
-        type: object
     type: object
   v1.UpdateProductRequestDto:
     properties:
@@ -88,7 +131,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/v1.GetProductsResponseDto'
+            $ref: '#/definitions/dtos.GetProductsResponseDto'
       security:
       - ApiKeyAuth: []
       summary: Get all product
@@ -132,7 +175,7 @@ paths:
       - application/json
       responses:
         "204":
-          description: ""
+          description: No Content
       security:
       - ApiKeyAuth: []
       summary: Delete product
@@ -180,7 +223,7 @@ paths:
       - application/json
       responses:
         "204":
-          description: ""
+          description: No Content
       security:
       - ApiKeyAuth: []
       summary: Update product
@@ -210,12 +253,36 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/v1.SearchProductsResponseDto'
+            $ref: '#/definitions/dtos_v1.SearchProductsResponseDto'
       security:
       - ApiKeyAuth: []
       summary: Search products
       tags:
       - Products
+  /api/v1/users:
+    post:
+      consumes:
+      - application/json
+      description: Create new user
+      parameters:
+      - description: User data
+        in: body
+        name: RegisterUserRequestDto
+        required: true
+        schema:
+          $ref: '#/definitions/dtos.RegisterUserRequestDto'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dtos.RegisterUserResponseDto'
+      security:
+      - ApiKeyAuth: []
+      summary: Register user
+      tags:
+      - Users
 securityDefinitions:
   ApiKeyAuth:
     in: header

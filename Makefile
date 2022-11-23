@@ -41,8 +41,8 @@ proto_identities_get_user_by_id_service:
 
 swagger_products:
 	@echo Starting swagger generating
-	swag init --parseDependency --parseInternal --parseDepth 1 -g ./cmd/main.go -d ./internal/services/product-service/ -o ./internal/services/product-service/docs
+	swag init -g ./internal/services/product-service/cmd/main.go -o ./internal/services/product-service/docs
 
 swagger_identities:
 	@echo Starting swagger generating
-	swag init --parseDependency --parseInternal --parseDepth 1 -g ./cmd/main.go -d ./internal/services/identity-service/ -o ./internal/services/identity-service/docs
+	swag init -g ./internal/services/identity-service/cmd/main.go -o ./internal/services/identity-service/docs

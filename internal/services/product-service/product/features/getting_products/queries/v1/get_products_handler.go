@@ -1,4 +1,4 @@
-package v1
+package queries_v1
 
 import (
 	"context"
@@ -7,7 +7,7 @@ import (
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/config"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/contracts/data"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/dtos"
-	v1 "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/getting_products/dtos/v1"
+	dtos1 "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/getting_products/dtos/v1"
 )
 
 type GetProductsHandler struct {
@@ -20,7 +20,7 @@ func NewGetProductsHandler(log logger.ILogger, cfg *config.Config, pgRepo data.P
 	return &GetProductsHandler{log: log, cfg: cfg, pgRepo: pgRepo}
 }
 
-func (c *GetProductsHandler) Handle(ctx context.Context, query *GetProducts) (*v1.GetProductsResponseDto, error) {
+func (c *GetProductsHandler) Handle(ctx context.Context, query *GetProducts) (*dtos1.GetProductsResponseDto, error) {
 
 	products, err := c.pgRepo.GetAllProducts(ctx, query.ListQuery)
 	if err != nil {
@@ -32,5 +32,5 @@ func (c *GetProductsHandler) Handle(ctx context.Context, query *GetProducts) (*v
 	if err != nil {
 		return nil, err
 	}
-	return &v1.GetProductsResponseDto{Products: listResultDto}, nil
+	return &dtos1.GetProductsResponseDto{Products: listResultDto}, nil
 }

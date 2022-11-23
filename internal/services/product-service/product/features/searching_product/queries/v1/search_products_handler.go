@@ -1,4 +1,4 @@
-package v1
+package queries_v1
 
 import (
 	"context"

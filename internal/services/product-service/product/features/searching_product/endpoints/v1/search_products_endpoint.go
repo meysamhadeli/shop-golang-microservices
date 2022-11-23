@@ -1,12 +1,12 @@
-package v1
+package endpoints_v1
 
 import (
 	"github.com/labstack/echo/v4"
 	"github.com/mehdihadeli/go-mediatr"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/http/echo/middleware"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/utils"
-	v1 "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/searching_product/dtos/v1"
-	query_v1 "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/searching_product/queries/v1"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/searching_product/dtos/v1"
+	queries_v1 "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/searching_product/queries/v1"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/shared/contracts"
 	"net/http"
 )
@@ -29,8 +29,8 @@ func (ep *searchProductsEndpoint) MapRoute() {
 // @Description Search products
 // @Accept      json
 // @Produce     json
-// @Param       searchProductsRequestDto query    v1.SearchProductsRequestDto false "SearchProductsRequestDto"
-// @Success     200                      {object} v1.SearchProductsResponseDto[dto.ProductDto]
+// @Param       searchProductsRequestDto query dtos_v1.SearchProductsRequestDto false "SearchProductsRequestDto"
+// @Success     200  {object} dtos_v1.SearchProductsResponseDto
 // @Security ApiKeyAuth
 // @Router      /api/v1/products/search [get]
 func (ep *searchProductsEndpoint) searchProducts() echo.HandlerFunc {
@@ -44,7 +44,7 @@ func (ep *searchProductsEndpoint) searchProducts() echo.HandlerFunc {
 			return echo.NewHTTPError(http.StatusBadRequest, err)
 		}
 
-		request := &v1.SearchProductsRequestDto{ListQuery: listQuery}
+		request := &dtos_v1.SearchProductsRequestDto{ListQuery: listQuery}
 
 		// https://echo.labstack.com/guide/binding/
 		if err := c.Bind(request); err != nil {
@@ -52,14 +52,14 @@ func (ep *searchProductsEndpoint) searchProducts() echo.HandlerFunc {
 			return echo.NewHTTPError(http.StatusBadRequest, err)
 		}
 
-		query := &query_v1.SearchProducts{SearchText: request.SearchText, ListQuery: request.ListQuery}
+		query := &queries_v1.SearchProducts{SearchText: request.SearchText, ListQuery: request.ListQuery}
 
 		if err := ep.Configuration.Validator.StructCtx(ctx, query); err != nil {
 			ep.Configuration.Log.Errorf("(validate) err: {%v}", err)
 			return echo.NewHTTPError(http.StatusBadRequest, err)
 		}
 
-		queryResult, err := mediatr.Send[*query_v1.SearchProducts, *v1.SearchProductsResponseDto](ctx, query)
+		queryResult, err := mediatr.Send[*queries_v1.SearchProducts, *dtos_v1.SearchProductsResponseDto](ctx, query)
 
 		if err != nil {
 			ep.Configuration.Log.Warn("SearchProducts", err)

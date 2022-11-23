@@ -55,7 +55,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/v1.GetProductsResponseDto"
+                            "$ref": "#/definitions/dtos.GetProductsResponseDto"
                         }
                     }
                 }
@@ -142,7 +142,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/v1.SearchProductsResponseDto"
+                            "$ref": "#/definitions/dtos_v1.SearchProductsResponseDto"
                         }
                     }
                 }
@@ -221,7 +221,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "204": {
-                        "description": ""
+                        "description": "No Content"
                     }
                 }
             },
@@ -253,13 +253,60 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "204": {
-                        "description": ""
+                        "description": "No Content"
+                    }
+                }
+            }
+        },
+        "/api/v1/users": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Create new user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Register user",
+                "parameters": [
+                    {
+                        "description": "User data",
+                        "name": "RegisterUserRequestDto",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dtos.RegisterUserRequestDto"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/dtos.RegisterUserResponseDto"
+                        }
                     }
                 }
             }
         }
     },
     "definitions": {
+        "dtos.GetProductsResponseDto": {
+            "type": "object",
+            "properties": {
+                "products": {
+                    "$ref": "#/definitions/utils.ListResult-dtos_ProductDto"
+                }
+            }
+        },
         "dtos.ProductDto": {
             "type": "object",
             "properties": {
@@ -283,6 +330,57 @@ const docTemplate = `{
                 }
             }
         },
+        "dtos.RegisterUserRequestDto": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "firstName": {
+                    "type": "string"
+                },
+                "lastName": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "userName": {
+                    "type": "string"
+                }
+            }
+        },
+        "dtos.RegisterUserResponseDto": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "firstName": {
+                    "type": "string"
+                },
+                "lastName": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "userId": {
+                    "type": "string"
+                },
+                "userName": {
+                    "type": "string"
+                }
+            }
+        },
+        "dtos_v1.SearchProductsResponseDto": {
+            "type": "object",
+            "properties": {
+                "products": {
+                    "$ref": "#/definitions/utils.ListResult-dtos_ProductDto"
+                }
+            }
+        },
         "utils.FilterModel": {
             "type": "object",
             "properties": {
@@ -294,6 +392,29 @@ const docTemplate = `{
                 },
                 "value": {
                     "type": "string"
+                }
+            }
+        },
+        "utils.ListResult-dtos_ProductDto": {
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dtos.ProductDto"
+                    }
+                },
+                "page": {
+                    "type": "integer"
+                },
+                "size": {
+                    "type": "integer"
+                },
+                "totalItems": {
+                    "type": "integer"
+                },
+                "totalPage": {
+                    "type": "integer"
                 }
             }
         },
@@ -324,22 +445,6 @@ const docTemplate = `{
             "properties": {
                 "product": {
                     "$ref": "#/definitions/dtos.ProductDto"
-                }
-            }
-        },
-        "v1.GetProductsResponseDto": {
-            "type": "object",
-            "properties": {
-                "products": {
-                    "type": "object"
-                }
-            }
-        },
-        "v1.SearchProductsResponseDto": {
-            "type": "object",
-            "properties": {
-                "products": {
-                    "type": "object"
                 }
             }
         },
