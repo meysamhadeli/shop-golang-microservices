@@ -60,6 +60,12 @@ func (s *EchoServer) ApplyVersioningFromHeader() {
 	s.Echo.Pre(apiVersion)
 }
 
+func (s *EchoServer) RegisterGroupFunc(groupName string, builder func(g *echo.Group)) *EchoServer {
+	builder(s.Echo.Group(groupName))
+
+	return s
+}
+
 // APIVersion Header Based Versioning
 func apiVersion(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {

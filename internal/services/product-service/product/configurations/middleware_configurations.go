@@ -11,7 +11,7 @@ import (
 	"strings"
 )
 
-func configMiddlewares(e *echo.Echo, otelCfg *open_telemetry.Config) {
+func ConfigMiddlewares(e *echo.Echo, otelCfg *open_telemetry.Config) {
 
 	e.HideBanner = false
 

@@ -6,5 +6,5 @@ import (
 )
 
 type UserRepository interface {
-	RegisterUser(ctx context.Context, product *models.User) (*models.User, error)
+	RegisterUser(ctx context.Context, user *models.User) (*models.User, error)
 }

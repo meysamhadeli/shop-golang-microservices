@@ -3,7 +3,6 @@ package v1
 import (
 	"github.com/labstack/echo/v4"
 	"github.com/mehdihadeli/go-mediatr"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/http/echo/middleware"
 	commands_v1 "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/creating_product/commands/v1"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/creating_product/dtos/v1"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/shared/contracts"
@@ -20,7 +19,7 @@ func NewCreteProductEndpoint(endpointBase *contracts.ProductEndpointBase[contrac
 }
 
 func (ep *createProductEndpoint) MapRoute() {
-	ep.ProductsGroup.POST("", ep.createProduct(), middleware.ValidateBearerToken())
+	ep.ProductsGroup.POST("", ep.createProduct())
 }
 
 // CreateProduct

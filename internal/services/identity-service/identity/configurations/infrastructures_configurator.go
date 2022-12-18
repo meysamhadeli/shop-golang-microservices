@@ -69,7 +69,7 @@ func (ic *infrastructureConfigurator) ConfigInfrastructures(ctx context.Context)
 
 	pc := NewUsersModuleConfigurator(infrastructure)
 
-	err = pc.ConfigureIdentitiesModule(ctx)
+	err = ConfigureIdentitiesModule(pc)
 	if err != nil {
 		return err, nil
 	}
