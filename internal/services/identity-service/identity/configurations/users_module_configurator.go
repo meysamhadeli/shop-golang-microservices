@@ -1,7 +1,6 @@
 package configurations
 
 import (
-	"context"
 	repositories_imp "github.com/meysamhadeli/shop-golang-microservices/internal/services/identity-service/identity/data/repositories"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/identity-service/identity/mappings"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/identity-service/shared/contracts"
@@ -15,28 +14,28 @@ type usersModuleConfigurator struct {
 	*contracts.InfrastructureConfiguration
 }
 
-func NewUsersModuleConfigurator(infrastructure *contracts.InfrastructureConfiguration) *usersModuleConfigurator {
-	return &usersModuleConfigurator{InfrastructureConfiguration: infrastructure}
+func NewUsersModuleConfigurator(infrastructure *contracts.InfrastructureConfiguration) *contracts.InfrastructureConfiguration {
+	return infrastructure
 }
 
-func (c *usersModuleConfigurator) ConfigureIdentitiesModule(ctx context.Context) error {
+func ConfigureIdentitiesModule(ic *contracts.InfrastructureConfiguration) error {
 
-	v1 := c.Echo.Group("/api/v1")
+	v1 := ic.Echo.Group("/api/v1")
 	group := v1.Group("/users")
 
-	userRepository := repositories_imp.NewPostgresUserRepository(c.Log, c.Cfg, c.Gorm)
+	ic.UserRepository = repositories_imp.NewPostgresUserRepository(ic.Log, ic.Cfg, ic.Gorm)
 
 	err := mappings.ConfigureMappings()
 	if err != nil {
 		return err
 	}
 
-	err = c.configUsersMediator(userRepository)
+	err = ConfigUsersMediator(ic)
 	if err != nil {
 		return err
 	}
 
-	c.configEndpoints(ctx, group)
+	ConfigEndpoints(ic, group)
 
 	return nil
 }

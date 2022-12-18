@@ -8,24 +8,25 @@ import (
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/logger"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/utils"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/config"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/contracts/data"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/models"
 	"github.com/pkg/errors"
 	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
 )
 
-type postgresProductRepository struct {
+type PostgresProductRepository struct {
 	log  logger.ILogger
 	cfg  *config.Config
 	db   *pgxpool.Pool
 	gorm *gorm.DB
 }
 
-func NewPostgresProductRepository(log logger.ILogger, cfg *config.Config, gorm *gorm.DB) *postgresProductRepository {
-	return &postgresProductRepository{log: log, cfg: cfg, gorm: gorm}
+func NewPostgresProductRepository(log logger.ILogger, cfg *config.Config, gorm *gorm.DB) data.ProductRepository {
+	return &PostgresProductRepository{log: log, cfg: cfg, gorm: gorm}
 }
 
-func (p *postgresProductRepository) GetAllProducts(ctx context.Context, listQuery *utils.ListQuery) (*utils.ListResult[*models.Product], error) {
+func (p *PostgresProductRepository) GetAllProducts(ctx context.Context, listQuery *utils.ListQuery) (*utils.ListResult[*models.Product], error) {
 
 	result, err := gorm_postgres.Paginate[*models.Product](ctx, listQuery, p.gorm)
 	if err != nil {
@@ -34,7 +35,7 @@ func (p *postgresProductRepository) GetAllProducts(ctx context.Context, listQuer
 	return result, nil
 }
 
-func (p *postgresProductRepository) SearchProducts(ctx context.Context, searchText string, listQuery *utils.ListQuery) (*utils.ListResult[*models.Product], error) {
+func (p *PostgresProductRepository) SearchProducts(ctx context.Context, searchText string, listQuery *utils.ListQuery) (*utils.ListResult[*models.Product], error) {
 
 	whereQuery := fmt.Sprintf("%s IN (?)", "Name")
 	query := p.gorm.Where(whereQuery, searchText)
@@ -46,7 +47,7 @@ func (p *postgresProductRepository) SearchProducts(ctx context.Context, searchTe
 	return result, nil
 }
 
-func (p *postgresProductRepository) GetProductById(ctx context.Context, uuid uuid.UUID) (*models.Product, error) {
+func (p *PostgresProductRepository) GetProductById(ctx context.Context, uuid uuid.UUID) (*models.Product, error) {
 
 	var product models.Product
 
@@ -57,7 +58,7 @@ func (p *postgresProductRepository) GetProductById(ctx context.Context, uuid uui
 	return &product, nil
 }
 
-func (p *postgresProductRepository) CreateProduct(ctx context.Context, product *models.Product) (*models.Product, error) {
+func (p *PostgresProductRepository) CreateProduct(ctx context.Context, product *models.Product) (*models.Product, error) {
 
 	if err := p.gorm.Create(&product).Error; err != nil {
 		return nil, errors.Wrap(err, "error in the inserting product into the database.")
@@ -66,7 +67,7 @@ func (p *postgresProductRepository) CreateProduct(ctx context.Context, product *
 	return product, nil
 }
 
-func (p *postgresProductRepository) UpdateProduct(ctx context.Context, updateProduct *models.Product) (*models.Product, error) {
+func (p *PostgresProductRepository) UpdateProduct(ctx context.Context, updateProduct *models.Product) (*models.Product, error) {
 
 	if err := p.gorm.Save(updateProduct).Error; err != nil {
 		return nil, errors.Wrap(err, fmt.Sprintf("error in updating product with id %s into the database.", updateProduct.ProductId))
@@ -75,7 +76,7 @@ func (p *postgresProductRepository) UpdateProduct(ctx context.Context, updatePro
 	return updateProduct, nil
 }
 
-func (p *postgresProductRepository) DeleteProductByID(ctx context.Context, uuid uuid.UUID) error {
+func (p *PostgresProductRepository) DeleteProductByID(ctx context.Context, uuid uuid.UUID) error {
 
 	var product models.Product
 

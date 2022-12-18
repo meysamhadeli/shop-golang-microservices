@@ -1,11 +1,12 @@
-package v1
+package creating_product
 
 import (
 	"github.com/brianvoe/gofakeit/v6"
 	"github.com/mehdihadeli/go-mediatr"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/rabbitmq"
 	consumers2 "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/consumers"
-	v1 "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/creating_product/dtos/v1"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/creating_product/commands/v1"
+	v1_dtos "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/creating_product/dtos/v1"
 	v1_event "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/creating_product/events/v1"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/shared/test_fixture/integration"
 	"github.com/stretchr/testify/require"
@@ -23,8 +24,8 @@ func TestCreateProductIntegration(t *testing.T) {
 
 func (c *createProductIntegrationTests) Test_Should_Create_New_Product_To_DB() {
 
-	command := NewCreateProduct(gofakeit.Name(), gofakeit.AdjectiveDescriptive(), gofakeit.Price(150, 6000))
-	result, err := mediatr.Send[*CreateProduct, *v1.CreateProductResponseDto](c.Ctx, command)
+	command := v1.NewCreateProduct(gofakeit.Name(), gofakeit.AdjectiveDescriptive(), gofakeit.Price(150, 6000))
+	result, err := mediatr.Send[*v1.CreateProduct, *v1_dtos.CreateProductResponseDto](c.Ctx, command)
 	c.Require().NoError(err)
 
 	isPublished := c.RabbitMqPublisher.IsPublished(v1_event.ProductCreated{})
@@ -50,11 +51,9 @@ func (c *createProductIntegrationTests) BeforeTest(suiteName, testName string) {
 func (c *createProductIntegrationTests) SetupTest() {
 	c.T().Log("SetupTest")
 
-	err := mediatr.RegisterRequestHandler[*CreateProduct, *v1.CreateProductResponseDto](NewCreateProductHandler(c.Log, c.Cfg, c.ProductRepository, c.RabbitMqPublisher))
-
 	c.RabbitMqConsumer = rabbitmq.NewConsumer(c.Cfg.Rabbitmq, c.RabbitMqConn, c.Log, c.JaegerTracer, consumers2.HandleConsumeCreateProduct)
+	err := c.RabbitMqConsumer.ConsumeMessage(c.Ctx, v1_event.ProductCreated{})
 
-	err = c.RabbitMqConsumer.ConsumeMessage(c.Ctx, v1_event.ProductCreated{})
 	if err != nil {
 		require.FailNow(c.T(), err.Error())
 	}

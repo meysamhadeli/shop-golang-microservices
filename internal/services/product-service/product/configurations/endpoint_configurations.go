@@ -1,7 +1,6 @@
 package configurations
 
 import (
-	"context"
 	"github.com/labstack/echo/v4"
 	creating_product "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/creating_product/endpoints/v1"
 	deleting_product "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/deleting_product/endpoints/v1"
@@ -12,11 +11,11 @@ import (
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/shared/contracts"
 )
 
-func (c *productsModuleConfigurator) configEndpoints(ctx context.Context, group *echo.Group) {
+func ConfigEndpoints(ic *contracts.InfrastructureConfiguration, group *echo.Group) {
 
 	productEndpointBase := &contracts.ProductEndpointBase[contracts.InfrastructureConfiguration]{
 		ProductsGroup: group,
-		Configuration: *c.InfrastructureConfiguration,
+		Configuration: *ic,
 	}
 	// CreateNewProduct
 	createProductEndpoint := creating_product.NewCreteProductEndpoint(productEndpointBase)

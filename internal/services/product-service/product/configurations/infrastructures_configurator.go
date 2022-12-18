@@ -38,9 +38,13 @@ func (ic *infrastructureConfigurator) ConfigInfrastructures(ctx context.Context)
 	cleanups := []func(){}
 
 	identityGrpcClient, err := grpc.NewGrpcClient(ic.Cfg.IdentityGrpcClient)
+
 	if err != nil {
 		return err, nil
 	}
+
+	infrastructure.GrpcClient = identityGrpcClient
+
 	cleanups = append(cleanups, func() {
 		_ = identityGrpcClient.Close()
 	})
@@ -107,14 +111,14 @@ func (ic *infrastructureConfigurator) ConfigInfrastructures(ctx context.Context)
 
 	configSwagger(ic.Echo)
 
-	configMiddlewares(ic.Echo, ic.Cfg.Jaeger)
+	ConfigMiddlewares(ic.Echo, ic.Cfg.Jaeger)
 	if err != nil {
 		return err, nil
 	}
 
 	pc := NewProductsModuleConfigurator(infrastructure, identityGrpcClient)
 
-	err = pc.ConfigureProductsModule(ctx)
+	err = ConfigureProductsModule(pc)
 	if err != nil {
 		return err, nil
 	}
