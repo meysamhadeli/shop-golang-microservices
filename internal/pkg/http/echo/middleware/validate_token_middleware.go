@@ -6,6 +6,7 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/pkg/errors"
 	"net/http"
+	"os"
 	"strings"
 )
 
@@ -13,6 +14,12 @@ import (
 func ValidateBearerToken() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
+
+			// Ignore check authentication in test
+			env := os.Getenv("APP_ENV")
+			if env == "test" {
+				return next(c)
+			}
 
 			// Parse and verify jwt access token
 			auth, ok := bearerAuth(c.Request())

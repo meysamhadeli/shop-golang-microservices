@@ -23,6 +23,7 @@ import (
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 	"go.opentelemetry.io/otel/trace"
+	"os"
 	"testing"
 )
 
@@ -42,6 +43,12 @@ type IntegrationTestFixture struct {
 }
 
 func NewIntegrationTestFixture(t *testing.T) *IntegrationTestFixture {
+
+	err := os.Setenv("APP_ENV", constants.Test)
+
+	if err != nil {
+		require.FailNow(t, err.Error())
+	}
 
 	cleanups := []func(){}
 
