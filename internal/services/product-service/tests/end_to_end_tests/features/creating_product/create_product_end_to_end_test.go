@@ -18,12 +18,7 @@ func TestCreateProductEndToEndTest(t *testing.T) {
 	suite.Run(t, &createProductEndToEndTests{IntegrationTestFixture: integration.NewIntegrationTestFixture(t)})
 }
 
-func (c *createProductEndToEndTests) Test_Should_Create_New_Product_To_DB() {
-
-	//createProductEndpoint := creating_product.NewCreteProductEndpoint(c.ProductEndpointBase)
-	//createProductEndpoint.MapRoute()
-
-	//c.Run()
+func (c *createProductEndToEndTests) Test_Should_Return_Ok_Status_When_Create_New_Product_To_DB() {
 
 	request := &v1_dtos.CreateProductRequestDto{
 		Name:        gofakeit.Name(),
@@ -34,7 +29,7 @@ func (c *createProductEndToEndTests) Test_Should_Create_New_Product_To_DB() {
 	// create httpexpect instance
 	expect := httpexpect.Default(c.T(), c.Cfg.Echo.BasePathAddress())
 
-	expect.POST("").
+	expect.POST("products").
 		WithContext(c.Ctx).
 		WithJSON(request).
 		Expect().

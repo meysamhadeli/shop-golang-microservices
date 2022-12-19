@@ -65,12 +65,3 @@ func NewIntegrationTestFixture(t *testing.T) *IntegrationTestFixture {
 
 	return integration
 }
-
-func (e *IntegrationTestFixture) Run() {
-
-	go func() {
-		if err := e.EchoServer.RunHttpServer(e.Ctx, nil); err != nil {
-			e.Log.Errorf("(s.RunHttpServer) err: %v", err)
-		}
-	}()
-}
