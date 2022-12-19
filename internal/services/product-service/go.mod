@@ -6,6 +6,7 @@ replace github.com/meysamhadeli/shop-golang-microservices/internal/pkg => ../../
 
 require (
 	github.com/brianvoe/gofakeit/v6 v6.19.0
+	github.com/gavv/httpexpect/v2 v2.8.0
 	github.com/go-playground/validator v9.31.0+incompatible
 	github.com/go-resty/resty/v2 v2.7.0
 	github.com/jackc/pgx/v4 v4.16.1
@@ -46,7 +47,6 @@ require (
 	github.com/fatih/structs v1.1.0 // indirect
 	github.com/felixge/httpsnoop v1.0.3 // indirect
 	github.com/fsnotify/fsnotify v1.5.4 // indirect
-	github.com/gavv/httpexpect/v2 v2.8.0 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/gin-gonic/gin v1.8.1 // indirect
 	github.com/go-logr/logr v1.2.3 // indirect
