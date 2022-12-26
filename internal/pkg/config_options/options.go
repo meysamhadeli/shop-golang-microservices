@@ -50,11 +50,6 @@ type Config struct {
 	Rabbitmq     *RabbitMQConfig     `mapstructure:"rabbitmq"`
 	Echo         *EchoConfig         `mapstructure:"echo"`
 	Grpc         *GrpcConfig         `mapstructure:"grpc"`
-	Context      Context             `mapstructure:"context"`
 	GormPostgres *GormPostgresConfig `mapstructure:"gormPostgres"`
 	Jaeger       *JaegerConfig       `mapstructure:"jaeger"`
-}
-
-type Context struct {
-	Timeout int `mapstructure:"timeout"`
 }
