@@ -6,7 +6,6 @@ import (
 	"github.com/iancoleman/strcase"
 	jsoniter "github.com/json-iterator/go"
 	"github.com/labstack/echo/v4"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/config_options"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/logger"
 	open_telemetry "github.com/meysamhadeli/shop-golang-microservices/internal/pkg/open-telemetry"
 	uuid "github.com/satori/go.uuid"
@@ -25,7 +24,7 @@ type IPublisher interface {
 var publishedMessages []string
 
 type Publisher struct {
-	cfg          *config_options.Config
+	cfg          *RabbitMQConfig
 	conn         *amqp.Connection
 	log          logger.ILogger
 	jaegerTracer trace.Tracer
@@ -58,13 +57,13 @@ func (p Publisher) PublishMessage(ctx context.Context, msg interface{}) error {
 	defer channel.Close()
 
 	err = channel.ExchangeDeclare(
-		snakeTypeName,       // name
-		p.cfg.Rabbitmq.Kind, // type
-		true,                // durable
-		false,               // auto-deleted
-		false,               // internal
-		false,               // no-wait
-		nil,                 // arguments
+		snakeTypeName, // name
+		p.cfg.Kind,    // type
+		true,          // durable
+		false,         // auto-deleted
+		false,         // internal
+		false,         // no-wait
+		nil,           // arguments
 	)
 
 	if err != nil {
@@ -108,7 +107,7 @@ func (p Publisher) PublishMessage(ctx context.Context, msg interface{}) error {
 	span.SetAttributes(attribute.Key("message-id").String(publishingMsg.MessageId))
 	span.SetAttributes(attribute.Key("correlation-id").String(publishingMsg.CorrelationId))
 	span.SetAttributes(attribute.Key("exchange").String(snakeTypeName))
-	span.SetAttributes(attribute.Key("kind").String(p.cfg.Rabbitmq.Kind))
+	span.SetAttributes(attribute.Key("kind").String(p.cfg.Kind))
 	span.SetAttributes(attribute.Key("content-type").String("application/json"))
 	span.SetAttributes(attribute.Key("timestamp").String(publishingMsg.Timestamp.String()))
 	span.SetAttributes(attribute.Key("body").String(string(publishingMsg.Body)))
@@ -126,6 +125,6 @@ func (p Publisher) IsPublished(msg interface{}) bool {
 	return isPublished
 }
 
-func NewPublisher(cfg *config_options.Config, conn *amqp.Connection, log logger.ILogger, jaegerTracer trace.Tracer) *Publisher {
+func NewPublisher(cfg *RabbitMQConfig, conn *amqp.Connection, log logger.ILogger, jaegerTracer trace.Tracer) *Publisher {
 	return &Publisher{cfg: cfg, conn: conn, log: log, jaegerTracer: jaegerTracer}
 }

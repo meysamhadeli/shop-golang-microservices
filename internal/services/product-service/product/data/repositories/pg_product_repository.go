@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"github.com/jackc/pgx/v4/pgxpool"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/config_options"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/gorm_postgres"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/logger"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/utils"
@@ -17,12 +16,12 @@ import (
 
 type PostgresProductRepository struct {
 	log  logger.ILogger
-	cfg  *config_options.Config
+	cfg  *gorm_postgres.GormPostgresConfig
 	db   *pgxpool.Pool
 	gorm *gorm.DB
 }
 
-func NewPostgresProductRepository(log logger.ILogger, cfg *config_options.Config, gorm *gorm.DB) data.ProductRepository {
+func NewPostgresProductRepository(log logger.ILogger, cfg *gorm_postgres.GormPostgresConfig, gorm *gorm.DB) data.ProductRepository {
 	return &PostgresProductRepository{log: log, cfg: cfg, gorm: gorm}
 }
 

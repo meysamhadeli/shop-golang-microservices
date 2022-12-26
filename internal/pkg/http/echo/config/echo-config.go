@@ -2,16 +2,25 @@ package config
 
 import (
 	"fmt"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/config_options"
 	"net/url"
 )
 
-func Address(cfg config_options.Config) string {
-	return fmt.Sprintf("%s%s", cfg.Echo.Host, cfg.Echo.Port)
+type EchoConfig struct {
+	Port                string   `mapstructure:"port" validate:"required"`
+	Development         bool     `mapstructure:"development"`
+	BasePath            string   `mapstructure:"basePath" validate:"required"`
+	DebugErrorsResponse bool     `mapstructure:"debugErrorsResponse"`
+	IgnoreLogUrls       []string `mapstructure:"ignoreLogUrls"`
+	Timeout             int      `mapstructure:"timeout"`
+	Host                string   `mapstructure:"host"`
 }
 
-func BasePathAddress(cfg config_options.Config) string {
-	path, err := url.JoinPath(Address(cfg), cfg.Echo.BasePath)
+func Address(cfg *EchoConfig) string {
+	return fmt.Sprintf("%s%s", cfg.Host, cfg.Port)
+}
+
+func BasePathAddress(cfg *EchoConfig) string {
+	path, err := url.JoinPath(Address(cfg), cfg.BasePath)
 	if err != nil {
 		return ""
 	}

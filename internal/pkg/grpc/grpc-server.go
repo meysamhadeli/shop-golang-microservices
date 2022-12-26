@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/config_options"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/logger"
 	"github.com/pkg/errors"
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
@@ -22,13 +21,19 @@ const (
 	gRPCTime          = 10
 )
 
+type GrpcConfig struct {
+	Port        string `mapstructure:"port"`
+	Host        string `mapstructure:"host"`
+	Development bool   `mapstructure:"development"`
+}
+
 type GrpcServer struct {
 	Grpc   *grpc.Server
-	Config *config_options.Config
+	Config *GrpcConfig
 	Log    logger.ILogger
 }
 
-func NewGrpcServer(log logger.ILogger, config *config_options.Config) *GrpcServer {
+func NewGrpcServer(log logger.ILogger, config *GrpcConfig) *GrpcServer {
 
 	unaryServerInterceptors := []grpc.UnaryServerInterceptor{
 		otelgrpc.UnaryServerInterceptor(),
@@ -58,7 +63,7 @@ func NewGrpcServer(log logger.ILogger, config *config_options.Config) *GrpcServe
 }
 
 func (s *GrpcServer) RunGrpcServer(ctx context.Context, configGrpc ...func(grpcServer *grpc.Server)) error {
-	listen, err := net.Listen("tcp", s.Config.Grpc.Port)
+	listen, err := net.Listen("tcp", s.Config.Port)
 	if err != nil {
 		return errors.Wrap(err, "net.Listen")
 	}
@@ -70,7 +75,7 @@ func (s *GrpcServer) RunGrpcServer(ctx context.Context, configGrpc ...func(grpcS
 		}
 	}
 
-	if s.Config.Grpc.Development {
+	if s.Config.Development {
 		reflection.Register(s.Grpc)
 	}
 
@@ -85,7 +90,7 @@ func (s *GrpcServer) RunGrpcServer(ctx context.Context, configGrpc ...func(grpcS
 		for {
 			select {
 			case <-ctx.Done():
-				s.Log.Errorf("shutting down grpc PORT: {%s}", s.Config.Grpc.Port)
+				s.Log.Errorf("shutting down grpc PORT: {%s}", s.Config.Port)
 				s.shutdown()
 				s.Log.Error("grpc exited properly")
 				return
@@ -93,7 +98,7 @@ func (s *GrpcServer) RunGrpcServer(ctx context.Context, configGrpc ...func(grpcS
 		}
 	}()
 
-	s.Log.Infof("grpc server is listening on port: %s", s.Config.Grpc.Port)
+	s.Log.Infof("grpc server is listening on port: %s", s.Config.Port)
 
 	err = s.Grpc.Serve(listen)
 

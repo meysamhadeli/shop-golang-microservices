@@ -6,7 +6,6 @@ import (
 	"github.com/ahmetb/go-linq/v3"
 	"github.com/iancoleman/strcase"
 	jsoniter "github.com/json-iterator/go"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/config_options"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/logger"
 	open_telemetry "github.com/meysamhadeli/shop-golang-microservices/internal/pkg/open-telemetry"
 	"github.com/streadway/amqp"
@@ -26,7 +25,7 @@ type IConsumer interface {
 var consumedMessages []string
 
 type Consumer struct {
-	cfg          *config_options.Config
+	cfg          *RabbitMQConfig
 	conn         *amqp.Connection
 	log          logger.ILogger
 	handler      func(queue string, msg amqp.Delivery) error
@@ -48,13 +47,13 @@ func (c Consumer) ConsumeMessage(ctx context.Context, msg interface{}) error {
 	snakeTypeName := strcase.ToSnake(typeName)
 
 	err = ch.ExchangeDeclare(
-		snakeTypeName,       // name
-		c.cfg.Rabbitmq.Kind, // type
-		true,                // durable
-		false,               // auto-deleted
-		false,               // internal
-		false,               // no-wait
-		nil,                 // arguments
+		snakeTypeName, // name
+		c.cfg.Kind,    // type
+		true,          // durable
+		false,         // auto-deleted
+		false,         // internal
+		false,         // no-wait
+		nil,           // arguments
 	)
 
 	if err != nil {
@@ -191,6 +190,6 @@ func (c Consumer) IsConsumed(msg interface{}) bool {
 	}
 }
 
-func NewConsumer(cfg *config_options.Config, conn *amqp.Connection, log logger.ILogger, jaegerTracer trace.Tracer, handler func(queue string, msg amqp.Delivery) error) *Consumer {
+func NewConsumer(cfg *RabbitMQConfig, conn *amqp.Connection, log logger.ILogger, jaegerTracer trace.Tracer, handler func(queue string, msg amqp.Delivery) error) *Consumer {
 	return &Consumer{cfg: cfg, conn: conn, log: log, jaegerTracer: jaegerTracer, handler: handler}
 }

@@ -2,20 +2,28 @@ package rabbitmq
 
 import (
 	"fmt"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/config_options"
 	log "github.com/sirupsen/logrus"
 	"github.com/streadway/amqp"
 )
 
+type RabbitMQConfig struct {
+	Host         string
+	Port         int
+	User         string
+	Password     string
+	ExchangeName string
+	Kind         string
+}
+
 // Initialize new channel for rabbitmq
-func NewRabbitMQConn(cfg *config_options.Config) (*amqp.Connection, error, func()) {
+func NewRabbitMQConn(cfg *RabbitMQConfig) (*amqp.Connection, error, func()) {
 
 	connAddr := fmt.Sprintf(
 		"amqp://%s:%s@%s:%d/",
-		cfg.Rabbitmq.User,
-		cfg.Rabbitmq.Password,
-		cfg.Rabbitmq.Host,
-		cfg.Rabbitmq.Port,
+		cfg.User,
+		cfg.Password,
+		cfg.Host,
+		cfg.Port,
 	)
 
 	conn, err := amqp.Dial(connAddr)

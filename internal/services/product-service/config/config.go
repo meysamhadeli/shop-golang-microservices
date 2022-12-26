@@ -3,7 +3,12 @@ package config
 import (
 	"flag"
 	"fmt"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/config_options"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/gorm_postgres"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/grpc"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/http/echo/config"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/logger"
+	open_telemetry "github.com/meysamhadeli/shop-golang-microservices/internal/pkg/open-telemetry"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/rabbitmq"
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"
 	"os"
@@ -14,11 +19,22 @@ import (
 
 var configPath string
 
+type Config struct {
+	ServiceName  string                            `mapstructure:"serviceName"`
+	Logger       *logger.LoggerConfig              `mapstructure:"logger"`
+	Rabbitmq     *rabbitmq.RabbitMQConfig          `mapstructure:"rabbitmq"`
+	Echo         *config.EchoConfig                `mapstructure:"echo"`
+	Grpc         *grpc.GrpcConfig                  `mapstructure:"grpc"`
+	GormPostgres *gorm_postgres.GormPostgresConfig `mapstructure:"gormPostgres"`
+	Jaeger       *open_telemetry.JaegerConfig      `mapstructure:"jaeger"`
+}
+
 func init() {
 	flag.StringVar(&configPath, "config", "", "products write microservice config path")
 }
 
-func InitConfig() (*config_options.Config, error) {
+func InitConfig() (*Config, *logger.LoggerConfig, *open_telemetry.JaegerConfig, *gorm_postgres.GormPostgresConfig,
+	*grpc.GrpcConfig, *config.EchoConfig, *rabbitmq.RabbitMQConfig, error) {
 
 	env := os.Getenv("APP_ENV")
 	if env == "" {
@@ -34,28 +50,28 @@ func InitConfig() (*config_options.Config, error) {
 			//https://stackoverflow.com/questions/18537257/how-to-get-the-directory-of-the-currently-running-file
 			d, err := dirname()
 			if err != nil {
-				return nil, err
+				return nil, nil, nil, nil, nil, nil, nil, err
 			}
 
 			configPath = d
 		}
 	}
 
-	cfg := &config_options.Config{}
+	cfg := &Config{}
 
 	viper.SetConfigName(fmt.Sprintf("config.%s", env))
 	viper.AddConfigPath(configPath)
 	viper.SetConfigType("json")
 
 	if err := viper.ReadInConfig(); err != nil {
-		return nil, errors.Wrap(err, "viper.ReadInConfig")
+		return nil, nil, nil, nil, nil, nil, nil, errors.Wrap(err, "viper.ReadInConfig")
 	}
 
 	if err := viper.Unmarshal(cfg); err != nil {
-		return nil, errors.Wrap(err, "viper.Unmarshal")
+		return nil, nil, nil, nil, nil, nil, nil, errors.Wrap(err, "viper.Unmarshal")
 	}
 
-	return cfg, nil
+	return cfg, cfg.Logger, cfg.Jaeger, cfg.GormPostgres, cfg.Grpc, cfg.Echo, cfg.Rabbitmq, nil
 }
 
 func GetMicroserviceName(serviceName string) string {

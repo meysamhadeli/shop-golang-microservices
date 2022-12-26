@@ -11,9 +11,9 @@ import (
 
 func ConfigConsumers(infra *contracts.InfrastructureConfiguration) error {
 
-	createProductConsumer := rabbitmq.NewConsumer(infra.Cfg, infra.ConnRabbitmq, infra.Log, infra.JaegerTracer, consumers2.HandleConsumeCreateProduct)
-	updateProductConsumer := rabbitmq.NewConsumer(infra.Cfg, infra.ConnRabbitmq, infra.Log, infra.JaegerTracer, consumers2.HandleConsumeUpdateProduct)
-	deleteProductConsumer := rabbitmq.NewConsumer(infra.Cfg, infra.ConnRabbitmq, infra.Log, infra.JaegerTracer, consumers2.HandleConsumeDeleteProduct)
+	createProductConsumer := rabbitmq.NewConsumer(infra.Cfg.Rabbitmq, infra.ConnRabbitmq, infra.Log, infra.JaegerTracer, consumers2.HandleConsumeCreateProduct)
+	updateProductConsumer := rabbitmq.NewConsumer(infra.Cfg.Rabbitmq, infra.ConnRabbitmq, infra.Log, infra.JaegerTracer, consumers2.HandleConsumeUpdateProduct)
+	deleteProductConsumer := rabbitmq.NewConsumer(infra.Cfg.Rabbitmq, infra.ConnRabbitmq, infra.Log, infra.JaegerTracer, consumers2.HandleConsumeDeleteProduct)
 
 	go func() {
 		err := createProductConsumer.ConsumeMessage(infra.Context, v1.ProductCreated{})

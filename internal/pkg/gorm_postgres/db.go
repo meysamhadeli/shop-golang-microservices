@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/config_options"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/utils"
 	"github.com/pkg/errors"
 	"github.com/uptrace/bun/driver/pgdriver"
@@ -13,16 +12,25 @@ import (
 	"strings"
 )
 
-type Gorm struct {
-	DB     *gorm.DB
-	config *config_options.Config
+type GormPostgresConfig struct {
+	Host     string `mapstructure:"host"`
+	Port     int    `mapstructure:"port"`
+	User     string `mapstructure:"user"`
+	DBName   string `mapstructure:"dbName"`
+	SSLMode  bool   `mapstructure:"sslMode"`
+	Password string `mapstructure:"password"`
 }
 
-func NewGorm(config *config_options.Config) (*gorm.DB, error) {
+type Gorm struct {
+	DB     *gorm.DB
+	config *GormPostgresConfig
+}
+
+func NewGorm(config *GormPostgresConfig) (*gorm.DB, error) {
 
 	var dataSourceName string
 
-	if config.GormPostgres.DBName == "" {
+	if config.DBName == "" {
 		return nil, errors.New("DBName is required in the config.")
 	}
 
@@ -33,11 +41,11 @@ func NewGorm(config *config_options.Config) (*gorm.DB, error) {
 	}
 
 	dataSourceName = fmt.Sprintf("host=%s port=%d user=%s dbname=%s password=%s",
-		config.GormPostgres.Host,
-		config.GormPostgres.Port,
-		config.GormPostgres.User,
-		config.GormPostgres.DBName,
-		config.GormPostgres.Password,
+		config.Host,
+		config.Port,
+		config.User,
+		config.DBName,
+		config.Password,
 	)
 
 	gormDb, err := gorm.Open(gorm_postgres.Open(dataSourceName), &gorm.Config{})
@@ -53,20 +61,20 @@ func (db *Gorm) Close() {
 	_ = d.Close()
 }
 
-func createDB(cfg *config_options.Config) error {
+func createDB(cfg *GormPostgresConfig) error {
 
 	datasource := fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=disable",
-		cfg.GormPostgres.User,
-		cfg.GormPostgres.Password,
-		cfg.GormPostgres.Host,
-		cfg.GormPostgres.Port,
+		cfg.User,
+		cfg.Password,
+		cfg.Host,
+		cfg.Port,
 		"postgres",
 	)
 
 	sqldb := sql.OpenDB(pgdriver.NewConnector(pgdriver.WithDSN(datasource)))
 
 	var exists int
-	rows, err := sqldb.Query(fmt.Sprintf("SELECT 1 FROM  pg_catalog.pg_database WHERE datname='%s'", cfg.GormPostgres.DBName))
+	rows, err := sqldb.Query(fmt.Sprintf("SELECT 1 FROM  pg_catalog.pg_database WHERE datname='%s'", cfg.DBName))
 	if err != nil {
 		return err
 	}
@@ -82,7 +90,7 @@ func createDB(cfg *config_options.Config) error {
 		return nil
 	}
 
-	_, err = sqldb.Exec(fmt.Sprintf("CREATE DATABASE %s", cfg.GormPostgres.DBName))
+	_, err = sqldb.Exec(fmt.Sprintf("CREATE DATABASE %s", cfg.DBName))
 	if err != nil {
 		return err
 	}
