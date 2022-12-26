@@ -105,12 +105,13 @@ func (c Consumer) ConsumeMessage(ctx context.Context, msg interface{}) error {
 
 		select {
 		case <-ctx.Done():
-			c.log.Errorf("channel closed for for queue: %s", q.Name)
-			err = c.conn.Close()
-			if err != nil {
-				c.log.Error(err.Error())
-				return
-			}
+			defer func(ch *amqp.Channel) {
+				err := ch.Close()
+				if err != nil {
+					c.log.Errorf("failed to close channel closed for for queue: %s", q.Name)
+				}
+			}(ch)
+			c.log.Infof("channel closed for for queue: %s", q.Name)
 			return
 
 		case delivery, ok := <-deliveries:
