@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
-	config2 "github.com/meysamhadeli/shop-golang-microservices/internal/pkg/config"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/config_options"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/logger"
 	"github.com/pkg/errors"
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
@@ -24,11 +24,11 @@ const (
 
 type GrpcServer struct {
 	Grpc   *grpc.Server
-	Config *config2.Config
+	Config *config_options.Config
 	Log    logger.ILogger
 }
 
-func NewGrpcServer(log logger.ILogger, config *config2.Config) *GrpcServer {
+func NewGrpcServer(log logger.ILogger, config *config_options.Config) *GrpcServer {
 
 	unaryServerInterceptors := []grpc.UnaryServerInterceptor{
 		otelgrpc.UnaryServerInterceptor(),

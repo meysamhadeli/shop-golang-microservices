@@ -2,7 +2,7 @@ package grpc
 
 import (
 	"fmt"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/config"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/config_options"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
@@ -16,7 +16,7 @@ type GrpcClient interface {
 	Close() error
 }
 
-func NewGrpcClient(config *config.Config) (GrpcClient, error) {
+func NewGrpcClient(config *config_options.Config) (GrpcClient, error) {
 	// Grpc Client to call Grpc Server
 	//https://sahansera.dev/building-grpc-client-go/
 	//https://github.com/open-telemetry/opentelemetry-go-contrib/blob/df16f32df86b40077c9c90d06f33c4cdb6dd5afa/instrumentation/google.golang.org/grpc/otelgrpc/example_interceptor_test.go

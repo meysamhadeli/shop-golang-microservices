@@ -6,7 +6,7 @@ import (
 	"github.com/iancoleman/strcase"
 	jsoniter "github.com/json-iterator/go"
 	"github.com/labstack/echo/v4"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/config"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/config_options"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/logger"
 	open_telemetry "github.com/meysamhadeli/shop-golang-microservices/internal/pkg/open-telemetry"
 	uuid "github.com/satori/go.uuid"
@@ -25,7 +25,7 @@ type IPublisher interface {
 var publishedMessages []string
 
 type Publisher struct {
-	cfg          *config.Config
+	cfg          *config_options.Config
 	conn         *amqp.Connection
 	log          logger.ILogger
 	jaegerTracer trace.Tracer
@@ -126,6 +126,6 @@ func (p Publisher) IsPublished(msg interface{}) bool {
 	return isPublished
 }
 
-func NewPublisher(cfg *config.Config, conn *amqp.Connection, log logger.ILogger, jaegerTracer trace.Tracer) *Publisher {
+func NewPublisher(cfg *config_options.Config, conn *amqp.Connection, log logger.ILogger, jaegerTracer trace.Tracer) *Publisher {
 	return &Publisher{cfg: cfg, conn: conn, log: log, jaegerTracer: jaegerTracer}
 }

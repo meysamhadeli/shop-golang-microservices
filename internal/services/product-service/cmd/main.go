@@ -1,7 +1,6 @@
 package main
 
 import (
-	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/config"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/gorm_postgres"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/grpc"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/http/context_provider"
@@ -10,6 +9,7 @@ import (
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/logger"
 	open_telemetry "github.com/meysamhadeli/shop-golang-microservices/internal/pkg/open-telemetry"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/rabbitmq"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/config"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/configurations"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/data/repositories"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/mappings"

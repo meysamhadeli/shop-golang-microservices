@@ -4,7 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/config"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/config_options"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/utils"
 	"github.com/pkg/errors"
 	"github.com/uptrace/bun/driver/pgdriver"
@@ -15,10 +15,10 @@ import (
 
 type Gorm struct {
 	DB     *gorm.DB
-	config *config.Config
+	config *config_options.Config
 }
 
-func NewGorm(config *config.Config) (*gorm.DB, error) {
+func NewGorm(config *config_options.Config) (*gorm.DB, error) {
 
 	var dataSourceName string
 
@@ -53,7 +53,7 @@ func (db *Gorm) Close() {
 	_ = d.Close()
 }
 
-func createDB(cfg *config.Config) error {
+func createDB(cfg *config_options.Config) error {
 
 	datasource := fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=disable",
 		cfg.GormPostgres.User,

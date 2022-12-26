@@ -3,7 +3,7 @@ package configurations
 import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/config"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/config_options"
 	echo_middleware "github.com/meysamhadeli/shop-golang-microservices/internal/pkg/http/echo/middleware"
 	echo_server "github.com/meysamhadeli/shop-golang-microservices/internal/pkg/http/echo/server"
 	otel_middleware "github.com/meysamhadeli/shop-golang-microservices/internal/pkg/open-telemetry/middleware"
@@ -12,7 +12,7 @@ import (
 	"strings"
 )
 
-func ConfigMiddlewares(e *echo_server.EchoServer, config *config.Config) {
+func ConfigMiddlewares(e *echo_server.EchoServer, config *config_options.Config) {
 
 	e.Echo.HideBanner = false
 

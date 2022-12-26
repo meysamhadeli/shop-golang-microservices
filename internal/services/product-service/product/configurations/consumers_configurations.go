@@ -1,42 +1,38 @@
 package configurations
 
 import (
-	"context"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/config"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/logger"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/rabbitmq"
 	consumers2 "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/consumers"
 	v1 "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/creating_product/events/v1"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/deleting_product/events"
 	v12 "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/updating_product/events/v1"
-	"github.com/streadway/amqp"
-	"go.opentelemetry.io/otel/trace"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/shared/contracts"
 )
 
-func ConfigConsumers(ctx context.Context, cfg *config.Config, conn *amqp.Connection, log logger.ILogger, tracer trace.Tracer) error {
+func ConfigConsumers(infra *contracts.InfrastructureConfiguration) error {
 
-	createProductConsumer := rabbitmq.NewConsumer(cfg, conn, log, tracer, consumers2.HandleConsumeCreateProduct)
-	updateProductConsumer := rabbitmq.NewConsumer(cfg, conn, log, tracer, consumers2.HandleConsumeUpdateProduct)
-	deleteProductConsumer := rabbitmq.NewConsumer(cfg, conn, log, tracer, consumers2.HandleConsumeDeleteProduct)
+	createProductConsumer := rabbitmq.NewConsumer(infra.Cfg, infra.ConnRabbitmq, infra.Log, infra.JaegerTracer, consumers2.HandleConsumeCreateProduct)
+	updateProductConsumer := rabbitmq.NewConsumer(infra.Cfg, infra.ConnRabbitmq, infra.Log, infra.JaegerTracer, consumers2.HandleConsumeUpdateProduct)
+	deleteProductConsumer := rabbitmq.NewConsumer(infra.Cfg, infra.ConnRabbitmq, infra.Log, infra.JaegerTracer, consumers2.HandleConsumeDeleteProduct)
 
 	go func() {
-		err := createProductConsumer.ConsumeMessage(ctx, v1.ProductCreated{})
+		err := createProductConsumer.ConsumeMessage(infra.Context, v1.ProductCreated{})
 		if err != nil {
-			log.Error(err)
+			infra.Log.Error(err)
 		}
 	}()
 
 	go func() {
-		err := updateProductConsumer.ConsumeMessage(ctx, v12.ProductUpdated{})
+		err := updateProductConsumer.ConsumeMessage(infra.Context, v12.ProductUpdated{})
 		if err != nil {
-			log.Error(err)
+			infra.Log.Error(err)
 		}
 	}()
 
 	go func() {
-		err := deleteProductConsumer.ConsumeMessage(ctx, events.ProductDeleted{})
+		err := deleteProductConsumer.ConsumeMessage(infra.Context, events.ProductDeleted{})
 		if err != nil {
-			log.Error(err)
+			infra.Log.Error(err)
 		}
 	}()
 

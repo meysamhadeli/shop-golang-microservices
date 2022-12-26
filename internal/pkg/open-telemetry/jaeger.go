@@ -3,7 +3,7 @@ package open_telemetry
 import (
 	"context"
 	"fmt"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/config"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/config_options"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/logger"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
@@ -16,7 +16,7 @@ import (
 	"os"
 )
 
-func TracerProvider(ctx context.Context, cfg *config.Config, log logger.ILogger) (trace.Tracer, error) {
+func TracerProvider(ctx context.Context, cfg *config_options.Config, log logger.ILogger) (trace.Tracer, error) {
 	var serverUrl = fmt.Sprintf(cfg.Jaeger.Server+"%s", "/api/traces")
 	// Create the Jaeger exporter
 	exporter, err := jaeger.New(jaeger.WithCollectorEndpoint(jaeger.WithEndpoint(serverUrl)))

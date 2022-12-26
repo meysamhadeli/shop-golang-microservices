@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/labstack/echo/v4"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/config"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/config_options"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/logger"
 	"github.com/pkg/errors"
 	"go.uber.org/fx"
@@ -20,11 +20,11 @@ const (
 
 type EchoServer struct {
 	Log  logger.ILogger
-	Cfg  *config.Config
+	Cfg  *config_options.Config
 	Echo *echo.Echo
 }
 
-func NewEchoServer(log logger.ILogger, cfg *config.Config) *EchoServer {
+func NewEchoServer(log logger.ILogger, cfg *config_options.Config) *EchoServer {
 	e := echo.New()
 	return &EchoServer{Log: log, Cfg: cfg, Echo: e}
 }
@@ -63,7 +63,7 @@ func (s *EchoServer) RunHttpServer(ctx context.Context, configEcho ...func(echoS
 	return err
 }
 
-func RunEchoServer(lc fx.Lifecycle, log logger.ILogger, cfg *config.Config, echoServer *EchoServer, ctx context.Context) error {
+func RunEchoServer(lc fx.Lifecycle, log logger.ILogger, echoServer *EchoServer, ctx context.Context) error {
 
 	lc.Append(fx.Hook{
 		OnStart: func(_ context.Context) error {
@@ -75,7 +75,7 @@ func RunEchoServer(lc fx.Lifecycle, log logger.ILogger, cfg *config.Config, echo
 			return nil
 		},
 		OnStop: func(_ context.Context) error {
-			log.Infof("shutting down Http PORT: {%s}", cfg.Echo.Port)
+			log.Infof("shutting down Http PORT: {%s}", echoServer.Cfg.Echo.Port)
 			if err := echoServer.Echo.Shutdown(ctx); err != nil {
 				log.Fatalf("error shutting down server: %v", err)
 			} else {
