@@ -11,16 +11,9 @@ import (
 	"net/http"
 )
 
-type searchProductsEndpoint struct {
-	*contracts.ProductEndpointBase[contracts.InfrastructureConfiguration]
-}
-
-func NewSearchProductsEndpoint(productEndpointBase *contracts.ProductEndpointBase[contracts.InfrastructureConfiguration]) *searchProductsEndpoint {
-	return &searchProductsEndpoint{productEndpointBase}
-}
-
-func (ep *searchProductsEndpoint) MapRoute() {
-	ep.ProductsGroup.GET("/search", ep.searchProducts(), middleware.ValidateBearerToken())
+func MapRoute(infra *contracts.InfrastructureConfiguration) {
+	group := infra.Echo.Group("/api/v1/products")
+	group.GET("/search", searchProducts(infra), middleware.ValidateBearerToken())
 }
 
 // SearchProducts
@@ -33,7 +26,7 @@ func (ep *searchProductsEndpoint) MapRoute() {
 // @Success     200  {object} dtos_v1.SearchProductsResponseDto
 // @Security ApiKeyAuth
 // @Router      /api/v1/products/search [get]
-func (ep *searchProductsEndpoint) searchProducts() echo.HandlerFunc {
+func searchProducts(infra *contracts.InfrastructureConfiguration) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
 		ctx := c.Request().Context()
@@ -48,21 +41,21 @@ func (ep *searchProductsEndpoint) searchProducts() echo.HandlerFunc {
 
 		// https://echo.labstack.com/guide/binding/
 		if err := c.Bind(request); err != nil {
-			ep.Configuration.Log.Warn("Bind", err)
+			infra.Log.Warn("Bind", err)
 			return echo.NewHTTPError(http.StatusBadRequest, err)
 		}
 
 		query := &queries_v1.SearchProducts{SearchText: request.SearchText, ListQuery: request.ListQuery}
 
-		if err := ep.Configuration.Validator.StructCtx(ctx, query); err != nil {
-			ep.Configuration.Log.Errorf("(validate) err: {%v}", err)
+		if err := infra.Validator.StructCtx(ctx, query); err != nil {
+			infra.Log.Errorf("(validate) err: {%v}", err)
 			return echo.NewHTTPError(http.StatusBadRequest, err)
 		}
 
 		queryResult, err := mediatr.Send[*queries_v1.SearchProducts, *dtos_v1.SearchProductsResponseDto](ctx, query)
 
 		if err != nil {
-			ep.Configuration.Log.Warn("SearchProducts", err)
+			infra.Log.Warn("SearchProducts", err)
 			return echo.NewHTTPError(http.StatusBadRequest, err)
 		}
 

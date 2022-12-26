@@ -11,16 +11,9 @@ import (
 	"net/http"
 )
 
-type updateProductEndpoint struct {
-	*contracts.ProductEndpointBase[contracts.InfrastructureConfiguration]
-}
-
-func NewUpdateProductEndpoint(productEndpointBase *contracts.ProductEndpointBase[contracts.InfrastructureConfiguration]) *updateProductEndpoint {
-	return &updateProductEndpoint{productEndpointBase}
-}
-
-func (ep *updateProductEndpoint) MapRoute() {
-	ep.ProductsGroup.PUT("/:id", ep.updateProduct(), middleware.ValidateBearerToken())
+func MapRoute(infra *contracts.InfrastructureConfiguration) {
+	group := infra.Echo.Group("/api/v1/products")
+	group.PUT("/:id", updateProduct(infra), middleware.ValidateBearerToken())
 }
 
 // UpdateProduct
@@ -34,7 +27,7 @@ func (ep *updateProductEndpoint) MapRoute() {
 // @Success     204
 // @Security ApiKeyAuth
 // @Router      /api/v1/products/{id} [put]
-func (ep *updateProductEndpoint) updateProduct() echo.HandlerFunc {
+func updateProduct(infra *contracts.InfrastructureConfiguration) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
 		ctx := c.Request().Context()
@@ -42,26 +35,26 @@ func (ep *updateProductEndpoint) updateProduct() echo.HandlerFunc {
 		request := &v1.UpdateProductRequestDto{}
 		if err := c.Bind(request); err != nil {
 			badRequestErr := errors.Wrap(err, "[updateProductEndpoint_handler.Bind] error in the binding request")
-			ep.Configuration.Log.Error(badRequestErr)
+			infra.Log.Error(badRequestErr)
 			return echo.NewHTTPError(http.StatusBadRequest, err)
 		}
 
 		command := commands_v1.NewUpdateProduct(request.ProductId, request.Name, request.Description, request.Price)
 
-		if err := ep.Configuration.Validator.StructCtx(ctx, command); err != nil {
+		if err := infra.Validator.StructCtx(ctx, command); err != nil {
 			validationErr := errors.Wrap(err, "[updateProductEndpoint_handler.StructCtx] command validation failed")
-			ep.Configuration.Log.Error(validationErr)
+			infra.Log.Error(validationErr)
 			return echo.NewHTTPError(http.StatusBadRequest, err)
 		}
 
 		_, err := mediatr.Send[*commands_v1.UpdateProduct, *v1.UpdateProductResponseDto](ctx, command)
 
 		if err != nil {
-			ep.Configuration.Log.Warnf("UpdateProduct", err)
+			infra.Log.Warnf("UpdateProduct", err)
 			return echo.NewHTTPError(http.StatusBadRequest, err)
 		}
 
-		ep.Configuration.Log.Infof("(product updated) id: {%s}", request.ProductId)
+		infra.Log.Infof("(product updated) id: {%s}", request.ProductId)
 
 		return c.NoContent(http.StatusNoContent)
 	}

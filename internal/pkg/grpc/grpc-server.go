@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/grpc/config"
+	config2 "github.com/meysamhadeli/shop-golang-microservices/internal/pkg/config"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/logger"
 	"github.com/pkg/errors"
 	"go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc"
@@ -24,11 +24,11 @@ const (
 
 type GrpcServer struct {
 	Grpc   *grpc.Server
-	Config *config.GrpcConfig
+	Config *config2.Config
 	Log    logger.ILogger
 }
 
-func NewGrpcServer(log logger.ILogger, config *config.GrpcConfig) *GrpcServer {
+func NewGrpcServer(log logger.ILogger, config *config2.Config) *GrpcServer {
 
 	unaryServerInterceptors := []grpc.UnaryServerInterceptor{
 		otelgrpc.UnaryServerInterceptor(),
@@ -58,7 +58,7 @@ func NewGrpcServer(log logger.ILogger, config *config.GrpcConfig) *GrpcServer {
 }
 
 func (s *GrpcServer) RunGrpcServer(ctx context.Context, configGrpc ...func(grpcServer *grpc.Server)) error {
-	listen, err := net.Listen("tcp", s.Config.Port)
+	listen, err := net.Listen("tcp", s.Config.Grpc.Port)
 	if err != nil {
 		return errors.Wrap(err, "net.Listen")
 	}
@@ -70,7 +70,7 @@ func (s *GrpcServer) RunGrpcServer(ctx context.Context, configGrpc ...func(grpcS
 		}
 	}
 
-	if s.Config.Development {
+	if s.Config.Grpc.Development {
 		reflection.Register(s.Grpc)
 	}
 
@@ -85,7 +85,7 @@ func (s *GrpcServer) RunGrpcServer(ctx context.Context, configGrpc ...func(grpcS
 		for {
 			select {
 			case <-ctx.Done():
-				s.Log.Errorf("shutting down grpc PORT: {%s}", s.Config.Port)
+				s.Log.Errorf("shutting down grpc PORT: {%s}", s.Config.Grpc.Port)
 				s.shutdown()
 				s.Log.Error("grpc exited properly")
 				return
@@ -93,7 +93,7 @@ func (s *GrpcServer) RunGrpcServer(ctx context.Context, configGrpc ...func(grpcS
 		}
 	}()
 
-	s.Log.Infof("grpc server is listening on port: %s", s.Config.Port)
+	s.Log.Infof("grpc server is listening on port: %s", s.Config.Grpc.Port)
 
 	err = s.Grpc.Serve(listen)
 

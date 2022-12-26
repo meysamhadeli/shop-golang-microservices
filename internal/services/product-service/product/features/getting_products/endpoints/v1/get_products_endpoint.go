@@ -11,16 +11,9 @@ import (
 	"net/http"
 )
 
-type getProductsEndpoint struct {
-	*contracts.ProductEndpointBase[contracts.InfrastructureConfiguration]
-}
-
-func NewGetProductsEndpoint(productEndpointBase *contracts.ProductEndpointBase[contracts.InfrastructureConfiguration]) *getProductsEndpoint {
-	return &getProductsEndpoint{productEndpointBase}
-}
-
-func (ep *getProductsEndpoint) MapRoute() {
-	ep.ProductsGroup.GET("", ep.getAllProducts(), middleware.ValidateBearerToken())
+func MapRoute(infra *contracts.InfrastructureConfiguration) {
+	group := infra.Echo.Group("/api/v1/products")
+	group.GET("", getAllProducts(infra), middleware.ValidateBearerToken())
 }
 
 // GetAllProducts
@@ -33,7 +26,7 @@ func (ep *getProductsEndpoint) MapRoute() {
 // @Success 200 {object} dtos.GetProductsResponseDto
 // @Security ApiKeyAuth
 // @Router /api/v1/products [get]
-func (ep *getProductsEndpoint) getAllProducts() echo.HandlerFunc {
+func getAllProducts(infra *contracts.InfrastructureConfiguration) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
 		ctx := c.Request().Context()
@@ -45,7 +38,7 @@ func (ep *getProductsEndpoint) getAllProducts() echo.HandlerFunc {
 
 		request := &dtos.GetProductsRequestDto{ListQuery: listQuery}
 		if err := c.Bind(request); err != nil {
-			ep.Configuration.Log.Warn("Bind", err)
+			infra.Log.Warn("Bind", err)
 			return echo.NewHTTPError(http.StatusBadRequest, err)
 		}
 
@@ -54,7 +47,7 @@ func (ep *getProductsEndpoint) getAllProducts() echo.HandlerFunc {
 		queryResult, err := mediatr.Send[*queries_v1.GetProducts, *dtos.GetProductsResponseDto](ctx, query)
 
 		if err != nil {
-			ep.Configuration.Log.Warnf("GetProducts", err)
+			infra.Log.Warnf("GetProducts", err)
 			return echo.NewHTTPError(http.StatusBadRequest, err)
 		}
 

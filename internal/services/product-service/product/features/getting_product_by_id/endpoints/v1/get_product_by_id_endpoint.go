@@ -10,16 +10,9 @@ import (
 	"net/http"
 )
 
-type getProductByIdEndpoint struct {
-	*contracts.ProductEndpointBase[contracts.InfrastructureConfiguration]
-}
-
-func NewGetProductByIdEndpoint(productEndpointBase *contracts.ProductEndpointBase[contracts.InfrastructureConfiguration]) *getProductByIdEndpoint {
-	return &getProductByIdEndpoint{productEndpointBase}
-}
-
-func (ep *getProductByIdEndpoint) MapRoute() {
-	ep.ProductsGroup.GET("/:id", ep.getProductByID(), middleware.ValidateBearerToken())
+func MapRoute(infra *contracts.InfrastructureConfiguration) {
+	group := infra.Echo.Group("/api/v1/products")
+	group.GET("/:id", getProductByID(infra), middleware.ValidateBearerToken())
 }
 
 // GetProductByID
@@ -32,28 +25,28 @@ func (ep *getProductByIdEndpoint) MapRoute() {
 // @Success     200 {object} v1.GetProductByIdResponseDto
 // @Security ApiKeyAuth
 // @Router      /api/v1/products/{id} [get]
-func (ep *getProductByIdEndpoint) getProductByID() echo.HandlerFunc {
+func getProductByID(infra *contracts.InfrastructureConfiguration) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
 		ctx := c.Request().Context()
 
 		request := &v1.GetProductByIdRequestDto{}
 		if err := c.Bind(request); err != nil {
-			ep.Configuration.Log.Warn("Bind", err)
+			infra.Log.Warn("Bind", err)
 			return echo.NewHTTPError(http.StatusBadRequest, err)
 		}
 
 		query := v12.NewGetProductById(request.ProductId)
 
-		if err := ep.Configuration.Validator.StructCtx(ctx, query); err != nil {
-			ep.Configuration.Log.Warn("validate", err)
+		if err := infra.Validator.StructCtx(ctx, query); err != nil {
+			infra.Log.Warn("validate", err)
 			return echo.NewHTTPError(http.StatusBadRequest, err)
 		}
 
 		queryResult, err := mediatr.Send[*v12.GetProductById, *v1.GetProductByIdResponseDto](ctx, query)
 
 		if err != nil {
-			ep.Configuration.Log.Warn("GetProductById", err)
+			infra.Log.Warn("GetProductById", err)
 			return echo.NewHTTPError(http.StatusBadRequest, err)
 		}
 

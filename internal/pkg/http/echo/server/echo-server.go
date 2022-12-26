@@ -4,8 +4,11 @@ import (
 	"context"
 	"fmt"
 	"github.com/labstack/echo/v4"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/http/echo/config"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/config"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/logger"
+	"github.com/pkg/errors"
+	"go.uber.org/fx"
+	"net/http"
 	"time"
 )
 
@@ -17,12 +20,13 @@ const (
 
 type EchoServer struct {
 	Log  logger.ILogger
-	Cfg  *config.EchoConfig
+	Cfg  *config.Config
 	Echo *echo.Echo
 }
 
-func NewEchoServer(log logger.ILogger, cfg *config.EchoConfig) *EchoServer {
-	return &EchoServer{Log: log, Cfg: cfg, Echo: echo.New()}
+func NewEchoServer(log logger.ILogger, cfg *config.Config) *EchoServer {
+	e := echo.New()
+	return &EchoServer{Log: log, Cfg: cfg, Echo: e}
 }
 
 func (s *EchoServer) RunHttpServer(ctx context.Context, configEcho ...func(echoServer *echo.Echo)) error {
@@ -37,23 +41,51 @@ func (s *EchoServer) RunHttpServer(ctx context.Context, configEcho ...func(echoS
 		}
 	}
 
-	go func() {
-		for {
-			select {
-			case <-ctx.Done():
-				s.Log.Errorf("shutting down Http PORT: {%s}", s.Cfg.Port)
-				err := s.Echo.Shutdown(ctx)
-				if err != nil {
-					s.Log.Errorf("(Shutdown) err: {%v}", err)
-					return
-				}
-				s.Log.Error("server exited properly")
-				return
-			}
-		}
-	}()
+	// if we use fx dependency injection it handles by onStop hook
+	//go func() {
+	//	for {
+	//		select {
+	//		case <-ctx.Done():
+	//			s.Log.Errorf("shutting down Http PORT: {%s}", s.Cfg.Echo.Port)
+	//			err := s.Echo.Shutdown(ctx)
+	//			if err != nil {
+	//				s.Log.Errorf("(Shutdown) err: {%v}", err)
+	//				return
+	//			}
+	//			s.Log.Error("server exited properly")
+	//			return
+	//		}
+	//	}
+	//}()
 
-	return s.Echo.Start(s.Cfg.Port)
+	err := s.Echo.Start(s.Cfg.Echo.Port)
+
+	return err
+}
+
+func RunEchoServer(lc fx.Lifecycle, log logger.ILogger, cfg *config.Config, echoServer *EchoServer, ctx context.Context) error {
+
+	lc.Append(fx.Hook{
+		OnStart: func(_ context.Context) error {
+			go func() {
+				if err := echoServer.RunHttpServer(ctx); !errors.Is(err, http.ErrServerClosed) {
+					log.Fatalf("error running server: %v", err)
+				}
+			}()
+			return nil
+		},
+		OnStop: func(_ context.Context) error {
+			log.Infof("shutting down Http PORT: {%s}", cfg.Echo.Port)
+			if err := echoServer.Echo.Shutdown(ctx); err != nil {
+				log.Fatalf("error shutting down server: %v", err)
+			} else {
+				log.Fatalf("server shutdown gracefully")
+			}
+			return nil
+		},
+	})
+
+	return nil
 }
 
 func (s *EchoServer) ApplyVersioningFromHeader() {

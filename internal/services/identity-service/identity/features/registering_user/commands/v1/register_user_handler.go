@@ -3,7 +3,6 @@ package v1
 import (
 	"context"
 	"encoding/json"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/logger"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/mapper"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/rabbitmq"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/utils"
@@ -11,6 +10,7 @@ import (
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/identity-service/identity/contracts"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/identity-service/identity/dtos"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/identity-service/identity/models"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/logger"
 )
 
 type RegisterUserHandler struct {

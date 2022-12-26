@@ -4,15 +4,15 @@ import (
 	"context"
 	"github.com/go-playground/validator"
 	"github.com/mehdihadeli/go-mediatr"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/config"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/gorm_postgres"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/grpc"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/http/echo/server"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/http_client"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/logger"
+	logger2 "github.com/meysamhadeli/shop-golang-microservices/internal/pkg/logger"
 	open_telemetry "github.com/meysamhadeli/shop-golang-microservices/internal/pkg/open-telemetry"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/rabbitmq"
 	rabbitmq2 "github.com/meysamhadeli/shop-golang-microservices/internal/pkg/test/container/testcontainer/rabbitmq"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/config"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/configurations"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/constants"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/contracts/data"
@@ -29,7 +29,7 @@ import (
 
 type IntegrationTestFixture struct {
 	suite.Suite
-	Log                 logger.ILogger
+	Log                 logger2.ILogger
 	Cfg                 *config.Config
 	ProductRepository   data.ProductRepository
 	IdentityGrpcClient  grpc.GrpcClient
@@ -52,10 +52,9 @@ func NewIntegrationTestFixture(t *testing.T) *IntegrationTestFixture {
 
 	cleanups := []func(){}
 
-	cfg, _ := config.InitConfig(constants.Test)
+	cfg, _ := config.InitConfig()
 
-	log := logger.NewAppLogger(cfg.Logger)
-	log.InitLogger()
+	log := logger2.InitLogger()
 
 	ctx, cancel := context.WithCancel(context.Background())
 

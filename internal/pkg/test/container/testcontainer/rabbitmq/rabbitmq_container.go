@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/docker/go-connections/nat"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/config"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/rabbitmq"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/test/container/contracts"
 	"github.com/streadway/amqp"
@@ -74,12 +75,12 @@ func (g *rabbitmqTestContainers) Start(ctx context.Context, t *testing.T, option
 		_ = dbContainer.Terminate(ctx)
 	})
 
-	conn, err, rabbitMqCleanup := rabbitmq.NewRabbitMQConn(&rabbitmq.RabbitMQConfig{
+	conn, err, rabbitMqCleanup := rabbitmq.NewRabbitMQConn(&config.Config{Rabbitmq: &config.RabbitMQConfig{
 		User:     g.defaultOptions.UserName,
 		Password: g.defaultOptions.Password,
 		Host:     host,
 		Port:     g.defaultOptions.HostPort,
-	})
+	}})
 
 	if err != nil {
 		return nil, err, nil

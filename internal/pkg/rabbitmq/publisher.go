@@ -6,6 +6,7 @@ import (
 	"github.com/iancoleman/strcase"
 	jsoniter "github.com/json-iterator/go"
 	"github.com/labstack/echo/v4"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/config"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/logger"
 	open_telemetry "github.com/meysamhadeli/shop-golang-microservices/internal/pkg/open-telemetry"
 	uuid "github.com/satori/go.uuid"
@@ -23,14 +24,14 @@ type IPublisher interface {
 
 var publishedMessages []string
 
-type publisher struct {
-	cfg          *RabbitMQConfig
+type Publisher struct {
+	cfg          *config.Config
 	conn         *amqp.Connection
 	log          logger.ILogger
 	jaegerTracer trace.Tracer
 }
 
-func (p publisher) PublishMessage(ctx context.Context, msg interface{}) error {
+func (p Publisher) PublishMessage(ctx context.Context, msg interface{}) error {
 
 	data, err := jsoniter.Marshal(msg)
 
@@ -57,13 +58,13 @@ func (p publisher) PublishMessage(ctx context.Context, msg interface{}) error {
 	defer channel.Close()
 
 	err = channel.ExchangeDeclare(
-		snakeTypeName, // name
-		p.cfg.Kind,    // type
-		true,          // durable
-		false,         // auto-deleted
-		false,         // internal
-		false,         // no-wait
-		nil,           // arguments
+		snakeTypeName,       // name
+		p.cfg.Rabbitmq.Kind, // type
+		true,                // durable
+		false,               // auto-deleted
+		false,               // internal
+		false,               // no-wait
+		nil,                 // arguments
 	)
 
 	if err != nil {
@@ -107,7 +108,7 @@ func (p publisher) PublishMessage(ctx context.Context, msg interface{}) error {
 	span.SetAttributes(attribute.Key("message-id").String(publishingMsg.MessageId))
 	span.SetAttributes(attribute.Key("correlation-id").String(publishingMsg.CorrelationId))
 	span.SetAttributes(attribute.Key("exchange").String(snakeTypeName))
-	span.SetAttributes(attribute.Key("kind").String(p.cfg.Kind))
+	span.SetAttributes(attribute.Key("kind").String(p.cfg.Rabbitmq.Kind))
 	span.SetAttributes(attribute.Key("content-type").String("application/json"))
 	span.SetAttributes(attribute.Key("timestamp").String(publishingMsg.Timestamp.String()))
 	span.SetAttributes(attribute.Key("body").String(string(publishingMsg.Body)))
@@ -116,7 +117,7 @@ func (p publisher) PublishMessage(ctx context.Context, msg interface{}) error {
 	return nil
 }
 
-func (p publisher) IsPublished(msg interface{}) bool {
+func (p Publisher) IsPublished(msg interface{}) bool {
 
 	typeName := reflect.TypeOf(msg).Name()
 	snakeTypeName := strcase.ToSnake(typeName)
@@ -125,6 +126,6 @@ func (p publisher) IsPublished(msg interface{}) bool {
 	return isPublished
 }
 
-func NewPublisher(cfg *RabbitMQConfig, conn *amqp.Connection, log logger.ILogger, jaegerTracer trace.Tracer) *publisher {
-	return &publisher{cfg: cfg, conn: conn, log: log, jaegerTracer: jaegerTracer}
+func NewPublisher(cfg *config.Config, conn *amqp.Connection, log logger.ILogger, jaegerTracer trace.Tracer) *Publisher {
+	return &Publisher{cfg: cfg, conn: conn, log: log, jaegerTracer: jaegerTracer}
 }

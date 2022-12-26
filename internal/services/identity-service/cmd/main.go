@@ -1,9 +1,9 @@
 package main
 
 import (
-	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/logger"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/identity-service/config"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/identity-service/identity/server"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/logger"
 	log "github.com/sirupsen/logrus"
 	"os"
 )

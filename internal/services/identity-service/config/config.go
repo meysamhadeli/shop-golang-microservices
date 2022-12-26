@@ -6,10 +6,10 @@ import (
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/gorm_postgres"
 	grpc "github.com/meysamhadeli/shop-golang-microservices/internal/pkg/grpc/config"
 	echo "github.com/meysamhadeli/shop-golang-microservices/internal/pkg/http/echo/config"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/logger"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/open-telemetry"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/rabbitmq"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/identity-service/identity/constants"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/logger"
 	"os"
 	"strings"
 

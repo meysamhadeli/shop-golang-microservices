@@ -1,22 +1,13 @@
 package logger
 
 import (
+	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/config"
 	log "github.com/sirupsen/logrus"
 	"os"
 )
 
-type Config struct {
-	LogLevel string `mapstructure:"level"`
-}
-
-// NewAppLogger App Logger constructor
-func NewAppLogger(cfg *Config) *appLogger {
-	return &appLogger{level: cfg.LogLevel}
-}
-
 // Logger methods interface
 type ILogger interface {
-	InitLogger()
 	getLevel() log.Level
 	Debug(args ...interface{})
 	Debugf(format string, args ...interface{})
@@ -62,7 +53,9 @@ func (l *appLogger) getLevel() log.Level {
 }
 
 // InitLogger Init logger
-func (l *appLogger) InitLogger() {
+func InitLogger(cfg *config.Config) ILogger {
+
+	l := &appLogger{level: cfg.Logger.LogLevel}
 
 	l.logger = log.StandardLogger()
 
@@ -82,6 +75,8 @@ func (l *appLogger) InitLogger() {
 	}
 
 	log.SetLevel(logLevel)
+
+	return l
 }
 
 func (l *appLogger) Debug(args ...interface{}) {

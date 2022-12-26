@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/config"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/utils"
 	"github.com/pkg/errors"
 	"github.com/uptrace/bun/driver/pgdriver"
@@ -12,40 +13,31 @@ import (
 	"strings"
 )
 
-type Config struct {
-	Host     string `mapstructure:"host"`
-	Port     int    `mapstructure:"port"`
-	User     string `mapstructure:"user"`
-	DBName   string `mapstructure:"dbName"`
-	SSLMode  bool   `mapstructure:"sslMode"`
-	Password string `mapstructure:"password"`
-}
-
 type Gorm struct {
 	DB     *gorm.DB
-	config *Config
+	config *config.Config
 }
 
-func NewGorm(cfg *Config) (*gorm.DB, error) {
+func NewGorm(config *config.Config) (*gorm.DB, error) {
 
 	var dataSourceName string
 
-	if cfg.DBName == "" {
+	if config.GormPostgres.DBName == "" {
 		return nil, errors.New("DBName is required in the config.")
 	}
 
-	err := createDB(cfg)
+	err := createDB(config)
 
 	if err != nil {
 		return nil, err
 	}
 
 	dataSourceName = fmt.Sprintf("host=%s port=%d user=%s dbname=%s password=%s",
-		cfg.Host,
-		cfg.Port,
-		cfg.User,
-		cfg.DBName,
-		cfg.Password,
+		config.GormPostgres.Host,
+		config.GormPostgres.Port,
+		config.GormPostgres.User,
+		config.GormPostgres.DBName,
+		config.GormPostgres.Password,
 	)
 
 	gormDb, err := gorm.Open(gorm_postgres.Open(dataSourceName), &gorm.Config{})
@@ -61,20 +53,20 @@ func (db *Gorm) Close() {
 	_ = d.Close()
 }
 
-func createDB(cfg *Config) error {
+func createDB(cfg *config.Config) error {
 
 	datasource := fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=disable",
-		cfg.User,
-		cfg.Password,
-		cfg.Host,
-		cfg.Port,
+		cfg.GormPostgres.User,
+		cfg.GormPostgres.Password,
+		cfg.GormPostgres.Host,
+		cfg.GormPostgres.Port,
 		"postgres",
 	)
 
 	sqldb := sql.OpenDB(pgdriver.NewConnector(pgdriver.WithDSN(datasource)))
 
 	var exists int
-	rows, err := sqldb.Query(fmt.Sprintf("SELECT 1 FROM  pg_catalog.pg_database WHERE datname='%s'", cfg.DBName))
+	rows, err := sqldb.Query(fmt.Sprintf("SELECT 1 FROM  pg_catalog.pg_database WHERE datname='%s'", cfg.GormPostgres.DBName))
 	if err != nil {
 		return err
 	}
@@ -90,13 +82,24 @@ func createDB(cfg *Config) error {
 		return nil
 	}
 
-	_, err = sqldb.Exec(fmt.Sprintf("CREATE DATABASE %s", cfg.DBName))
+	_, err = sqldb.Exec(fmt.Sprintf("CREATE DATABASE %s", cfg.GormPostgres.DBName))
 	if err != nil {
 		return err
 	}
 
 	defer sqldb.Close()
 
+	return nil
+}
+
+func Migrate(gorm *gorm.DB, types ...interface{}) error {
+
+	for _, t := range types {
+		err := gorm.AutoMigrate(t)
+		if err != nil {
+			return err
+		}
+	}
 	return nil
 }
 

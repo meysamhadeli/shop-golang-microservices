@@ -7,12 +7,12 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/gorm_postgres"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/http_client"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/logger"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/oauth2"
 	open_telemetry "github.com/meysamhadeli/shop-golang-microservices/internal/pkg/open-telemetry"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/identity-service/config"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/identity-service/identity/models"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/identity-service/shared/contracts"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/logger"
 	"google.golang.org/grpc"
 	"net/http"
 )
