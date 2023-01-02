@@ -10,16 +10,9 @@ import (
 	"net/http"
 )
 
-type deleteProductEndpoint struct {
-	*contracts.ProductEndpointBase[contracts.InfrastructureConfiguration]
-}
-
-func NewDeleteProductEndpoint(productEndpointBase *contracts.ProductEndpointBase[contracts.InfrastructureConfiguration]) *deleteProductEndpoint {
-	return &deleteProductEndpoint{productEndpointBase}
-}
-
-func (ep *deleteProductEndpoint) MapRoute() {
-	ep.ProductsGroup.DELETE("/:id", ep.deleteProduct(), middleware.ValidateBearerToken())
+func MapRoute(infra *contracts.InfrastructureConfiguration) {
+	group := infra.Echo.Group("/api/v1/products")
+	group.DELETE("/:id", deleteProduct(infra), middleware.ValidateBearerToken())
 }
 
 // DeleteProduct
@@ -32,28 +25,28 @@ func (ep *deleteProductEndpoint) MapRoute() {
 // @Param       id path string true "Product ID"
 // @Security ApiKeyAuth
 // @Router      /api/v1/products/{id} [delete]
-func (ep *deleteProductEndpoint) deleteProduct() echo.HandlerFunc {
+func deleteProduct(infra *contracts.InfrastructureConfiguration) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
 		ctx := c.Request().Context()
 
 		request := &v12.DeleteProductRequestDto{}
 		if err := c.Bind(request); err != nil {
-			ep.Configuration.Log.Warn("Bind", err)
+			infra.Log.Warn("Bind", err)
 			return echo.NewHTTPError(http.StatusBadRequest, err)
 		}
 
 		command := v1.NewDeleteProduct(request.ProductID)
 
-		if err := ep.Configuration.Validator.StructCtx(ctx, command); err != nil {
-			ep.Configuration.Log.Warn("validate", err)
+		if err := infra.Validator.StructCtx(ctx, command); err != nil {
+			infra.Log.Warn("validate", err)
 			return echo.NewHTTPError(http.StatusBadRequest, err)
 		}
 
 		_, err := mediatr.Send[*v1.DeleteProduct, *mediatr.Unit](ctx, command)
 
 		if err != nil {
-			ep.Configuration.Log.Warn("DeleteProduct", err)
+			infra.Log.Warn("DeleteProduct", err)
 			return echo.NewHTTPError(http.StatusBadRequest, err)
 		}
 

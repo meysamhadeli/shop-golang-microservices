@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/docker/go-connections/nat"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/config"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/gorm_postgres"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/test/container/contracts"
 	"github.com/testcontainers/testcontainers-go"
@@ -67,14 +68,14 @@ func (g *gormTestContainers) Start(ctx context.Context, t *testing.T, options ..
 		_ = dbContainer.Terminate(ctx)
 	})
 
-	db, err := gorm_postgres.NewGorm(&gorm_postgres.Config{
+	db, err := gorm_postgres.NewGorm(&config.Config{GormPostgres: &config.GormPostgresConfig{
 		Port:     g.defaultOptions.HostPort,
 		Host:     host,
 		Password: g.defaultOptions.Password,
 		DBName:   g.defaultOptions.Database,
 		SSLMode:  false,
 		User:     g.defaultOptions.UserName,
-	})
+	}})
 
 	return db, nil
 }

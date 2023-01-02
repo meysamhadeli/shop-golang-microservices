@@ -2,7 +2,6 @@ package server
 
 import (
 	"context"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/grpc"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/http/echo/server"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/logger"
 	"github.com/pkg/errors"
@@ -10,7 +9,7 @@ import (
 	"net/http"
 )
 
-func RunServers(lc fx.Lifecycle, log logger.ILogger, echoServer *server.EchoServer, grpcServer *grpc.GrpcServer, ctx context.Context) error {
+func RunServers(lc fx.Lifecycle, log logger.ILogger, echoServer *server.EchoServer, ctx context.Context) error {
 
 	lc.Append(fx.Hook{
 		OnStart: func(_ context.Context) error {
@@ -20,11 +19,6 @@ func RunServers(lc fx.Lifecycle, log logger.ILogger, echoServer *server.EchoServ
 				}
 			}()
 
-			go func() {
-				if err := grpcServer.RunGrpcServer(ctx); !errors.Is(err, http.ErrServerClosed) {
-					log.Fatalf("error running grpc server: %v", err)
-				}
-			}()
 			return nil
 		},
 		OnStop: func(_ context.Context) error {

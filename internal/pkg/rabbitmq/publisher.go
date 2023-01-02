@@ -23,14 +23,14 @@ type IPublisher interface {
 
 var publishedMessages []string
 
-type publisher struct {
+type Publisher struct {
 	cfg          *RabbitMQConfig
 	conn         *amqp.Connection
 	log          logger.ILogger
 	jaegerTracer trace.Tracer
 }
 
-func (p publisher) PublishMessage(ctx context.Context, msg interface{}) error {
+func (p Publisher) PublishMessage(ctx context.Context, msg interface{}) error {
 
 	data, err := jsoniter.Marshal(msg)
 
@@ -116,7 +116,7 @@ func (p publisher) PublishMessage(ctx context.Context, msg interface{}) error {
 	return nil
 }
 
-func (p publisher) IsPublished(msg interface{}) bool {
+func (p Publisher) IsPublished(msg interface{}) bool {
 
 	typeName := reflect.TypeOf(msg).Name()
 	snakeTypeName := strcase.ToSnake(typeName)
@@ -125,6 +125,6 @@ func (p publisher) IsPublished(msg interface{}) bool {
 	return isPublished
 }
 
-func NewPublisher(cfg *RabbitMQConfig, conn *amqp.Connection, log logger.ILogger, jaegerTracer trace.Tracer) *publisher {
-	return &publisher{cfg: cfg, conn: conn, log: log, jaegerTracer: jaegerTracer}
+func NewPublisher(cfg *RabbitMQConfig, conn *amqp.Connection, log logger.ILogger, jaegerTracer trace.Tracer) *Publisher {
+	return &Publisher{cfg: cfg, conn: conn, log: log, jaegerTracer: jaegerTracer}
 }

@@ -11,16 +11,9 @@ import (
 	"net/http"
 )
 
-type registerUserEndpoint struct {
-	*contracts.IdentityEndpointBase[contracts.InfrastructureConfiguration]
-}
-
-func NewCreteUserEndpoint(endpointBase *contracts.IdentityEndpointBase[contracts.InfrastructureConfiguration]) *registerUserEndpoint {
-	return &registerUserEndpoint{endpointBase}
-}
-
-func (ep *registerUserEndpoint) MapRoute() {
-	ep.ProductsGroup.POST("", ep.createUser(), middleware.ValidateBearerToken())
+func MapRoute(infra *contracts.InfrastructureConfiguration) {
+	group := infra.Echo.Group("/api/v1/users")
+	group.POST("", createUser(infra), middleware.ValidateBearerToken())
 }
 
 // RegisterUser
@@ -33,7 +26,7 @@ func (ep *registerUserEndpoint) MapRoute() {
 // @Success 201 {object} dtos.RegisterUserResponseDto
 // @Security ApiKeyAuth
 // @Router /api/v1/users [post]
-func (ep *registerUserEndpoint) createUser() echo.HandlerFunc {
+func createUser(infra *contracts.InfrastructureConfiguration) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
 		ctx := c.Request().Context()
@@ -41,26 +34,26 @@ func (ep *registerUserEndpoint) createUser() echo.HandlerFunc {
 
 		if err := c.Bind(request); err != nil {
 			badRequestErr := errors.Wrap(err, "[registerUserEndpoint_handler.Bind] error in the binding request")
-			ep.Configuration.Log.Error(badRequestErr)
+			infra.Log.Error(badRequestErr)
 			return echo.NewHTTPError(http.StatusBadRequest, err)
 		}
 
 		command := v1.NewRegisterUser(request.FirstName, request.LastName, request.UserName, request.Email, request.Password)
 
-		if err := ep.Configuration.Validator.StructCtx(ctx, command); err != nil {
+		if err := infra.Validator.StructCtx(ctx, command); err != nil {
 			validationErr := errors.Wrap(err, "[registerUserEndpoint_handler.StructCtx] command validation failed")
-			ep.Configuration.Log.Error(validationErr)
+			infra.Log.Error(validationErr)
 			return echo.NewHTTPError(http.StatusBadRequest, err)
 		}
 
 		result, err := mediatr.Send[*v1.RegisterUser, *dtos.RegisterUserResponseDto](ctx, command)
 
 		if err != nil {
-			ep.Configuration.Log.Errorf("(RegisterUser.Handle) id: {%s}, err: {%v}", command.UserId, err)
+			infra.Log.Errorf("(RegisterUser.Handle) id: {%s}, err: {%v}", command.UserId, err)
 			return echo.NewHTTPError(http.StatusBadRequest, err)
 		}
 
-		ep.Configuration.Log.Infof("(user registered) id: {%s}", command.UserId)
+		infra.Log.Infof("(user registered) id: {%s}", command.UserId)
 		return c.JSON(http.StatusCreated, result)
 	}
 }

@@ -5,18 +5,8 @@ import (
 	"os"
 )
 
-type Config struct {
-	LogLevel string `mapstructure:"level"`
-}
-
-// NewAppLogger App Logger constructor
-func NewAppLogger(cfg *Config) *appLogger {
-	return &appLogger{level: cfg.LogLevel}
-}
-
 // Logger methods interface
 type ILogger interface {
-	InitLogger()
 	getLevel() log.Level
 	Debug(args ...interface{})
 	Debugf(format string, args ...interface{})
@@ -61,8 +51,14 @@ func (l *appLogger) getLevel() log.Level {
 	return level
 }
 
+type LoggerConfig struct {
+	LogLevel string `mapstructure:"level"`
+}
+
 // InitLogger Init logger
-func (l *appLogger) InitLogger() {
+func InitLogger(cfg *LoggerConfig) ILogger {
+
+	l := &appLogger{level: cfg.LogLevel}
 
 	l.logger = log.StandardLogger()
 
@@ -82,6 +78,8 @@ func (l *appLogger) InitLogger() {
 	}
 
 	log.SetLevel(logLevel)
+
+	return l
 }
 
 func (l *appLogger) Debug(args ...interface{}) {

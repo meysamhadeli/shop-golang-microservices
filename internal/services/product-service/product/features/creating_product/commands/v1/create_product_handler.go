@@ -3,26 +3,19 @@ package v1
 import (
 	"context"
 	"encoding/json"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/logger"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/mapper"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/rabbitmq"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/config"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/contracts/data"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/creating_product/dtos/v1"
 	v12 "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/creating_product/events/v1"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/models"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/shared/contracts"
 )
 
 type CreateProductHandler struct {
-	log               logger.ILogger
-	cfg               *config.Config
-	repository        data.ProductRepository
-	rabbitmqPublisher rabbitmq.IPublisher
+	infra *contracts.InfrastructureConfiguration
 }
 
-func NewCreateProductHandler(log logger.ILogger, cfg *config.Config, repository data.ProductRepository,
-	rabbitmqPublisher rabbitmq.IPublisher) *CreateProductHandler {
-	return &CreateProductHandler{log: log, cfg: cfg, repository: repository, rabbitmqPublisher: rabbitmqPublisher}
+func NewCreateProductHandler(infra *contracts.InfrastructureConfiguration) *CreateProductHandler {
+	return &CreateProductHandler{infra: infra}
 }
 
 func (c *CreateProductHandler) Handle(ctx context.Context, command *CreateProduct) (*v1.CreateProductResponseDto, error) {
@@ -35,7 +28,7 @@ func (c *CreateProductHandler) Handle(ctx context.Context, command *CreateProduc
 		CreatedAt:   command.CreatedAt,
 	}
 
-	createdProduct, err := c.repository.CreateProduct(ctx, product)
+	createdProduct, err := c.infra.ProductRepository.CreateProduct(ctx, product)
 	if err != nil {
 		return nil, err
 	}
@@ -45,7 +38,7 @@ func (c *CreateProductHandler) Handle(ctx context.Context, command *CreateProduc
 		return nil, err
 	}
 
-	err = c.rabbitmqPublisher.PublishMessage(ctx, evt)
+	err = c.infra.RabbitmqPublisher.PublishMessage(ctx, evt)
 	if err != nil {
 		return nil, err
 	}
@@ -53,7 +46,7 @@ func (c *CreateProductHandler) Handle(ctx context.Context, command *CreateProduc
 	response := &v1.CreateProductResponseDto{ProductId: product.ProductId}
 	bytes, _ := json.Marshal(response)
 
-	c.log.Info("CreateProductResponseDto", string(bytes))
+	c.infra.Log.Info("CreateProductResponseDto", string(bytes))
 
 	return response, nil
 }

@@ -15,12 +15,12 @@ type EchoConfig struct {
 	Host                string   `mapstructure:"host"`
 }
 
-func (c *EchoConfig) Address() string {
-	return fmt.Sprintf("%s%s", c.Host, c.Port)
+func Address(cfg *EchoConfig) string {
+	return fmt.Sprintf("%s%s", cfg.Host, cfg.Port)
 }
 
-func (c *EchoConfig) BasePathAddress() string {
-	path, err := url.JoinPath(c.Address(), c.BasePath)
+func BasePathAddress(cfg *EchoConfig) string {
+	path, err := url.JoinPath(Address(cfg), cfg.BasePath)
 	if err != nil {
 		return ""
 	}

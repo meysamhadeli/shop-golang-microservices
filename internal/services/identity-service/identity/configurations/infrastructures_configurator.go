@@ -2,85 +2,38 @@ package configurations
 
 import (
 	"context"
-	"fmt"
 	"github.com/go-playground/validator"
-	"github.com/labstack/echo/v4"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/gorm_postgres"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/http_client"
+	"github.com/go-resty/resty/v2"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/grpc"
+	echo_server "github.com/meysamhadeli/shop-golang-microservices/internal/pkg/http/echo/server"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/logger"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/oauth2"
-	open_telemetry "github.com/meysamhadeli/shop-golang-microservices/internal/pkg/open-telemetry"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/rabbitmq"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/identity-service/config"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/services/identity-service/identity/models"
+	contracts2 "github.com/meysamhadeli/shop-golang-microservices/internal/services/identity-service/identity/contracts"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/identity-service/shared/contracts"
-	"google.golang.org/grpc"
-	"net/http"
+	"github.com/streadway/amqp"
+	"go.opentelemetry.io/otel/trace"
+	"gorm.io/gorm"
 )
 
-type infrastructureConfigurator struct {
-	Log        logger.ILogger
-	Cfg        *config.Config
-	Echo       *echo.Echo
-	GrpcServer *grpc.Server
-}
+func InitialInfrastructures(echoServer *echo_server.EchoServer, log logger.ILogger, ctx context.Context, grpcServer *grpc.GrpcServer,
+	userRepository contracts2.UserRepository, config *config.Config, rabbitmqPublisher *rabbitmq.Publisher, conn *amqp.Connection,
+	gorm *gorm.DB, tracer trace.Tracer, httpClient *resty.Client) *contracts.InfrastructureConfiguration {
 
-func NewInfrastructureConfigurator(log logger.ILogger, cfg *config.Config, echo *echo.Echo, grpcServer *grpc.Server) *infrastructureConfigurator {
-	return &infrastructureConfigurator{Cfg: cfg, Echo: echo, Log: log, GrpcServer: grpcServer}
-}
-
-func (ic *infrastructureConfigurator) ConfigInfrastructures(ctx context.Context) (error, func()) {
-
-	infrastructure := &contracts.InfrastructureConfiguration{Cfg: ic.Cfg, Echo: ic.Echo, Log: ic.Log, Validator: validator.New()}
-
-	cleanups := []func(){}
-
-	gorm, err := gorm_postgres.NewGorm(ic.Cfg.GormPostgres)
-
-	if err != nil {
-		return err, nil
-	}
-	infrastructure.Gorm = gorm
-
-	err = gorm.AutoMigrate(&models.User{})
-	if err != nil {
-		return err, nil
+	infar := &contracts.InfrastructureConfiguration{
+		Log:               log,
+		Context:           ctx,
+		Echo:              echoServer.Echo,
+		GrpcServer:        grpcServer,
+		UserRepository:    userRepository,
+		Cfg:               config,
+		RabbitmqPublisher: rabbitmqPublisher,
+		ConnRabbitmq:      conn,
+		Gorm:              gorm,
+		JaegerTracer:      tracer,
+		HttpClient:        httpClient,
+		Validator:         validator.New(),
 	}
 
-	tp, err := open_telemetry.TracerProvider(ctx, ic.Cfg.Jaeger, ic.Log)
-	if err != nil {
-		ic.Log.Fatal(err)
-		return err, nil
-	}
-
-	infrastructure.JaegerTracer = tp.Tracer(ic.Cfg.Jaeger.TracerName)
-
-	ic.Log.Infof("%s is running", config.GetMicroserviceName(ic.Cfg.ServiceName))
-
-	httpClient := http_client.NewHttpClient()
-	infrastructure.HttpClient = httpClient
-
-	configSwagger(ic.Echo)
-
-	configMiddlewares(ic.Echo, ic.Cfg.Jaeger)
-
-	oauth2.RunOauthServer(ic.Echo)
-
-	ConfigIdentityGrpcServer(ctx, ic.GrpcServer, infrastructure)
-
-	pc := NewUsersModuleConfigurator(infrastructure)
-
-	err = ConfigureIdentitiesModule(pc)
-	if err != nil {
-		return err, nil
-	}
-
-	ic.Echo.GET("", func(ec echo.Context) error {
-		return ec.String(http.StatusOK, fmt.Sprintf("%s is running...", config.GetMicroserviceName(ic.Cfg.ServiceName)))
-	})
-
-	return nil, func() {
-		for _, c := range cleanups {
-			c()
-		}
-	}
+	return infar
 }

@@ -7,7 +7,6 @@ import (
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/gorm_postgres"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/logger"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/utils"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/config"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/contracts/data"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/models"
 	"github.com/pkg/errors"
@@ -17,12 +16,12 @@ import (
 
 type PostgresProductRepository struct {
 	log  logger.ILogger
-	cfg  *config.Config
+	cfg  *gorm_postgres.GormPostgresConfig
 	db   *pgxpool.Pool
 	gorm *gorm.DB
 }
 
-func NewPostgresProductRepository(log logger.ILogger, cfg *config.Config, gorm *gorm.DB) data.ProductRepository {
+func NewPostgresProductRepository(log logger.ILogger, cfg *gorm_postgres.GormPostgresConfig, gorm *gorm.DB) data.ProductRepository {
 	return &PostgresProductRepository{log: log, cfg: cfg, gorm: gorm}
 }
 

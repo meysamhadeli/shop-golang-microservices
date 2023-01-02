@@ -22,7 +22,8 @@ type EchoServer struct {
 }
 
 func NewEchoServer(log logger.ILogger, cfg *config.EchoConfig) *EchoServer {
-	return &EchoServer{Log: log, Cfg: cfg, Echo: echo.New()}
+	e := echo.New()
+	return &EchoServer{Log: log, Cfg: cfg, Echo: e}
 }
 
 func (s *EchoServer) RunHttpServer(ctx context.Context, configEcho ...func(echoServer *echo.Echo)) error {
@@ -41,19 +42,21 @@ func (s *EchoServer) RunHttpServer(ctx context.Context, configEcho ...func(echoS
 		for {
 			select {
 			case <-ctx.Done():
-				s.Log.Errorf("shutting down Http PORT: {%s}", s.Cfg.Port)
+				s.Log.Infof("shutting down Http PORT: {%s}", s.Cfg.Port)
 				err := s.Echo.Shutdown(ctx)
 				if err != nil {
 					s.Log.Errorf("(Shutdown) err: {%v}", err)
 					return
 				}
-				s.Log.Error("server exited properly")
+				s.Log.Info("server exited properly")
 				return
 			}
 		}
 	}()
 
-	return s.Echo.Start(s.Cfg.Port)
+	err := s.Echo.Start(s.Cfg.Port)
+
+	return err
 }
 
 func (s *EchoServer) ApplyVersioningFromHeader() {

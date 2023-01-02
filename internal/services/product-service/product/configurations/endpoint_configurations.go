@@ -1,43 +1,21 @@
 package configurations
 
 import (
-	"github.com/labstack/echo/v4"
 	creating_product "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/creating_product/endpoints/v1"
 	deleting_product "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/deleting_product/endpoints/v1"
-	gettting_product_by_id "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/getting_product_by_id/endpoints/v1"
+	getting_product_by_id "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/getting_product_by_id/endpoints/v1"
 	getting_products "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/getting_products/endpoints/v1"
-	searching_products "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/searching_product/endpoints/v1"
+	searching_product "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/searching_product/endpoints/v1"
 	updating_product "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/updating_product/endpoints/v1"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/shared/contracts"
 )
 
-func ConfigEndpoints(ic *contracts.InfrastructureConfiguration, group *echo.Group) {
+func ConfigEndpoints(infra *contracts.InfrastructureConfiguration) {
 
-	productEndpointBase := &contracts.ProductEndpointBase[contracts.InfrastructureConfiguration]{
-		ProductsGroup: group,
-		Configuration: *ic,
-	}
-	// CreateNewProduct
-	createProductEndpoint := creating_product.NewCreteProductEndpoint(productEndpointBase)
-	createProductEndpoint.MapRoute()
-
-	// UpdateProduct
-	updateProductEndpoint := updating_product.NewUpdateProductEndpoint(productEndpointBase)
-	updateProductEndpoint.MapRoute()
-
-	// GetProducts
-	getProductsEndpoint := getting_products.NewGetProductsEndpoint(productEndpointBase)
-	getProductsEndpoint.MapRoute()
-
-	// SearchProducts
-	searchProducts := searching_products.NewSearchProductsEndpoint(productEndpointBase)
-	searchProducts.MapRoute()
-
-	// GetProductById
-	getProductByIdEndpoint := gettting_product_by_id.NewGetProductByIdEndpoint(productEndpointBase)
-	getProductByIdEndpoint.MapRoute()
-
-	// DeleteProduct
-	deleteProductEndpoint := deleting_product.NewDeleteProductEndpoint(productEndpointBase)
-	deleteProductEndpoint.MapRoute()
+	creating_product.MapRoute(infra)
+	deleting_product.MapRoute(infra)
+	getting_product_by_id.MapRoute(infra)
+	getting_products.MapRoute(infra)
+	searching_product.MapRoute(infra)
+	updating_product.MapRoute(infra)
 }

@@ -1,0 +1,37 @@
+linters:
+  enable:
+    # Enable by default see in https://golangci-lint.run/usage/linters/#enabled-by-default-linters
+    - deadcode
+    - errcheck
+    - gosimple
+    - govet
+    - ineffassign
+    - staticcheck
+    - structcheck
+    - typecheck
+    - unused
+    - varcheck
+    # Custom to project see in https://golangci-lint.run/usage/linters/#disabled-by-default-linters--e--enable
+    - gosec
+    - godot
+    - gocognit
+    - gocyclo
+    - gofmt
+    - revive
+    - gofumpt
+    - forbidigo
+    - asciicheck
+    - depguard
+    - dogsled
+    - exportloopref
+    - errcheck
+    - gocritic
+    - goimports
+    - goprintffuncname
+    - misspell
+    - nakedret
+    - nolintlint
+    - rowserrcheck
+    - stylecheck
+    - unconvert
+    - whitespace

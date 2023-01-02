@@ -24,7 +24,7 @@ type IConsumer interface {
 
 var consumedMessages []string
 
-type consumer struct {
+type Consumer struct {
 	cfg          *RabbitMQConfig
 	conn         *amqp.Connection
 	log          logger.ILogger
@@ -32,7 +32,7 @@ type consumer struct {
 	jaegerTracer trace.Tracer
 }
 
-func (c consumer) ConsumeMessage(ctx context.Context, msg interface{}) error {
+func (c Consumer) ConsumeMessage(ctx context.Context, msg interface{}) error {
 
 	strName := strings.Split(runtime.FuncForPC(reflect.ValueOf(c.handler).Pointer()).Name(), ".")
 	var consumerHandlerName = strName[len(strName)-1]
@@ -105,12 +105,13 @@ func (c consumer) ConsumeMessage(ctx context.Context, msg interface{}) error {
 
 		select {
 		case <-ctx.Done():
-			c.log.Errorf("channel closed for for queue: %s", q.Name)
-			err = c.conn.Close()
-			if err != nil {
-				c.log.Error(err.Error())
-				return
-			}
+			defer func(ch *amqp.Channel) {
+				err := ch.Close()
+				if err != nil {
+					c.log.Errorf("failed to close channel closed for for queue: %s", q.Name)
+				}
+			}(ch)
+			c.log.Infof("channel closed for for queue: %s", q.Name)
 			return
 
 		case delivery, ok := <-deliveries:
@@ -165,7 +166,7 @@ func (c consumer) ConsumeMessage(ctx context.Context, msg interface{}) error {
 	return nil
 }
 
-func (c consumer) IsConsumed(msg interface{}) bool {
+func (c Consumer) IsConsumed(msg interface{}) bool {
 	timeOutTime := 20 * time.Second
 	startTime := time.Now()
 	timeOutExpired := false
@@ -190,6 +191,6 @@ func (c consumer) IsConsumed(msg interface{}) bool {
 	}
 }
 
-func NewConsumer(cfg *RabbitMQConfig, conn *amqp.Connection, log logger.ILogger, jaegerTracer trace.Tracer, handler func(queue string, msg amqp.Delivery) error) *consumer {
-	return &consumer{cfg: cfg, conn: conn, log: log, jaegerTracer: jaegerTracer, handler: handler}
+func NewConsumer(cfg *RabbitMQConfig, conn *amqp.Connection, log logger.ILogger, jaegerTracer trace.Tracer, handler func(queue string, msg amqp.Delivery) error) *Consumer {
+	return &Consumer{cfg: cfg, conn: conn, log: log, jaegerTracer: jaegerTracer, handler: handler}
 }
