@@ -26,6 +26,7 @@ type InfrastructureConfiguration struct {
 	Gorm              *gorm.DB
 	Echo              *echo.Echo
 	GrpcClient        grpc.GrpcClient
+	GrpcServer        *grpc.GrpcServer
 	UserRepository    contracts.UserRepository
 	Context           context.Context
 }

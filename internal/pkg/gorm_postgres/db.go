@@ -12,7 +12,7 @@ import (
 	"strings"
 )
 
-type Config struct {
+type GormPostgresConfig struct {
 	Host     string `mapstructure:"host"`
 	Port     int    `mapstructure:"port"`
 	User     string `mapstructure:"user"`
@@ -23,29 +23,29 @@ type Config struct {
 
 type Gorm struct {
 	DB     *gorm.DB
-	config *Config
+	config *GormPostgresConfig
 }
 
-func NewGorm(cfg *Config) (*gorm.DB, error) {
+func NewGorm(config *GormPostgresConfig) (*gorm.DB, error) {
 
 	var dataSourceName string
 
-	if cfg.DBName == "" {
+	if config.DBName == "" {
 		return nil, errors.New("DBName is required in the config.")
 	}
 
-	err := createDB(cfg)
+	err := createDB(config)
 
 	if err != nil {
 		return nil, err
 	}
 
 	dataSourceName = fmt.Sprintf("host=%s port=%d user=%s dbname=%s password=%s",
-		cfg.Host,
-		cfg.Port,
-		cfg.User,
-		cfg.DBName,
-		cfg.Password,
+		config.Host,
+		config.Port,
+		config.User,
+		config.DBName,
+		config.Password,
 	)
 
 	gormDb, err := gorm.Open(gorm_postgres.Open(dataSourceName), &gorm.Config{})
@@ -61,7 +61,7 @@ func (db *Gorm) Close() {
 	_ = d.Close()
 }
 
-func createDB(cfg *Config) error {
+func createDB(cfg *GormPostgresConfig) error {
 
 	datasource := fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=disable",
 		cfg.User,
@@ -97,6 +97,17 @@ func createDB(cfg *Config) error {
 
 	defer sqldb.Close()
 
+	return nil
+}
+
+func Migrate(gorm *gorm.DB, types ...interface{}) error {
+
+	for _, t := range types {
+		err := gorm.AutoMigrate(t)
+		if err != nil {
+			return err
+		}
+	}
 	return nil
 }
 

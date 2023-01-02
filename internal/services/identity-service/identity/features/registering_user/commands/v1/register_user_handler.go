@@ -3,26 +3,19 @@ package v1
 import (
 	"context"
 	"encoding/json"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/logger"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/mapper"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/rabbitmq"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/utils"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/services/identity-service/config"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/services/identity-service/identity/contracts"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/identity-service/identity/dtos"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/identity-service/identity/models"
+	contracts2 "github.com/meysamhadeli/shop-golang-microservices/internal/services/identity-service/shared/contracts"
 )
 
 type RegisterUserHandler struct {
-	log               logger.ILogger
-	cfg               *config.Config
-	repository        contracts.UserRepository
-	rabbitmqPublisher rabbitmq.IPublisher
+	infra *contracts2.InfrastructureConfiguration
 }
 
-func NewRegisterUserHandler(log logger.ILogger, cfg *config.Config, repository contracts.UserRepository,
-	rabbitmqPublisher rabbitmq.IPublisher) *RegisterUserHandler {
-	return &RegisterUserHandler{log: log, cfg: cfg, repository: repository, rabbitmqPublisher: rabbitmqPublisher}
+func NewRegisterUserHandler(infra *contracts2.InfrastructureConfiguration) *RegisterUserHandler {
+	return &RegisterUserHandler{infra: infra}
 }
 
 func (c *RegisterUserHandler) Handle(ctx context.Context, command *RegisterUser) (*dtos.RegisterUserResponseDto, error) {
@@ -42,7 +35,7 @@ func (c *RegisterUserHandler) Handle(ctx context.Context, command *RegisterUser)
 		CreatedAt: command.CreatedAt,
 	}
 
-	registeredUser, err := c.repository.RegisterUser(ctx, product)
+	registeredUser, err := c.infra.UserRepository.RegisterUser(ctx, product)
 	if err != nil {
 		return nil, err
 	}
@@ -53,7 +46,7 @@ func (c *RegisterUserHandler) Handle(ctx context.Context, command *RegisterUser)
 	}
 	bytes, _ := json.Marshal(response)
 
-	c.log.Info("RegisterUserResponseDto", string(bytes))
+	c.infra.Log.Info("RegisterUserResponseDto", string(bytes))
 
 	return response, nil
 }

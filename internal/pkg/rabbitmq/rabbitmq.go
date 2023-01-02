@@ -1,6 +1,7 @@
 package rabbitmq
 
 import (
+	"context"
 	"fmt"
 	log "github.com/sirupsen/logrus"
 	"github.com/streadway/amqp"
@@ -16,7 +17,7 @@ type RabbitMQConfig struct {
 }
 
 // Initialize new channel for rabbitmq
-func NewRabbitMQConn(cfg *RabbitMQConfig) (*amqp.Connection, error, func()) {
+func NewRabbitMQConn(cfg *RabbitMQConfig, ctx context.Context) (*amqp.Connection, error) {
 
 	connAddr := fmt.Sprintf(
 		"amqp://%s:%s@%s:%d/",
@@ -29,12 +30,23 @@ func NewRabbitMQConn(cfg *RabbitMQConfig) (*amqp.Connection, error, func()) {
 	conn, err := amqp.Dial(connAddr)
 	if err != nil {
 		log.Error(err, "Failed to connect to RabbitMQ")
-		return nil, err, nil
+		return nil, err
 	}
+
+	go func() {
+		select {
+		case <-ctx.Done():
+			defer func(conn *amqp.Connection) {
+				err := conn.Close()
+				if err != nil {
+					log.Error("Failed to close connection")
+				}
+			}(conn)
+			log.Info("Connection is closed")
+		}
+	}()
 
 	log.Info("Connected to RabbitMQ")
 
-	return conn, nil, func() {
-		_ = conn.Close()
-	}
+	return conn, nil
 }

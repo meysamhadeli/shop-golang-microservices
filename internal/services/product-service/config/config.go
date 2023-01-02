@@ -4,45 +4,45 @@ import (
 	"flag"
 	"fmt"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/gorm_postgres"
-	grpc "github.com/meysamhadeli/shop-golang-microservices/internal/pkg/grpc/config"
-	echo "github.com/meysamhadeli/shop-golang-microservices/internal/pkg/http/echo/config"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/grpc"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/http/echo/config"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/logger"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/open-telemetry"
+	open_telemetry "github.com/meysamhadeli/shop-golang-microservices/internal/pkg/open-telemetry"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/rabbitmq"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/constants"
+	"github.com/pkg/errors"
+	"github.com/spf13/viper"
 	"os"
 	"path/filepath"
 	"runtime"
 	"strings"
-
-	"github.com/pkg/errors"
-	"github.com/spf13/viper"
 )
 
 var configPath string
+
+type Config struct {
+	ServiceName  string                            `mapstructure:"serviceName"`
+	Logger       *logger.LoggerConfig              `mapstructure:"logger"`
+	Rabbitmq     *rabbitmq.RabbitMQConfig          `mapstructure:"rabbitmq"`
+	Echo         *config.EchoConfig                `mapstructure:"echo"`
+	Grpc         *grpc.GrpcConfig                  `mapstructure:"grpc"`
+	GormPostgres *gorm_postgres.GormPostgresConfig `mapstructure:"gormPostgres"`
+	Jaeger       *open_telemetry.JaegerConfig      `mapstructure:"jaeger"`
+}
 
 func init() {
 	flag.StringVar(&configPath, "config", "", "products write microservice config path")
 }
 
-type Config struct {
-	ServiceName        string                   `mapstructure:"serviceName"`
-	Logger             *logger.Config           `mapstructure:"logger"`
-	Rabbitmq           *rabbitmq.RabbitMQConfig `mapstructure:"rabbitmq"`
-	Echo               *echo.EchoConfig         `mapstructure:"echo"`
-	IdentityGrpcClient *grpc.GrpcConfig         `mapstructure:"identityGrpcClient"`
-	Context            Context                  `mapstructure:"context"`
-	GormPostgres       *gorm_postgres.Config    `mapstructure:"gormPostgres"`
-	Jaeger             *open_telemetry.Config   `mapstructure:"jaeger"`
-}
+func InitConfig() (*Config, *logger.LoggerConfig, *open_telemetry.JaegerConfig, *gorm_postgres.GormPostgresConfig,
+	*grpc.GrpcConfig, *config.EchoConfig, *rabbitmq.RabbitMQConfig, error) {
 
-type Context struct {
-	Timeout int `mapstructure:"timeout"`
-}
+	env := os.Getenv("APP_ENV")
+	if env == "" {
+		env = "development"
+	}
 
-func InitConfig(env string) (*Config, error) {
 	if configPath == "" {
-		configPathFromEnv := os.Getenv(constants.ConfigPath)
+		configPathFromEnv := os.Getenv("CONFIG_PATH")
 		if configPathFromEnv != "" {
 			configPath = configPathFromEnv
 		} else {
@@ -50,7 +50,7 @@ func InitConfig(env string) (*Config, error) {
 			//https://stackoverflow.com/questions/18537257/how-to-get-the-directory-of-the-currently-running-file
 			d, err := dirname()
 			if err != nil {
-				return nil, err
+				return nil, nil, nil, nil, nil, nil, nil, err
 			}
 
 			configPath = d
@@ -61,17 +61,17 @@ func InitConfig(env string) (*Config, error) {
 
 	viper.SetConfigName(fmt.Sprintf("config.%s", env))
 	viper.AddConfigPath(configPath)
-	viper.SetConfigType(constants.Json)
+	viper.SetConfigType("json")
 
 	if err := viper.ReadInConfig(); err != nil {
-		return nil, errors.Wrap(err, "viper.ReadInConfig")
+		return nil, nil, nil, nil, nil, nil, nil, errors.Wrap(err, "viper.ReadInConfig")
 	}
 
 	if err := viper.Unmarshal(cfg); err != nil {
-		return nil, errors.Wrap(err, "viper.Unmarshal")
+		return nil, nil, nil, nil, nil, nil, nil, errors.Wrap(err, "viper.Unmarshal")
 	}
 
-	return cfg, nil
+	return cfg, cfg.Logger, cfg.Jaeger, cfg.GormPostgres, cfg.Grpc, cfg.Echo, cfg.Rabbitmq, nil
 }
 
 func GetMicroserviceName(serviceName string) string {

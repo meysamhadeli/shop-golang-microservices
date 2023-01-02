@@ -11,16 +11,17 @@ import (
 	"go.opentelemetry.io/otel/sdk/resource"
 	tracesdk "go.opentelemetry.io/otel/sdk/trace"
 	semconv "go.opentelemetry.io/otel/semconv/v1.12.0"
+	"go.opentelemetry.io/otel/trace"
 	"os"
 )
 
-type Config struct {
+type JaegerConfig struct {
 	Server      string `mapstructure:"server"`
 	ServiceName string `mapstructure:"serviceName"`
 	TracerName  string `mapstructure:"tracerName"`
 }
 
-func TracerProvider(ctx context.Context, cfg *Config, log logger.ILogger) (*tracesdk.TracerProvider, error) {
+func TracerProvider(ctx context.Context, cfg *JaegerConfig, log logger.ILogger) (trace.Tracer, error) {
 	var serverUrl = fmt.Sprintf(cfg.Server+"%s", "/api/traces")
 	// Create the Jaeger exporter
 	exporter, err := jaeger.New(jaeger.WithCollectorEndpoint(jaeger.WithEndpoint(serverUrl)))
@@ -61,5 +62,7 @@ func TracerProvider(ctx context.Context, cfg *Config, log logger.ILogger) (*trac
 	otel.SetTracerProvider(tp)
 	otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(propagation.TraceContext{}))
 
-	return tp, nil
+	t := tp.Tracer(cfg.TracerName)
+
+	return t, nil
 }

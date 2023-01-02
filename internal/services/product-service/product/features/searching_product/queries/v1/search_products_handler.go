@@ -2,27 +2,23 @@ package queries_v1
 
 import (
 	"context"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/logger"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/utils"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/config"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/contracts/data"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/dtos"
 	search_dtos "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/searching_product/dtos/v1"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/shared/contracts"
 )
 
 type SearchProductsHandler struct {
-	log    logger.ILogger
-	cfg    *config.Config
-	pgRepo data.ProductRepository
+	infra *contracts.InfrastructureConfiguration
 }
 
-func NewSearchProductsHandler(log logger.ILogger, cfg *config.Config, pgRepo data.ProductRepository) *SearchProductsHandler {
-	return &SearchProductsHandler{log: log, cfg: cfg, pgRepo: pgRepo}
+func NewSearchProductsHandler(infra *contracts.InfrastructureConfiguration) *SearchProductsHandler {
+	return &SearchProductsHandler{infra: infra}
 }
 
 func (c *SearchProductsHandler) Handle(ctx context.Context, query *SearchProducts) (*search_dtos.SearchProductsResponseDto, error) {
 
-	products, err := c.pgRepo.SearchProducts(ctx, query.SearchText, query.ListQuery)
+	products, err := c.infra.ProductRepository.SearchProducts(ctx, query.SearchText, query.ListQuery)
 	if err != nil {
 		return nil, err
 	}
