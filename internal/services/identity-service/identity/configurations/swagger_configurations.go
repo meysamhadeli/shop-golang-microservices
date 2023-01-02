@@ -1,14 +1,15 @@
 package configurations
 
 import (
-	"github.com/labstack/echo/v4"
+	echo_server "github.com/meysamhadeli/shop-golang-microservices/internal/pkg/http/echo/server"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/identity-service/docs"
 	echoSwagger "github.com/swaggo/echo-swagger"
 )
 
-func configSwagger(e *echo.Echo) {
+func ConfigSwagger(e *echo_server.EchoServer) {
+
 	docs.SwaggerInfo.Version = "1.0"
 	docs.SwaggerInfo.Title = "Identities Service Api"
 	docs.SwaggerInfo.Description = "Identities Service Api"
-	e.GET("/swagger/*", echoSwagger.WrapHandler)
+	e.Echo.GET("/swagger/*", echoSwagger.WrapHandler)
 }

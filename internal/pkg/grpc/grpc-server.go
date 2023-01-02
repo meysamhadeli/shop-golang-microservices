@@ -90,9 +90,9 @@ func (s *GrpcServer) RunGrpcServer(ctx context.Context, configGrpc ...func(grpcS
 		for {
 			select {
 			case <-ctx.Done():
-				s.Log.Errorf("shutting down grpc PORT: {%s}", s.Config.Port)
+				s.Log.Infof("shutting down grpc PORT: {%s}", s.Config.Port)
 				s.shutdown()
-				s.Log.Error("grpc exited properly")
+				s.Log.Info("grpc exited properly")
 				return
 			}
 		}

@@ -14,6 +14,7 @@ import (
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/data/repositories"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/mappings"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/models"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/server"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
@@ -38,7 +39,7 @@ func main() {
 			rabbitmq.NewPublisher,
 			configurations.InitialInfrastructures,
 		),
-		fx.Invoke(echo_server.RunEchoServer),
+		fx.Invoke(server.RunServers),
 		fx.Invoke(configurations.ConfigMiddlewares),
 		fx.Invoke(configurations.ConfigSwagger),
 		fx.Invoke(func(gorm *gorm.DB) error {
