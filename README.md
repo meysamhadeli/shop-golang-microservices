@@ -18,6 +18,7 @@ The main idea of creating this project is implementing an infrastructure for up 
 - :sparkle: Using `OAuth2` for implementation authentication and authorization with `go-oauth2/oauth2` library.
 - :sparkle: Using `Echo framework` for RESTFul api.
 - :sparkle: Using `Swagger` with `swaggo/swag` library.
+- :sparkle: Using `Fx` with `uber-go/fx` library for dependency injection.
 - :sparkle: Using `Integration Testing` and `End To End Testing` for testing level.
 - :sparkle: Using `Docker-Compose` for our deployment mechanism.
 
@@ -43,7 +44,9 @@ I will try to register future goals and additions in the [Issues](https://github
 - ✔️ **[`grpc/grpc-go`](https://github.com/grpc/grpc-go)** - The Go language implementation of gRPC. HTTP/2 based RPC
 - ✔️ **[`go-oauth2/oauth2`](https://github.com/go-oauth2/oauth2)** - An open protocol to allow secure authorization in a simple and standard method
 - ✔️ **[`stretchr/testify`](https://github.com/stretchr/testify)** - A toolkit with common assertions and mocks that plays nicely with the standard library
+- ✔️ **[`uber-go/fx`](https://github.com/uber-go/fx)** - Fx is a dependency injection system for Go
 
+Linter 
 
 ## Structure of Project
 
