@@ -112,6 +112,7 @@ func NewIntegrationTestFixture(t *testing.T, option fx.Option) *IntegrationTestF
 		),
 	)
 
+	//https://github.com/uber-go/fx/blob/master/app_test.go
 	defer app.RequireStart().RequireStop()
 	require.NoError(t, app.Err())
 
