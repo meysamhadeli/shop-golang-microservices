@@ -8,7 +8,7 @@ import (
 )
 
 func Test_RabbitMQ_Container(t *testing.T) {
-	rabbitmqConn, err, _ := NewRabbitMQTestContainers().Start(context.Background(), t)
+	rabbitmqConn, err := NewRabbitMQTestContainers().Start(context.Background(), t)
 	require.NoError(t, err)
 
 	assert.NotNil(t, rabbitmqConn)

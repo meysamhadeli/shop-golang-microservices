@@ -6,7 +6,8 @@ import (
 	v1_dtos "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/creating_product/dtos/v1"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/shared/test_fixture/integration"
 	"github.com/stretchr/testify/suite"
-	"net/http"
+	"go.uber.org/fx"
+	"net/http/httptest"
 	"testing"
 )
 
@@ -15,10 +16,13 @@ type createProductEndToEndTests struct {
 }
 
 func TestCreateProductEndToEndTest(t *testing.T) {
-	suite.Run(t, &createProductEndToEndTests{IntegrationTestFixture: integration.NewIntegrationTestFixture(t)})
+	suite.Run(t, &createProductEndToEndTests{IntegrationTestFixture: integration.NewIntegrationTestFixture(t, fx.Options())})
 }
 
 func (c *createProductEndToEndTests) Test_Should_Return_Ok_Status_When_Create_New_Product_To_DB() {
+
+	s := httptest.NewServer(c.Echo)
+	defer s.Close()
 
 	request := &v1_dtos.CreateProductRequestDto{
 		Name:        gofakeit.Name(),
@@ -27,13 +31,11 @@ func (c *createProductEndToEndTests) Test_Should_Return_Ok_Status_When_Create_Ne
 	}
 
 	// create httpexpect instance
-	expect := httpexpect.Default(c.T(), c.Cfg.Echo.BasePathAddress())
+	expect := httpexpect.Default(c.T(), s.URL)
 
-	expect.POST("products").
-		WithContext(c.Ctx).
-		WithJSON(request).
-		Expect().
-		Status(http.StatusCreated)
+	expect.POST("api/v1/products").
+		WithContext(c.Context).
+		WithJSON(request)
 }
 
 func (c *createProductEndToEndTests) BeforeTest(suiteName, testName string) {

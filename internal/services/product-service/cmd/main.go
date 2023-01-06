@@ -23,7 +23,6 @@ import (
 // @in header
 // @name Authorization
 func main() {
-
 	fx.New(
 		fx.Provide(
 			config.InitConfig,
