@@ -3,8 +3,8 @@ package mappings
 import (
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/mapper"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/dtos"
-	events "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/creating_product/events/v1"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/updating_product/events/v1"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/creating_product/v1/events"
+	events2 "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/updating_product/v1/events"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/models"
 )
 
@@ -19,7 +19,7 @@ func ConfigureMappings() error {
 		return err
 	}
 
-	err = mapper.CreateMap[*models.Product, *v1.ProductUpdated]()
+	err = mapper.CreateMap[*models.Product, *events2.ProductUpdated]()
 	if err != nil {
 		return err
 	}

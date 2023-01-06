@@ -3,7 +3,7 @@ package creating_product
 import (
 	"github.com/brianvoe/gofakeit/v6"
 	"github.com/gavv/httpexpect/v2"
-	v1_dtos "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/creating_product/dtos/v1"
+	v1_dtos "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/creating_product/v1/dtos"
 	test_fixture "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/shared/test_fixture"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/fx"

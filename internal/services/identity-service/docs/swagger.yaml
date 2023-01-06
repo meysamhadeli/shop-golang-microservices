@@ -1,4 +1,23 @@
 definitions:
+  dtos.CreateProductRequestDto:
+    properties:
+      description:
+        type: string
+      name:
+        type: string
+      price:
+        type: number
+    type: object
+  dtos.CreateProductResponseDto:
+    properties:
+      productId:
+        type: string
+    type: object
+  dtos.GetProductByIdResponseDto:
+    properties:
+      product:
+        $ref: '#/definitions/dtos.ProductDto'
+    type: object
   dtos.GetProductsResponseDto:
     properties:
       products:
@@ -47,10 +66,22 @@ definitions:
       userName:
         type: string
     type: object
-  dtos_v1.SearchProductsResponseDto:
+  dtos.SearchProductsResponseDto:
     properties:
       products:
         $ref: '#/definitions/utils.ListResult-dtos_ProductDto'
+    type: object
+  dtos.UpdateProductRequestDto:
+    properties:
+      description:
+        type: string
+      name:
+        type: string
+      price:
+        type: number
+    required:
+    - name
+    - price
     type: object
   utils.FilterModel:
     properties:
@@ -75,37 +106,6 @@ definitions:
         type: integer
       totalPage:
         type: integer
-    type: object
-  v1.CreateProductRequestDto:
-    properties:
-      description:
-        type: string
-      name:
-        type: string
-      price:
-        type: number
-    type: object
-  v1.CreateProductResponseDto:
-    properties:
-      productId:
-        type: string
-    type: object
-  v1.GetProductByIdResponseDto:
-    properties:
-      product:
-        $ref: '#/definitions/dtos.ProductDto'
-    type: object
-  v1.UpdateProductRequestDto:
-    properties:
-      description:
-        type: string
-      name:
-        type: string
-      price:
-        type: number
-    required:
-    - name
-    - price
     type: object
 info:
   contact: {}
@@ -147,14 +147,14 @@ paths:
         name: CreateProductRequestDto
         required: true
         schema:
-          $ref: '#/definitions/v1.CreateProductRequestDto'
+          $ref: '#/definitions/dtos.CreateProductRequestDto'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/v1.CreateProductResponseDto'
+            $ref: '#/definitions/dtos.CreateProductResponseDto'
       security:
       - ApiKeyAuth: []
       summary: Create product
@@ -197,7 +197,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/v1.GetProductByIdResponseDto'
+            $ref: '#/definitions/dtos.GetProductByIdResponseDto'
       security:
       - ApiKeyAuth: []
       summary: Get product
@@ -213,7 +213,7 @@ paths:
         name: UpdateProductRequestDto
         required: true
         schema:
-          $ref: '#/definitions/v1.UpdateProductRequestDto'
+          $ref: '#/definitions/dtos.UpdateProductRequestDto'
       - description: Product ID
         in: path
         name: id
@@ -253,7 +253,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/dtos_v1.SearchProductsResponseDto'
+            $ref: '#/definitions/dtos.SearchProductsResponseDto'
       security:
       - ApiKeyAuth: []
       summary: Search products

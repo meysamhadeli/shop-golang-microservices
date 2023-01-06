@@ -8,9 +8,9 @@ import (
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/rabbitmq"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/config"
 	consumers2 "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/consumers"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/creating_product/commands/v1"
-	v1_dtos "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/creating_product/dtos/v1"
-	v1_event "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/creating_product/events/v1"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/creating_product/v1/commands"
+	v1_dtos "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/creating_product/v1/dtos"
+	v1_event "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/creating_product/v1/events"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/shared/test_fixture"
 	"github.com/streadway/amqp"
 	"github.com/stretchr/testify/require"
@@ -40,8 +40,8 @@ func TestCreateProductIntegration(t *testing.T) {
 
 func (c *createProductIntegrationTests) Test_Should_Create_New_Product_To_DB() {
 
-	command := v1.NewCreateProduct(gofakeit.Name(), gofakeit.AdjectiveDescriptive(), gofakeit.Price(150, 6000))
-	result, err := mediatr.Send[*v1.CreateProduct, *v1_dtos.CreateProductResponseDto](c.Context, command)
+	command := commands.NewCreateProduct(gofakeit.Name(), gofakeit.AdjectiveDescriptive(), gofakeit.Price(150, 6000))
+	result, err := mediatr.Send[*commands.CreateProduct, *v1_dtos.CreateProductResponseDto](c.Context, command)
 	c.Require().NoError(err)
 
 	isPublished := c.RabbitmqPublisher.IsPublished(v1_event.ProductCreated{})

@@ -84,7 +84,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/v1.CreateProductRequestDto"
+                            "$ref": "#/definitions/dtos.CreateProductRequestDto"
                         }
                     }
                 ],
@@ -92,7 +92,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/v1.CreateProductResponseDto"
+                            "$ref": "#/definitions/dtos.CreateProductResponseDto"
                         }
                     }
                 }
@@ -142,7 +142,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/dtos_v1.SearchProductsResponseDto"
+                            "$ref": "#/definitions/dtos.SearchProductsResponseDto"
                         }
                     }
                 }
@@ -179,7 +179,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/v1.GetProductByIdResponseDto"
+                            "$ref": "#/definitions/dtos.GetProductByIdResponseDto"
                         }
                     }
                 }
@@ -208,7 +208,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/v1.UpdateProductRequestDto"
+                            "$ref": "#/definitions/dtos.UpdateProductRequestDto"
                         }
                     },
                     {
@@ -299,6 +299,36 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "dtos.CreateProductRequestDto": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "price": {
+                    "type": "number"
+                }
+            }
+        },
+        "dtos.CreateProductResponseDto": {
+            "type": "object",
+            "properties": {
+                "productId": {
+                    "type": "string"
+                }
+            }
+        },
+        "dtos.GetProductByIdResponseDto": {
+            "type": "object",
+            "properties": {
+                "product": {
+                    "$ref": "#/definitions/dtos.ProductDto"
+                }
+            }
+        },
         "dtos.GetProductsResponseDto": {
             "type": "object",
             "properties": {
@@ -373,11 +403,29 @@ const docTemplate = `{
                 }
             }
         },
-        "dtos_v1.SearchProductsResponseDto": {
+        "dtos.SearchProductsResponseDto": {
             "type": "object",
             "properties": {
                 "products": {
                     "$ref": "#/definitions/utils.ListResult-dtos_ProductDto"
+                }
+            }
+        },
+        "dtos.UpdateProductRequestDto": {
+            "type": "object",
+            "required": [
+                "name",
+                "price"
+            ],
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "price": {
+                    "type": "number"
                 }
             }
         },
@@ -415,54 +463,6 @@ const docTemplate = `{
                 },
                 "totalPage": {
                     "type": "integer"
-                }
-            }
-        },
-        "v1.CreateProductRequestDto": {
-            "type": "object",
-            "properties": {
-                "description": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "price": {
-                    "type": "number"
-                }
-            }
-        },
-        "v1.CreateProductResponseDto": {
-            "type": "object",
-            "properties": {
-                "productId": {
-                    "type": "string"
-                }
-            }
-        },
-        "v1.GetProductByIdResponseDto": {
-            "type": "object",
-            "properties": {
-                "product": {
-                    "$ref": "#/definitions/dtos.ProductDto"
-                }
-            }
-        },
-        "v1.UpdateProductRequestDto": {
-            "type": "object",
-            "required": [
-                "name",
-                "price"
-            ],
-            "properties": {
-                "description": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "price": {
-                    "type": "number"
                 }
             }
         }
