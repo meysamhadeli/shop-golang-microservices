@@ -125,6 +125,6 @@ func (p Publisher) IsPublished(msg interface{}) bool {
 	return isPublished
 }
 
-func NewPublisher(cfg *RabbitMQConfig, conn *amqp.Connection, log logger.ILogger, jaegerTracer trace.Tracer) *Publisher {
+func NewPublisher(cfg *RabbitMQConfig, conn *amqp.Connection, log logger.ILogger, jaegerTracer trace.Tracer) IPublisher {
 	return &Publisher{cfg: cfg, conn: conn, log: log, jaegerTracer: jaegerTracer}
 }

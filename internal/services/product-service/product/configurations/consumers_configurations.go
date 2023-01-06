@@ -1,38 +1,47 @@
 package configurations
 
 import (
+	"context"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/logger"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/rabbitmq"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/config"
 	consumers2 "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/consumers"
 	v1 "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/creating_product/events/v1"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/deleting_product/events"
 	v12 "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/updating_product/events/v1"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/shared/contracts"
+	"github.com/streadway/amqp"
+	"go.opentelemetry.io/otel/trace"
 )
 
-func ConfigConsumers(infra *contracts.InfrastructureConfiguration) error {
+func ConfigConsumers(
+	ctx context.Context,
+	jaegerTracer trace.Tracer,
+	log logger.ILogger,
+	connRabbitmq *amqp.Connection,
+	cfg *config.Config) error {
 
-	createProductConsumer := rabbitmq.NewConsumer(infra.Cfg.Rabbitmq, infra.ConnRabbitmq, infra.Log, infra.JaegerTracer, consumers2.HandleConsumeCreateProduct)
-	updateProductConsumer := rabbitmq.NewConsumer(infra.Cfg.Rabbitmq, infra.ConnRabbitmq, infra.Log, infra.JaegerTracer, consumers2.HandleConsumeUpdateProduct)
-	deleteProductConsumer := rabbitmq.NewConsumer(infra.Cfg.Rabbitmq, infra.ConnRabbitmq, infra.Log, infra.JaegerTracer, consumers2.HandleConsumeDeleteProduct)
+	createProductConsumer := rabbitmq.NewConsumer(cfg.Rabbitmq, connRabbitmq, log, jaegerTracer, consumers2.HandleConsumeCreateProduct)
+	updateProductConsumer := rabbitmq.NewConsumer(cfg.Rabbitmq, connRabbitmq, log, jaegerTracer, consumers2.HandleConsumeUpdateProduct)
+	deleteProductConsumer := rabbitmq.NewConsumer(cfg.Rabbitmq, connRabbitmq, log, jaegerTracer, consumers2.HandleConsumeDeleteProduct)
 
 	go func() {
-		err := createProductConsumer.ConsumeMessage(infra.Context, v1.ProductCreated{})
+		err := createProductConsumer.ConsumeMessage(ctx, v1.ProductCreated{})
 		if err != nil {
-			infra.Log.Error(err)
+			log.Error(err)
 		}
 	}()
 
 	go func() {
-		err := updateProductConsumer.ConsumeMessage(infra.Context, v12.ProductUpdated{})
+		err := updateProductConsumer.ConsumeMessage(ctx, v12.ProductUpdated{})
 		if err != nil {
-			infra.Log.Error(err)
+			log.Error(err)
 		}
 	}()
 
 	go func() {
-		err := deleteProductConsumer.ConsumeMessage(infra.Context, events.ProductDeleted{})
+		err := deleteProductConsumer.ConsumeMessage(ctx, events.ProductDeleted{})
 		if err != nil {
-			infra.Log.Error(err)
+			log.Error(err)
 		}
 	}()
 

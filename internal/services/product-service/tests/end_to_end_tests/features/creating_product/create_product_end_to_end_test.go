@@ -4,21 +4,28 @@ import (
 	"github.com/brianvoe/gofakeit/v6"
 	"github.com/gavv/httpexpect/v2"
 	v1_dtos "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/creating_product/dtos/v1"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/shared/test_fixture/integration"
+	test_fixture "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/shared/test_fixture"
 	"github.com/stretchr/testify/suite"
+	"go.uber.org/fx"
 	"net/http"
+	"net/http/httptest"
 	"testing"
 )
 
 type createProductEndToEndTests struct {
-	*integration.IntegrationTestFixture
+	*test_fixture.TestFixture
 }
 
 func TestCreateProductEndToEndTest(t *testing.T) {
-	suite.Run(t, &createProductEndToEndTests{IntegrationTestFixture: integration.NewIntegrationTestFixture(t)})
+	suite.Run(t, &createProductEndToEndTests{TestFixture: test_fixture.NewIntegrationTestFixture(t, fx.Options())})
 }
 
 func (c *createProductEndToEndTests) Test_Should_Return_Ok_Status_When_Create_New_Product_To_DB() {
+
+	tsrv := httptest.NewServer(c.Echo)
+	defer tsrv.Close()
+
+	e := httpexpect.Default(c.T(), tsrv.URL)
 
 	request := &v1_dtos.CreateProductRequestDto{
 		Name:        gofakeit.Name(),
@@ -26,11 +33,8 @@ func (c *createProductEndToEndTests) Test_Should_Return_Ok_Status_When_Create_Ne
 		Price:       gofakeit.Price(150, 6000),
 	}
 
-	// create httpexpect instance
-	expect := httpexpect.Default(c.T(), c.Cfg.Echo.BasePathAddress())
-
-	expect.POST("products").
-		WithContext(c.Ctx).
+	e.POST("/api/v1/products").
+		WithContext(c.Context).
 		WithJSON(request).
 		Expect().
 		Status(http.StatusCreated)

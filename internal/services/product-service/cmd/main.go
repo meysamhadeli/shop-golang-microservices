@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/go-playground/validator"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/gorm_postgres"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/grpc"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/http/context_provider"
@@ -23,31 +24,32 @@ import (
 // @in header
 // @name Authorization
 func main() {
-
 	fx.New(
-		fx.Provide(
-			config.InitConfig,
-			logger.InitLogger,
-			context_provider.NewContext,
-			echo_server.NewEchoServer,
-			grpc.NewGrpcClient,
-			gorm_postgres.NewGorm,
-			open_telemetry.TracerProvider,
-			http_client.NewHttpClient,
-			repositories.NewPostgresProductRepository,
-			rabbitmq.NewRabbitMQConn,
-			rabbitmq.NewPublisher,
-			configurations.InitialInfrastructures,
+		fx.Options(
+			fx.Provide(
+				config.InitConfig,
+				logger.InitLogger,
+				context_provider.NewContext,
+				echo_server.NewEchoServer,
+				grpc.NewGrpcClient,
+				gorm_postgres.NewGorm,
+				open_telemetry.TracerProvider,
+				http_client.NewHttpClient,
+				repositories.NewPostgresProductRepository,
+				rabbitmq.NewRabbitMQConn,
+				rabbitmq.NewPublisher,
+				validator.New,
+			),
+			fx.Invoke(server.RunServers),
+			fx.Invoke(configurations.ConfigMiddlewares),
+			fx.Invoke(configurations.ConfigSwagger),
+			fx.Invoke(func(gorm *gorm.DB) error {
+				return gorm_postgres.Migrate(gorm, &models.Product{})
+			}),
+			fx.Invoke(mappings.ConfigureMappings),
+			fx.Invoke(configurations.ConfigEndpoints),
+			fx.Invoke(configurations.ConfigProductsMediator),
+			fx.Invoke(configurations.ConfigConsumers),
 		),
-		fx.Invoke(server.RunServers),
-		fx.Invoke(configurations.ConfigMiddlewares),
-		fx.Invoke(configurations.ConfigSwagger),
-		fx.Invoke(func(gorm *gorm.DB) error {
-			return gorm_postgres.Migrate(gorm, &models.Product{})
-		}),
-		fx.Invoke(mappings.ConfigureMappings),
-		fx.Invoke(configurations.ConfigEndpoints),
-		fx.Invoke(configurations.ConfigProductsMediator),
-		fx.Invoke(configurations.ConfigConsumers),
 	).Run()
 }

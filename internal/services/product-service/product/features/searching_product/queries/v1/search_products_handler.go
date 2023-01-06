@@ -2,23 +2,31 @@ package queries_v1
 
 import (
 	"context"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/grpc"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/logger"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/rabbitmq"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/utils"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/contracts/data"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/dtos"
 	search_dtos "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/searching_product/dtos/v1"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/shared/contracts"
 )
 
 type SearchProductsHandler struct {
-	infra *contracts.InfrastructureConfiguration
+	log               logger.ILogger
+	rabbitmqPublisher rabbitmq.IPublisher
+	productRepository data.ProductRepository
+	ctx               context.Context
+	grpcClient        grpc.GrpcClient
 }
 
-func NewSearchProductsHandler(infra *contracts.InfrastructureConfiguration) *SearchProductsHandler {
-	return &SearchProductsHandler{infra: infra}
+func NewSearchProductsHandler(log logger.ILogger, rabbitmqPublisher rabbitmq.IPublisher,
+	productRepository data.ProductRepository, ctx context.Context, grpcClient grpc.GrpcClient) *SearchProductsHandler {
+	return &SearchProductsHandler{log: log, productRepository: productRepository, ctx: ctx, rabbitmqPublisher: rabbitmqPublisher, grpcClient: grpcClient}
 }
 
 func (c *SearchProductsHandler) Handle(ctx context.Context, query *SearchProducts) (*search_dtos.SearchProductsResponseDto, error) {
 
-	products, err := c.infra.ProductRepository.SearchProducts(ctx, query.SearchText, query.ListQuery)
+	products, err := c.productRepository.SearchProducts(ctx, query.SearchText, query.ListQuery)
 	if err != nil {
 		return nil, err
 	}

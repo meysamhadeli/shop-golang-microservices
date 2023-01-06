@@ -2,17 +2,19 @@ package services
 
 import (
 	"context"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/logger"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/services/identity-service/config"
 	identity_service "github.com/meysamhadeli/shop-golang-microservices/internal/services/identity-service/identity/grpc_server/protos"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/services/identity-service/shared/contracts"
 	uuid "github.com/satori/go.uuid"
 )
 
 type IdentityGrpcServerService struct {
-	*contracts.InfrastructureConfiguration
+	cfg *config.Config
+	log logger.ILogger
 }
 
-func NewIdentityGrpcServerService(infra *contracts.InfrastructureConfiguration) *IdentityGrpcServerService {
-	return &IdentityGrpcServerService{InfrastructureConfiguration: infra}
+func NewIdentityGrpcServerService(cfg *config.Config, log logger.ILogger) *IdentityGrpcServerService {
+	return &IdentityGrpcServerService{log: log, cfg: cfg}
 }
 
 func (i IdentityGrpcServerService) GetUserById(ctx context.Context, req *identity_service.GetUserByIdReq) (*identity_service.GetUserByIdRes, error) {

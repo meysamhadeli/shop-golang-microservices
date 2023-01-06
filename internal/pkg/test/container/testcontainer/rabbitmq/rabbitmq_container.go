@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"github.com/docker/go-connections/nat"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/config"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/rabbitmq"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/test/container/contracts"
 	"github.com/streadway/amqp"
@@ -33,7 +32,7 @@ func NewRabbitMQTestContainers() *rabbitmqTestContainers {
 	}
 }
 
-func (g *rabbitmqTestContainers) Start(ctx context.Context, t *testing.T, options ...*contracts.RabbitMQContainerOptions) (*amqp.Connection, error, func()) {
+func (g *rabbitmqTestContainers) Start(ctx context.Context, t *testing.T, options ...*contracts.RabbitMQContainerOptions) (*amqp.Connection, error) {
 	//https://github.com/testcontainers/testcontainers-go
 	//https://dev.to/remast/go-integration-tests-using-testcontainers-9o5
 	containerReq := g.getRunOptions(options...)
@@ -46,18 +45,18 @@ func (g *rabbitmqTestContainers) Start(ctx context.Context, t *testing.T, option
 			Started:          true,
 		})
 	if err != nil {
-		return nil, err, nil
+		return nil, err
 	}
 
 	// get a free random host hostPort
 	hostPort, err := dbContainer.MappedPort(ctx, nat.Port(g.defaultOptions.Ports[0]))
 	if err != nil {
-		return nil, err, nil
+		return nil, err
 	}
 
 	uiHttpPort, err := dbContainer.MappedPort(ctx, nat.Port(g.defaultOptions.Ports[1]))
 	if err != nil {
-		return nil, err, nil
+		return nil, err
 	}
 	t.Logf("rabbitmq ui port is: %d", uiHttpPort.Int())
 
@@ -65,7 +64,7 @@ func (g *rabbitmqTestContainers) Start(ctx context.Context, t *testing.T, option
 
 	host, err := dbContainer.Host(ctx)
 	if err != nil {
-		return nil, err, nil
+		return nil, err
 	}
 
 	g.container = dbContainer
@@ -75,18 +74,20 @@ func (g *rabbitmqTestContainers) Start(ctx context.Context, t *testing.T, option
 		_ = dbContainer.Terminate(ctx)
 	})
 
-	conn, err, rabbitMqCleanup := rabbitmq.NewRabbitMQConn(&config.Config{Rabbitmq: &config.RabbitMQConfig{
+	var rabbitmqConfig = &rabbitmq.RabbitMQConfig{
 		User:     g.defaultOptions.UserName,
 		Password: g.defaultOptions.Password,
 		Host:     host,
 		Port:     g.defaultOptions.HostPort,
-	}})
-
-	if err != nil {
-		return nil, err, nil
 	}
 
-	return conn, nil, rabbitMqCleanup
+	conn, err := rabbitmq.NewRabbitMQConn(rabbitmqConfig, ctx)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return conn, nil
 }
 
 func (g *rabbitmqTestContainers) Cleanup(ctx context.Context) error {

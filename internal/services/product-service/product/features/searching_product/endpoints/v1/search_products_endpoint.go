@@ -1,19 +1,21 @@
 package endpoints_v1
 
 import (
+	"context"
+	"github.com/go-playground/validator"
 	"github.com/labstack/echo/v4"
 	"github.com/mehdihadeli/go-mediatr"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/http/echo/middleware"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/logger"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/utils"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/searching_product/dtos/v1"
 	queries_v1 "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/searching_product/queries/v1"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/shared/contracts"
 	"net/http"
 )
 
-func MapRoute(infra *contracts.InfrastructureConfiguration) {
-	group := infra.Echo.Group("/api/v1/products")
-	group.GET("/search", searchProducts(infra), middleware.ValidateBearerToken())
+func MapRoute(validator *validator.Validate, log logger.ILogger, echo *echo.Echo, ctx context.Context) {
+	group := echo.Group("/api/v1/products")
+	group.GET("/search", searchProducts(validator, log, ctx), middleware.ValidateBearerToken())
 }
 
 // SearchProducts
@@ -26,10 +28,8 @@ func MapRoute(infra *contracts.InfrastructureConfiguration) {
 // @Success     200  {object} dtos_v1.SearchProductsResponseDto
 // @Security ApiKeyAuth
 // @Router      /api/v1/products/search [get]
-func searchProducts(infra *contracts.InfrastructureConfiguration) echo.HandlerFunc {
+func searchProducts(validator *validator.Validate, log logger.ILogger, ctx context.Context) echo.HandlerFunc {
 	return func(c echo.Context) error {
-
-		ctx := c.Request().Context()
 
 		listQuery, err := utils.GetListQueryFromCtx(c)
 
@@ -41,21 +41,21 @@ func searchProducts(infra *contracts.InfrastructureConfiguration) echo.HandlerFu
 
 		// https://echo.labstack.com/guide/binding/
 		if err := c.Bind(request); err != nil {
-			infra.Log.Warn("Bind", err)
+			log.Warn("Bind", err)
 			return echo.NewHTTPError(http.StatusBadRequest, err)
 		}
 
 		query := &queries_v1.SearchProducts{SearchText: request.SearchText, ListQuery: request.ListQuery}
 
-		if err := infra.Validator.StructCtx(ctx, query); err != nil {
-			infra.Log.Errorf("(validate) err: {%v}", err)
+		if err := validator.StructCtx(ctx, query); err != nil {
+			log.Errorf("(validate) err: {%v}", err)
 			return echo.NewHTTPError(http.StatusBadRequest, err)
 		}
 
 		queryResult, err := mediatr.Send[*queries_v1.SearchProducts, *dtos_v1.SearchProductsResponseDto](ctx, query)
 
 		if err != nil {
-			infra.Log.Warn("SearchProducts", err)
+			log.Warn("SearchProducts", err)
 			return echo.NewHTTPError(http.StatusBadRequest, err)
 		}
 
