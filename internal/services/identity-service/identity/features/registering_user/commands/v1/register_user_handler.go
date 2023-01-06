@@ -3,19 +3,25 @@ package v1
 import (
 	"context"
 	"encoding/json"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/logger"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/mapper"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/rabbitmq"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/utils"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/services/identity-service/identity/contracts"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/identity-service/identity/dtos"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/identity-service/identity/models"
-	contracts2 "github.com/meysamhadeli/shop-golang-microservices/internal/services/identity-service/shared/contracts"
 )
 
 type RegisterUserHandler struct {
-	infra *contracts2.InfrastructureConfiguration
+	log               logger.ILogger
+	rabbitmqPublisher rabbitmq.IPublisher
+	userRepository    contracts.UserRepository
+	ctx               context.Context
 }
 
-func NewRegisterUserHandler(infra *contracts2.InfrastructureConfiguration) *RegisterUserHandler {
-	return &RegisterUserHandler{infra: infra}
+func NewRegisterUserHandler(log logger.ILogger, rabbitmqPublisher rabbitmq.IPublisher,
+	userRepository contracts.UserRepository, ctx context.Context) *RegisterUserHandler {
+	return &RegisterUserHandler{log: log, userRepository: userRepository, ctx: ctx, rabbitmqPublisher: rabbitmqPublisher}
 }
 
 func (c *RegisterUserHandler) Handle(ctx context.Context, command *RegisterUser) (*dtos.RegisterUserResponseDto, error) {
@@ -35,7 +41,7 @@ func (c *RegisterUserHandler) Handle(ctx context.Context, command *RegisterUser)
 		CreatedAt: command.CreatedAt,
 	}
 
-	registeredUser, err := c.infra.UserRepository.RegisterUser(ctx, product)
+	registeredUser, err := c.userRepository.RegisterUser(ctx, product)
 	if err != nil {
 		return nil, err
 	}
@@ -46,7 +52,7 @@ func (c *RegisterUserHandler) Handle(ctx context.Context, command *RegisterUser)
 	}
 	bytes, _ := json.Marshal(response)
 
-	c.infra.Log.Info("RegisterUserResponseDto", string(bytes))
+	c.log.Info("RegisterUserResponseDto", string(bytes))
 
 	return response, nil
 }

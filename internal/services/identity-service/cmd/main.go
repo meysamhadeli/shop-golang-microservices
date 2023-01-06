@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/go-playground/validator"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/gorm_postgres"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/grpc"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/http/context_provider"
@@ -24,7 +25,6 @@ import (
 // @in header
 // @name Authorization
 func main() {
-
 	fx.New(
 		fx.Options(
 			fx.Provide(
@@ -39,7 +39,7 @@ func main() {
 				repositories.NewPostgresUserRepository,
 				rabbitmq.NewRabbitMQConn,
 				rabbitmq.NewPublisher,
-				configurations.InitialInfrastructures,
+				validator.New,
 			),
 			fx.Invoke(server.RunServers),
 			fx.Invoke(configurations.ConfigMiddlewares),

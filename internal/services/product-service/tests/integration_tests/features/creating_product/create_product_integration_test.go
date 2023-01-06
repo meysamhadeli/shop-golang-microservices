@@ -1,32 +1,36 @@
 package creating_product
 
 import (
+	"context"
 	"github.com/brianvoe/gofakeit/v6"
 	"github.com/mehdihadeli/go-mediatr"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/logger"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/rabbitmq"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/config"
 	consumers2 "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/consumers"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/creating_product/commands/v1"
 	v1_dtos "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/creating_product/dtos/v1"
 	v1_event "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/creating_product/events/v1"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/shared/contracts"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/shared/test_fixture/integration"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/shared/test_fixture"
+	"github.com/streadway/amqp"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
+	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/fx"
 	"testing"
 )
 
 type createProductIntegrationTests struct {
-	*integration.IntegrationTestFixture
+	*test_fixture.TestFixture
 }
 
 var consumer *rabbitmq.Consumer
 
 func TestCreateProductIntegration(t *testing.T) {
-	suite.Run(t, &createProductIntegrationTests{IntegrationTestFixture: integration.NewIntegrationTestFixture(t, fx.Options(
-		fx.Invoke(func(infra *contracts.InfrastructureConfiguration) {
-			consumer = rabbitmq.NewConsumer(infra.Cfg.Rabbitmq, infra.ConnRabbitmq, infra.Log, infra.JaegerTracer, consumers2.HandleConsumeCreateProduct)
-			err := consumer.ConsumeMessage(infra.Context, v1_event.ProductCreated{})
+	suite.Run(t, &createProductIntegrationTests{TestFixture: test_fixture.NewIntegrationTestFixture(t, fx.Options(
+		fx.Invoke(func(ctx context.Context, jaegerTracer trace.Tracer, log logger.ILogger, connRabbitmq *amqp.Connection, cfg *config.Config) {
+			consumer = rabbitmq.NewConsumer(cfg.Rabbitmq, connRabbitmq, log, jaegerTracer, consumers2.HandleConsumeCreateProduct)
+			err := consumer.ConsumeMessage(ctx, v1_event.ProductCreated{})
 			if err != nil {
 				require.FailNow(t, err.Error())
 			}
@@ -51,7 +55,7 @@ func (c *createProductIntegrationTests) Test_Should_Create_New_Product_To_DB() {
 	c.Assert().NotNil(result)
 	c.Assert().Equal(command.ProductID, result.ProductId)
 
-	createdProduct, err := c.IntegrationTestFixture.ProductRepository.GetProductById(c.Context, result.ProductId)
+	createdProduct, err := c.TestFixture.ProductRepository.GetProductById(c.Context, result.ProductId)
 	c.Require().NoError(err)
 	c.Assert().NotNil(createdProduct)
 }

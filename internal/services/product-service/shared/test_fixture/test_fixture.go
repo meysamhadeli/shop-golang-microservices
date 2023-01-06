@@ -1,7 +1,8 @@
-package integration
+package test_fixture
 
 import (
 	"context"
+	"github.com/go-playground/validator"
 	"github.com/go-resty/resty/v2"
 	"github.com/labstack/echo/v4"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/gorm_postgres"
@@ -12,8 +13,8 @@ import (
 	logger "github.com/meysamhadeli/shop-golang-microservices/internal/pkg/logger"
 	open_telemetry "github.com/meysamhadeli/shop-golang-microservices/internal/pkg/open-telemetry"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/rabbitmq"
-	gorm2 "github.com/meysamhadeli/shop-golang-microservices/internal/pkg/test/container/testcontainer/gorm"
-	rabbitmq2 "github.com/meysamhadeli/shop-golang-microservices/internal/pkg/test/container/testcontainer/rabbitmq"
+	gorm_container "github.com/meysamhadeli/shop-golang-microservices/internal/pkg/test/container/testcontainer/gorm"
+	rabbitmq_container "github.com/meysamhadeli/shop-golang-microservices/internal/pkg/test/container/testcontainer/rabbitmq"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/config"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/configurations"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/constants"
@@ -21,7 +22,6 @@ import (
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/data/repositories"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/mappings"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/models"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/shared/contracts"
 	"github.com/streadway/amqp"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
@@ -33,7 +33,7 @@ import (
 	"testing"
 )
 
-type IntegrationTestFixture struct {
+type TestFixture struct {
 	suite.Suite
 	Log               logger.ILogger
 	Cfg               *config.Config
@@ -49,7 +49,7 @@ type IntegrationTestFixture struct {
 	Context           context.Context
 }
 
-func NewIntegrationTestFixture(t *testing.T, option fx.Option) *IntegrationTestFixture {
+func NewIntegrationTestFixture(t *testing.T, option fx.Option) *TestFixture {
 
 	err := os.Setenv("APP_ENV", constants.Test)
 
@@ -57,7 +57,7 @@ func NewIntegrationTestFixture(t *testing.T, option fx.Option) *IntegrationTestF
 		require.FailNow(t, err.Error())
 	}
 
-	integrationTestFixture := &IntegrationTestFixture{}
+	integrationTestFixture := &TestFixture{}
 
 	app := fxtest.New(t,
 		fx.Options(
@@ -66,25 +66,36 @@ func NewIntegrationTestFixture(t *testing.T, option fx.Option) *IntegrationTestF
 				logger.InitLogger,
 				context_provider.NewContext,
 				ech_server.NewEchoServer,
-				grpc.NewGrpcClient,
 				gorm_postgres.NewGorm,
+				grpc.NewGrpcClient,
 				open_telemetry.TracerProvider,
 				http_client.NewHttpClient,
 				repositories.NewPostgresProductRepository,
 				rabbitmq.NewRabbitMQConn,
 				rabbitmq.NewPublisher,
-				configurations.InitialInfrastructures,
+				validator.New,
 			),
-			fx.Invoke(func(infrastructure *contracts.InfrastructureConfiguration) {
+			fx.Invoke(func(
+				rabbitmqPublisher rabbitmq.IPublisher,
+				productRepository data.ProductRepository,
+				ctx context.Context,
+				grpcClient grpc.GrpcClient,
+				echo *echo.Echo,
+				log logger.ILogger,
+				jaegerTracer trace.Tracer,
+				httpClient *resty.Client,
+				validator *validator.Validate,
+				cfg *config.Config,
+			) {
 
-				//// get gorm-postgres from test-container
-				gormDb, err := gorm2.NewGormTestContainers().Start(infrastructure.Context, t)
+				// get gorm-postgres from test-container
+				gormDb, err := gorm_container.NewGormTestContainers().Start(ctx, t)
 				if err != nil {
 					require.FailNow(t, err.Error())
 				}
 
 				// get rabbitmq from test-container
-				connRabbitMq, err := rabbitmq2.NewRabbitMQTestContainers().Start(infrastructure.Context, t)
+				connRabbitMq, err := rabbitmq_container.NewRabbitMQTestContainers().Start(ctx, t)
 				if err != nil {
 					require.FailNow(t, err.Error())
 				}
@@ -92,15 +103,15 @@ func NewIntegrationTestFixture(t *testing.T, option fx.Option) *IntegrationTestF
 				integrationTestFixture.Gorm = gormDb
 				integrationTestFixture.ConnRabbitmq = connRabbitMq
 
-				integrationTestFixture.Log = infrastructure.Log
-				integrationTestFixture.Cfg = infrastructure.Cfg
-				integrationTestFixture.RabbitmqPublisher = infrastructure.RabbitmqPublisher
-				integrationTestFixture.HttpClient = infrastructure.HttpClient
-				integrationTestFixture.JaegerTracer = infrastructure.JaegerTracer
-				integrationTestFixture.Echo = infrastructure.Echo
-				integrationTestFixture.GrpcClient = infrastructure.GrpcClient
-				integrationTestFixture.ProductRepository = infrastructure.ProductRepository
-				integrationTestFixture.Context = infrastructure.Context
+				integrationTestFixture.Log = log
+				integrationTestFixture.Cfg = cfg
+				integrationTestFixture.RabbitmqPublisher = rabbitmqPublisher
+				integrationTestFixture.HttpClient = httpClient
+				integrationTestFixture.JaegerTracer = jaegerTracer
+				integrationTestFixture.Echo = echo
+				integrationTestFixture.GrpcClient = grpcClient
+				integrationTestFixture.ProductRepository = productRepository
+				integrationTestFixture.Context = ctx
 			}),
 			fx.Invoke(func(gorm *gorm.DB) error {
 				return gorm_postgres.Migrate(gorm, &models.Product{})

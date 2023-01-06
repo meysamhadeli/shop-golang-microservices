@@ -4,7 +4,7 @@ import (
 	"github.com/brianvoe/gofakeit/v6"
 	"github.com/gavv/httpexpect/v2"
 	v1_dtos "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/creating_product/dtos/v1"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/shared/test_fixture/integration"
+	test_fixture "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/shared/test_fixture"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/fx"
 	"net/http"
@@ -13,11 +13,11 @@ import (
 )
 
 type createProductEndToEndTests struct {
-	*integration.IntegrationTestFixture
+	*test_fixture.TestFixture
 }
 
 func TestCreateProductEndToEndTest(t *testing.T) {
-	suite.Run(t, &createProductEndToEndTests{IntegrationTestFixture: integration.NewIntegrationTestFixture(t, fx.Options())})
+	suite.Run(t, &createProductEndToEndTests{TestFixture: test_fixture.NewIntegrationTestFixture(t, fx.Options())})
 }
 
 func (c *createProductEndToEndTests) Test_Should_Return_Ok_Status_When_Create_New_Product_To_DB() {
