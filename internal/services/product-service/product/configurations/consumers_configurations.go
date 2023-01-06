@@ -6,9 +6,9 @@ import (
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/rabbitmq"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/config"
 	consumers2 "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/consumers"
-	v1 "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/creating_product/events/v1"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/deleting_product/events"
-	v12 "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/updating_product/events/v1"
+	events2 "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/creating_product/v1/events"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/deleting_product/v1/events"
+	v12 "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/updating_product/v1/events"
 	"github.com/streadway/amqp"
 	"go.opentelemetry.io/otel/trace"
 )
@@ -25,7 +25,7 @@ func ConfigConsumers(
 	deleteProductConsumer := rabbitmq.NewConsumer(cfg.Rabbitmq, connRabbitmq, log, jaegerTracer, consumers2.HandleConsumeDeleteProduct)
 
 	go func() {
-		err := createProductConsumer.ConsumeMessage(ctx, v1.ProductCreated{})
+		err := createProductConsumer.ConsumeMessage(ctx, events2.ProductCreated{})
 		if err != nil {
 			log.Error(err)
 		}
