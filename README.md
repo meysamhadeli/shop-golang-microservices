@@ -18,7 +18,7 @@ The main idea of creating this project is implementing an infrastructure for up 
 - :sparkle: Using `OAuth2` for implementation authentication and authorization with `go-oauth2/oauth2` library.
 - :sparkle: Using `Echo framework` for RESTFul api.
 - :sparkle: Using `Swagger` with `swaggo/swag` library.
-- :sparkle: Using `Fx` with `uber-go/fx` library for dependency injection.
+- :sparkle: Using `uber-go/fx` library for dependency injection.
 - :sparkle: Using `Integration Testing` and `End To End Testing` for testing level.
 - :sparkle: Using `Docker-Compose` for our deployment mechanism.
 
