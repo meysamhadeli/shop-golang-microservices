@@ -2,6 +2,8 @@ package server
 
 import (
 	"context"
+	"github.com/labstack/echo/v4"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/http/echo/config"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/http/echo/server"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/logger"
 	"github.com/pkg/errors"
@@ -9,12 +11,12 @@ import (
 	"net/http"
 )
 
-func RunServers(lc fx.Lifecycle, log logger.ILogger, echoServer *server.EchoServer, ctx context.Context) error {
+func RunServers(lc fx.Lifecycle, log logger.ILogger, echo *echo.Echo, ctx context.Context, echoConfig *config.EchoConfig) error {
 
 	lc.Append(fx.Hook{
 		OnStart: func(_ context.Context) error {
 			go func() {
-				if err := echoServer.RunHttpServer(ctx); !errors.Is(err, http.ErrServerClosed) {
+				if err := server.RunHttpServer(ctx, echo, log, echoConfig); !errors.Is(err, http.ErrServerClosed) {
 					log.Fatalf("error running http server: %v", err)
 				}
 			}()

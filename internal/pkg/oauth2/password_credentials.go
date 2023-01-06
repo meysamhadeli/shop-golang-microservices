@@ -11,7 +11,6 @@ import (
 	"github.com/go-oauth2/oauth2/v4/store"
 	"github.com/golang-jwt/jwt"
 	"github.com/labstack/echo/v4"
-	echo_server "github.com/meysamhadeli/shop-golang-microservices/internal/pkg/http/echo/server"
 	"log"
 	"net/http"
 	"sync"
@@ -53,7 +52,7 @@ func clientStore(clients ...*models.Client) oauth2.ClientStore {
 }
 
 // ref: https://github.com/go-oauth2/oauth2
-func RunOauthServer(e *echo_server.EchoServer) {
+func RunOauthServer(e *echo.Echo) {
 
 	manager.MapClientStorage(clientStore(clients...))
 
@@ -83,8 +82,8 @@ func RunOauthServer(e *echo_server.EchoServer) {
 		log.Println("Response Error:", re.Error.Error())
 	})
 
-	e.Echo.GET("connect/token", token)
-	e.Echo.GET("validate-token", validateBearerToken)
+	e.GET("connect/token", token)
+	e.GET("validate-token", validateBearerToken)
 }
 
 func validateBearerToken(c echo.Context) error {

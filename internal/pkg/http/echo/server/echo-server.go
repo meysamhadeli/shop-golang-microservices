@@ -15,58 +15,45 @@ const (
 	WriteTimeout   = 15 * time.Second
 )
 
-type EchoServer struct {
-	Log  logger.ILogger
-	Cfg  *config.EchoConfig
-	Echo *echo.Echo
-}
-
-func NewEchoServer(log logger.ILogger, cfg *config.EchoConfig) *EchoServer {
+func NewEchoServer() *echo.Echo {
 	e := echo.New()
-	return &EchoServer{Log: log, Cfg: cfg, Echo: e}
+	return e
 }
 
-func (s *EchoServer) RunHttpServer(ctx context.Context, configEcho ...func(echoServer *echo.Echo)) error {
-	s.Echo.Server.ReadTimeout = ReadTimeout
-	s.Echo.Server.WriteTimeout = WriteTimeout
-	s.Echo.Server.MaxHeaderBytes = MaxHeaderBytes
-
-	if len(configEcho) > 0 {
-		httpFunc := configEcho[0]
-		if httpFunc != nil {
-			httpFunc(s.Echo)
-		}
-	}
+func RunHttpServer(ctx context.Context, echo *echo.Echo, log logger.ILogger, cfg *config.EchoConfig) error {
+	echo.Server.ReadTimeout = ReadTimeout
+	echo.Server.WriteTimeout = WriteTimeout
+	echo.Server.MaxHeaderBytes = MaxHeaderBytes
 
 	go func() {
 		for {
 			select {
 			case <-ctx.Done():
-				s.Log.Infof("shutting down Http PORT: {%s}", s.Cfg.Port)
-				err := s.Echo.Shutdown(ctx)
+				log.Infof("shutting down Http PORT: {%s}", cfg.Port)
+				err := echo.Shutdown(ctx)
 				if err != nil {
-					s.Log.Errorf("(Shutdown) err: {%v}", err)
+					log.Errorf("(Shutdown) err: {%v}", err)
 					return
 				}
-				s.Log.Info("server exited properly")
+				log.Info("server exited properly")
 				return
 			}
 		}
 	}()
 
-	err := s.Echo.Start(s.Cfg.Port)
+	err := echo.Start(cfg.Port)
 
 	return err
 }
 
-func (s *EchoServer) ApplyVersioningFromHeader() {
-	s.Echo.Pre(apiVersion)
+func ApplyVersioningFromHeader(echo *echo.Echo) {
+	echo.Pre(apiVersion)
 }
 
-func (s *EchoServer) RegisterGroupFunc(groupName string, builder func(g *echo.Group)) *EchoServer {
-	builder(s.Echo.Group(groupName))
+func RegisterGroupFunc(groupName string, echo *echo.Echo, builder func(g *echo.Group)) *echo.Echo {
+	builder(echo.Group(groupName))
 
-	return s
+	return echo
 }
 
 // APIVersion Header Based Versioning

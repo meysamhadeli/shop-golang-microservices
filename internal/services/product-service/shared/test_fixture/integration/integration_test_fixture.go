@@ -116,7 +116,7 @@ func NewIntegrationTestFixture(t *testing.T, option fx.Option) *IntegrationTestF
 	defer app.RequireStart().RequireStop()
 	require.NoError(t, app.Err())
 
-	configurations.ConfigMiddlewares(&ech_server.EchoServer{Echo: integrationTestFixture.Echo}, integrationTestFixture.Cfg.Jaeger)
+	configurations.ConfigMiddlewares(integrationTestFixture.Echo, integrationTestFixture.Cfg.Jaeger)
 
 	return integrationTestFixture
 }

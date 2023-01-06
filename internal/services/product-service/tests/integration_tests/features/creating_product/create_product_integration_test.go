@@ -1,11 +1,11 @@
-package v1
+package creating_product
 
 import (
 	"github.com/brianvoe/gofakeit/v6"
 	"github.com/mehdihadeli/go-mediatr"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/rabbitmq"
 	consumers2 "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/consumers"
-	v1 "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/creating_product/commands/v1"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/creating_product/commands/v1"
 	v1_dtos "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/creating_product/dtos/v1"
 	v1_event "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/creating_product/events/v1"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/shared/contracts"
