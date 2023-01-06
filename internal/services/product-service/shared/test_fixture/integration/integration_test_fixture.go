@@ -60,56 +60,54 @@ func NewIntegrationTestFixture(t *testing.T, option fx.Option) *IntegrationTestF
 	integrationTestFixture := &IntegrationTestFixture{}
 
 	app := fxtest.New(t,
-		fx.Provide(
-			config.InitConfig,
-			logger.InitLogger,
-			context_provider.NewContext,
-			ech_server.NewEchoServer,
-			grpc.NewGrpcClient,
-			gorm_postgres.NewGorm,
-			open_telemetry.TracerProvider,
-			http_client.NewHttpClient,
-			repositories.NewPostgresProductRepository,
-			rabbitmq.NewRabbitMQConn,
-			rabbitmq.NewPublisher,
-			configurations.InitialInfrastructures,
-		),
-		fx.Invoke(func(infrastructure *contracts.InfrastructureConfiguration) {
-
-			//// get gorm-postgres from test-container
-			gormDb, err := gorm2.NewGormTestContainers().Start(infrastructure.Context, t)
-			if err != nil {
-				require.FailNow(t, err.Error())
-			}
-
-			// get rabbitmq from test-container
-			connRabbitMq, err := rabbitmq2.NewRabbitMQTestContainers().Start(infrastructure.Context, t)
-			if err != nil {
-				require.FailNow(t, err.Error())
-			}
-
-			integrationTestFixture.Gorm = gormDb
-			integrationTestFixture.ConnRabbitmq = connRabbitMq
-
-			integrationTestFixture.Log = infrastructure.Log
-			integrationTestFixture.Cfg = infrastructure.Cfg
-			integrationTestFixture.RabbitmqPublisher = infrastructure.RabbitmqPublisher
-			integrationTestFixture.HttpClient = infrastructure.HttpClient
-			integrationTestFixture.JaegerTracer = infrastructure.JaegerTracer
-			integrationTestFixture.Echo = infrastructure.Echo
-			integrationTestFixture.GrpcClient = infrastructure.GrpcClient
-			integrationTestFixture.ProductRepository = infrastructure.ProductRepository
-			integrationTestFixture.Context = infrastructure.Context
-		}),
-		//fx.Invoke(server.RunServers),
-		fx.Invoke(func(gorm *gorm.DB) error {
-			return gorm_postgres.Migrate(gorm, &models.Product{})
-		}),
-		fx.Invoke(mappings.ConfigureMappings),
-		fx.Invoke(configurations.ConfigEndpoints),
-		fx.Invoke(configurations.ConfigProductsMediator),
-		//fx.Invoke(configurations.ConfigConsumers),
 		fx.Options(
+			fx.Provide(
+				config.InitConfig,
+				logger.InitLogger,
+				context_provider.NewContext,
+				ech_server.NewEchoServer,
+				grpc.NewGrpcClient,
+				gorm_postgres.NewGorm,
+				open_telemetry.TracerProvider,
+				http_client.NewHttpClient,
+				repositories.NewPostgresProductRepository,
+				rabbitmq.NewRabbitMQConn,
+				rabbitmq.NewPublisher,
+				configurations.InitialInfrastructures,
+			),
+			fx.Invoke(func(infrastructure *contracts.InfrastructureConfiguration) {
+
+				//// get gorm-postgres from test-container
+				gormDb, err := gorm2.NewGormTestContainers().Start(infrastructure.Context, t)
+				if err != nil {
+					require.FailNow(t, err.Error())
+				}
+
+				// get rabbitmq from test-container
+				connRabbitMq, err := rabbitmq2.NewRabbitMQTestContainers().Start(infrastructure.Context, t)
+				if err != nil {
+					require.FailNow(t, err.Error())
+				}
+
+				integrationTestFixture.Gorm = gormDb
+				integrationTestFixture.ConnRabbitmq = connRabbitMq
+
+				integrationTestFixture.Log = infrastructure.Log
+				integrationTestFixture.Cfg = infrastructure.Cfg
+				integrationTestFixture.RabbitmqPublisher = infrastructure.RabbitmqPublisher
+				integrationTestFixture.HttpClient = infrastructure.HttpClient
+				integrationTestFixture.JaegerTracer = infrastructure.JaegerTracer
+				integrationTestFixture.Echo = infrastructure.Echo
+				integrationTestFixture.GrpcClient = infrastructure.GrpcClient
+				integrationTestFixture.ProductRepository = infrastructure.ProductRepository
+				integrationTestFixture.Context = infrastructure.Context
+			}),
+			fx.Invoke(func(gorm *gorm.DB) error {
+				return gorm_postgres.Migrate(gorm, &models.Product{})
+			}),
+			fx.Invoke(mappings.ConfigureMappings),
+			fx.Invoke(configurations.ConfigEndpoints),
+			fx.Invoke(configurations.ConfigProductsMediator),
 			option,
 		),
 	)

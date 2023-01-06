@@ -24,29 +24,31 @@ import (
 // @name Authorization
 func main() {
 	fx.New(
-		fx.Provide(
-			config.InitConfig,
-			logger.InitLogger,
-			context_provider.NewContext,
-			echo_server.NewEchoServer,
-			grpc.NewGrpcClient,
-			gorm_postgres.NewGorm,
-			open_telemetry.TracerProvider,
-			http_client.NewHttpClient,
-			repositories.NewPostgresProductRepository,
-			rabbitmq.NewRabbitMQConn,
-			rabbitmq.NewPublisher,
-			configurations.InitialInfrastructures,
+		fx.Options(
+			fx.Provide(
+				config.InitConfig,
+				logger.InitLogger,
+				context_provider.NewContext,
+				echo_server.NewEchoServer,
+				grpc.NewGrpcClient,
+				gorm_postgres.NewGorm,
+				open_telemetry.TracerProvider,
+				http_client.NewHttpClient,
+				repositories.NewPostgresProductRepository,
+				rabbitmq.NewRabbitMQConn,
+				rabbitmq.NewPublisher,
+				configurations.InitialInfrastructures,
+			),
+			fx.Invoke(server.RunServers),
+			fx.Invoke(configurations.ConfigMiddlewares),
+			fx.Invoke(configurations.ConfigSwagger),
+			fx.Invoke(func(gorm *gorm.DB) error {
+				return gorm_postgres.Migrate(gorm, &models.Product{})
+			}),
+			fx.Invoke(mappings.ConfigureMappings),
+			fx.Invoke(configurations.ConfigEndpoints),
+			fx.Invoke(configurations.ConfigProductsMediator),
+			fx.Invoke(configurations.ConfigConsumers),
 		),
-		fx.Invoke(server.RunServers),
-		fx.Invoke(configurations.ConfigMiddlewares),
-		fx.Invoke(configurations.ConfigSwagger),
-		fx.Invoke(func(gorm *gorm.DB) error {
-			return gorm_postgres.Migrate(gorm, &models.Product{})
-		}),
-		fx.Invoke(mappings.ConfigureMappings),
-		fx.Invoke(configurations.ConfigEndpoints),
-		fx.Invoke(configurations.ConfigProductsMediator),
-		fx.Invoke(configurations.ConfigConsumers),
 	).Run()
 }
