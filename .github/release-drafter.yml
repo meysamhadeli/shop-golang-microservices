@@ -12,7 +12,6 @@ name-template: 'v$RESOLVED_VERSION'
 tag-template: 'v$RESOLVED_VERSION'
 template: |
   ## What Changed 👀
-
   $CHANGES
   **Full Changelog**: https://github.com/$OWNER/$REPOSITORY/compare/$PREVIOUS_TAG...v$RESOLVED_VERSION
 categories:
@@ -23,6 +22,12 @@ categories:
     labels:
       - fix
       - bug
+  - title: 🧪 Test
+    labels:
+      - test
+  - title: 🚥 CI
+    labels:
+      - ci       
   - title: ♻️ Changes
     labels:
       - changed
@@ -61,30 +66,33 @@ autolabeler:
   - label: 'chore'
     branch:
       - '/(chore)\/.*/'
-    title:
-      - '/^chore: .*/'
+  - label: 'security'
+    branch:
+      - '/(security)\/.*/'
+  - label: 'refactor'
+    branch:
+      - '/(refactor)\/.*/'    
   - label: 'docs'
     branch:
       - '/(docs)\/.*/'
-    title:
-      - '/^docs: .*/'
+  - label: 'ci'
+    branch:
+      - '/(ci)\/.*/'  
+  - label: 'test'
+    branch:
+      - '/(test)\/.*/'    
   - label: 'bug'
     branch:
       - '/(fix)\/.*/'
-    title:
-      - '/^fix: .*/'
   - label: 'feature'
     branch:
       - '/(feat)\/.*/'
-    title:
-      - '/^feat: .*/'
     body:
       - '/JIRA-[0-9]{1,4}/'
 
 change-template: '- $TITLE (#$NUMBER)'
 exclude-contributors:
   - 'meysamhadeli'
-
 change-title-escapes: '\<*_&' # You can add # and @ to disable mentions, and add ` to disable code blocks.
 version-resolver:
   major:
