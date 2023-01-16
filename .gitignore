@@ -16,3 +16,6 @@
 
 # Ignore idea
 .idea/**
+
+# Ignore CHANGELOG
+CHANGELOG.md
