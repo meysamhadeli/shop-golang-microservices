@@ -24,6 +24,10 @@ type ILogger interface {
 	Tracef(format string, args ...interface{})
 }
 
+var (
+	Logger ILogger
+)
+
 // Application logger
 type appLogger struct {
 	level  string
