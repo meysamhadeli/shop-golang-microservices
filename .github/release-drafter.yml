@@ -94,7 +94,7 @@ autolabeler:
 exclude-contributors:
   - 'meysamhadeli'        
 
-change-template: '$TITLE (#$NUMBER) @$AUTHOR'
+change-template: '$TITLE (#$NUMBER)'
 version-resolver:
   major:
     labels:
