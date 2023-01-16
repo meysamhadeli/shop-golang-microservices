@@ -90,8 +90,11 @@ autolabeler:
       - '/(fix)\/.*/'         
     body:
       - '/JIRA-[0-9]{1,4}/'
+      
+exclude-contributors:
+  - 'meysamhadeli'        
 
-change-template: '$TITLE @$AUTHOR (#$NUMBER)'
+change-template: '$TITLE (#$NUMBER) @$AUTHOR'
 version-resolver:
   major:
     labels:
@@ -106,5 +109,3 @@ version-resolver:
 
 exclude-labels:
   - skip-changelog
-exclude-contributors:
-  - 'meysamhadeli'  
