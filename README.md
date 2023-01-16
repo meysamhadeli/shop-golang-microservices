@@ -19,7 +19,7 @@ The main idea of creating this project is implementing an infrastructure for up 
 - :sparkle: Using `Echo framework` for RESTFul api.
 - :sparkle: Using `Swagger` with `swaggo/swag` library.
 - :sparkle: Using `uber-go/fx` library for dependency injection.
-- :sparkle: Using `Integration Testing` and `End To End Testing` for testing level.
+- :sparkle: Using `Unit Testing`,`Integration Testing` and `End To End Testing` for testing level.
 - :sparkle: Using `Docker-Compose` for our deployment mechanism.
 
 ## Plan
