@@ -13,11 +13,11 @@ import (
 )
 
 type createProductEndToEndTests struct {
-	*test_fixture.TestFixture
+	*test_fixture.IntegrationTestFixture
 }
 
 func TestCreateProductEndToEndTest(t *testing.T) {
-	suite.Run(t, &createProductEndToEndTests{TestFixture: test_fixture.NewIntegrationTestFixture(t, fx.Options())})
+	suite.Run(t, &createProductEndToEndTests{IntegrationTestFixture: test_fixture.NewIntegrationTestFixture(t, fx.Options())})
 }
 
 func (c *createProductEndToEndTests) Test_Should_Return_Ok_Status_When_Create_New_Product_To_DB() {
@@ -34,7 +34,7 @@ func (c *createProductEndToEndTests) Test_Should_Return_Ok_Status_When_Create_Ne
 	}
 
 	e.POST("/api/v1/products").
-		WithContext(c.Context).
+		WithContext(c.Ctx).
 		WithJSON(request).
 		Expect().
 		Status(http.StatusCreated)

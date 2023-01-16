@@ -33,7 +33,7 @@ import (
 	"testing"
 )
 
-type TestFixture struct {
+type IntegrationTestFixture struct {
 	suite.Suite
 	Log               logger.ILogger
 	Cfg               *config.Config
@@ -46,10 +46,10 @@ type TestFixture struct {
 	Echo              *echo.Echo
 	GrpcClient        grpc.GrpcClient
 	ProductRepository data.ProductRepository
-	Context           context.Context
+	Ctx               context.Context
 }
 
-func NewIntegrationTestFixture(t *testing.T, option fx.Option) *TestFixture {
+func NewIntegrationTestFixture(t *testing.T, option fx.Option) *IntegrationTestFixture {
 
 	err := os.Setenv("APP_ENV", constants.Test)
 
@@ -57,7 +57,7 @@ func NewIntegrationTestFixture(t *testing.T, option fx.Option) *TestFixture {
 		require.FailNow(t, err.Error())
 	}
 
-	integrationTestFixture := &TestFixture{}
+	integrationTestFixture := &IntegrationTestFixture{}
 
 	app := fxtest.New(t,
 		fx.Options(
@@ -111,7 +111,7 @@ func NewIntegrationTestFixture(t *testing.T, option fx.Option) *TestFixture {
 				integrationTestFixture.Echo = echo
 				integrationTestFixture.GrpcClient = grpcClient
 				integrationTestFixture.ProductRepository = productRepository
-				integrationTestFixture.Context = ctx
+				integrationTestFixture.Ctx = ctx
 			}),
 			fx.Invoke(func(gorm *gorm.DB) error {
 				return gorm_postgres.Migrate(gorm, &models.Product{})
