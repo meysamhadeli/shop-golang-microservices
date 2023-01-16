@@ -49,6 +49,7 @@ categories:
       - dependencies
   - title: 🧰 Maintenance
     label: 'chore'
+  - title: 📝 Other changes
 ## putting no labels pr to `Other Changes` category with no label - https://github.com/release-drafter/release-drafter/issues/139#issuecomment-480473934
 
 # https://www.trywilco.com/post/wilco-ci-cd-github-heroku
@@ -84,7 +85,7 @@ autolabeler:
     body:
       - '/JIRA-[0-9]{1,4}/'
 
-change-template: '* $TITLE (#$NUMBER)'
+change-template: '$TITLE (#$NUMBER)'
 exclude-contributors:
   - 'meysamhadeli'
 change-title-escapes: '\<*_&' # You can add # and @ to disable mentions, and add ` to disable code blocks.
