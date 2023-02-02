@@ -8,7 +8,7 @@ import (
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/utils"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/contracts/data"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/dtos"
-	dtos1 "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/getting_products/v1/dtos"
+	dtosv1 "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/getting_products/v1/dtos"
 )
 
 type GetProductsHandler struct {
@@ -24,7 +24,7 @@ func NewGetProductsHandler(log logger.ILogger, rabbitmqPublisher rabbitmq.IPubli
 	return &GetProductsHandler{log: log, productRepository: productRepository, ctx: ctx, rabbitmqPublisher: rabbitmqPublisher, grpcClient: grpcClient}
 }
 
-func (c *GetProductsHandler) Handle(ctx context.Context, query *GetProducts) (*dtos1.GetProductsResponseDto, error) {
+func (c *GetProductsHandler) Handle(ctx context.Context, query *GetProducts) (*dtosv1.GetProductsResponseDto, error) {
 
 	products, err := c.productRepository.GetAllProducts(ctx, query.ListQuery)
 	if err != nil {
@@ -36,5 +36,5 @@ func (c *GetProductsHandler) Handle(ctx context.Context, query *GetProducts) (*d
 	if err != nil {
 		return nil, err
 	}
-	return &dtos1.GetProductsResponseDto{Products: listResultDto}, nil
+	return &dtosv1.GetProductsResponseDto{Products: listResultDto}, nil
 }

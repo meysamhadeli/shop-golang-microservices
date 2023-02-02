@@ -4,7 +4,7 @@ import (
 	"context"
 	"github.com/labstack/echo/v4"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/grpc"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/http/echo/server"
+	echo2 "github.com/meysamhadeli/shop-golang-microservices/internal/pkg/http/echo/server"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/logger"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/identity-service/config"
 	"github.com/pkg/errors"
@@ -17,7 +17,7 @@ func RunServers(lc fx.Lifecycle, log logger.ILogger, e *echo.Echo, grpcServer *g
 	lc.Append(fx.Hook{
 		OnStart: func(_ context.Context) error {
 			go func() {
-				if err := server.RunHttpServer(ctx, e, log, cfg.Echo); !errors.Is(err, http.ErrServerClosed) {
+				if err := echo2.RunHttpServer(ctx, e, log, cfg.Echo); !errors.Is(err, http.ErrServerClosed) {
 					log.Fatalf("error running http server: %v", err)
 				}
 			}()

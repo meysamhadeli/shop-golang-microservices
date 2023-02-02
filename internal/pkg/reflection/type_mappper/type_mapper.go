@@ -1,4 +1,4 @@
-package typeMapper
+package typemapper
 
 //https://stackoverflow.com/a/34722791/581476
 //https://stackoverflow.com/questions/7850140/how-do-you-create-a-new-instance-of-a-struct-from-its-type-at-run-time-in-go

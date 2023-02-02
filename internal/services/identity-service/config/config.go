@@ -3,11 +3,11 @@ package config
 import (
 	"flag"
 	"fmt"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/gorm_postgres"
+	gormpgsql "github.com/meysamhadeli/shop-golang-microservices/internal/pkg/gorm_pgsql"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/grpc"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/http/echo/config"
+	echoconfig "github.com/meysamhadeli/shop-golang-microservices/internal/pkg/http/echo/config"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/logger"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/open-telemetry"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/otel"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/rabbitmq"
 	"os"
 	"path/filepath"
@@ -25,21 +25,21 @@ func init() {
 }
 
 type Config struct {
-	ServiceName  string                            `mapstructure:"serviceName"`
-	Logger       *logger.LoggerConfig              `mapstructure:"logger"`
-	Rabbitmq     *rabbitmq.RabbitMQConfig          `mapstructure:"rabbitmq"`
-	Echo         *config.EchoConfig                `mapstructure:"echo"`
-	Grpc         *grpc.GrpcConfig                  `mapstructure:"grpc"`
-	GormPostgres *gorm_postgres.GormPostgresConfig `mapstructure:"gormPostgres"`
-	Jaeger       *open_telemetry.JaegerConfig      `mapstructure:"jaeger"`
+	ServiceName  string                        `mapstructure:"serviceName"`
+	Logger       *logger.LoggerConfig          `mapstructure:"logger"`
+	Rabbitmq     *rabbitmq.RabbitMQConfig      `mapstructure:"rabbitmq"`
+	Echo         *echoconfig.EchoConfig        `mapstructure:"echo"`
+	Grpc         *grpc.GrpcConfig              `mapstructure:"grpc"`
+	GormPostgres *gormpgsql.GormPostgresConfig `mapstructure:"gormPostgres"`
+	Jaeger       *otel.JaegerConfig            `mapstructure:"jaeger"`
 }
 
 type Context struct {
 	Timeout int `mapstructure:"timeout"`
 }
 
-func InitConfig() (*Config, *logger.LoggerConfig, *open_telemetry.JaegerConfig, *gorm_postgres.GormPostgresConfig,
-	*grpc.GrpcConfig, *config.EchoConfig, *rabbitmq.RabbitMQConfig, error) {
+func InitConfig() (*Config, *logger.LoggerConfig, *otel.JaegerConfig, *gormpgsql.GormPostgresConfig,
+	*grpc.GrpcConfig, *echoconfig.EchoConfig, *rabbitmq.RabbitMQConfig, error) {
 
 	env := os.Getenv("APP_ENV")
 	if env == "" {

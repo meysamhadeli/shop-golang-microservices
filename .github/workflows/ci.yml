@@ -1,7 +1,7 @@
 # This workflow will build a golang project
 # For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-go
 
-name: Go
+name: CI
 
 on:
   push:
@@ -14,7 +14,7 @@ on:
 
 jobs:
 
-  build:
+  build-test:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
@@ -35,3 +35,7 @@ jobs:
     - name: product-service build
       working-directory: ./internal/services/product-service
       run: go build -v ./...
+
+    - name: product-service tests
+      working-directory: ./internal/services/product-service/tests
+      run: go test -v ./...

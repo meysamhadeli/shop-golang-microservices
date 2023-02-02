@@ -8,7 +8,7 @@ import (
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/rabbitmq"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/utils"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/identity-service/identity/contracts"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/services/identity-service/identity/dtos"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/services/identity-service/identity/features/registering_user/v1/dtos"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/identity-service/identity/models"
 )
 

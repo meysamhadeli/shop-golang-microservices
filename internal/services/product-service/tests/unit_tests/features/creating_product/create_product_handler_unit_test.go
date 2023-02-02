@@ -2,7 +2,7 @@ package creating_product
 
 import (
 	"github.com/brianvoe/gofakeit/v6"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/creating_product/v1/commands"
+	creatingproductv1commands "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/creating_product/v1/commands"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/shared/test_fixture"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/tests/unit_tests/test_data"
 	uuid "github.com/satori/go.uuid"
@@ -14,7 +14,7 @@ import (
 
 type createProductHandlerUnitTests struct {
 	*test_fixture.UnitTestFixture
-	createProductHandler *commands.CreateProductHandler
+	createProductHandler *creatingproductv1commands.CreateProductHandler
 }
 
 func TestCreateProductHandlerUnit(t *testing.T) {
@@ -23,12 +23,12 @@ func TestCreateProductHandlerUnit(t *testing.T) {
 
 func (c *createProductHandlerUnitTests) SetupTest() {
 	// create new mocks or clear mocks before executing
-	c.createProductHandler = commands.NewCreateProductHandler(c.Log, c.RabbitmqPublisher, c.ProductRepository, c.Ctx, c.GrpcClient)
+	c.createProductHandler = creatingproductv1commands.NewCreateProductHandler(c.Log, c.RabbitmqPublisher, c.ProductRepository, c.Ctx, c.GrpcClient)
 }
 
 func (c *createProductHandlerUnitTests) Test_Handle_Should_Create_New_Product_With_Valid_Data() {
 
-	createProductCommand := &commands.CreateProduct{
+	createProductCommand := &creatingproductv1commands.CreateProduct{
 		ProductID:   uuid.NewV4(),
 		Name:        gofakeit.Name(),
 		CreatedAt:   time.Now(),

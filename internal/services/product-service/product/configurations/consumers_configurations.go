@@ -5,10 +5,10 @@ import (
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/logger"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/rabbitmq"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/config"
-	consumers2 "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/consumers"
-	events2 "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/creating_product/v1/events"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/consumers"
+	creatingproducteventsv1 "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/creating_product/v1/events"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/deleting_product/v1/events"
-	v12 "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/updating_product/v1/events"
+	updatingproducteventsv1 "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/updating_product/v1/events"
 	"github.com/streadway/amqp"
 	"go.opentelemetry.io/otel/trace"
 )
@@ -20,19 +20,19 @@ func ConfigConsumers(
 	connRabbitmq *amqp.Connection,
 	cfg *config.Config) error {
 
-	createProductConsumer := rabbitmq.NewConsumer(cfg.Rabbitmq, connRabbitmq, log, jaegerTracer, consumers2.HandleConsumeCreateProduct)
-	updateProductConsumer := rabbitmq.NewConsumer(cfg.Rabbitmq, connRabbitmq, log, jaegerTracer, consumers2.HandleConsumeUpdateProduct)
-	deleteProductConsumer := rabbitmq.NewConsumer(cfg.Rabbitmq, connRabbitmq, log, jaegerTracer, consumers2.HandleConsumeDeleteProduct)
+	createProductConsumer := rabbitmq.NewConsumer(cfg.Rabbitmq, connRabbitmq, log, jaegerTracer, consumers.HandleConsumeCreateProduct)
+	updateProductConsumer := rabbitmq.NewConsumer(cfg.Rabbitmq, connRabbitmq, log, jaegerTracer, consumers.HandleConsumeUpdateProduct)
+	deleteProductConsumer := rabbitmq.NewConsumer(cfg.Rabbitmq, connRabbitmq, log, jaegerTracer, consumers.HandleConsumeDeleteProduct)
 
 	go func() {
-		err := createProductConsumer.ConsumeMessage(ctx, events2.ProductCreated{})
+		err := createProductConsumer.ConsumeMessage(ctx, creatingproducteventsv1.ProductCreated{})
 		if err != nil {
 			log.Error(err)
 		}
 	}()
 
 	go func() {
-		err := updateProductConsumer.ConsumeMessage(ctx, v12.ProductUpdated{})
+		err := updateProductConsumer.ConsumeMessage(ctx, updatingproducteventsv1.ProductUpdated{})
 		if err != nil {
 			log.Error(err)
 		}
