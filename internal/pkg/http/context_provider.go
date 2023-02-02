@@ -2,13 +2,13 @@ package http
 
 import (
 	"context"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/logger"
+	log "github.com/sirupsen/logrus"
 	"os"
 	"os/signal"
 	"syscall"
 )
 
-func NewContext(log logger.ILogger) context.Context {
+func NewContext() context.Context {
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM, syscall.SIGINT)
 
 	go func() {

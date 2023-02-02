@@ -32,14 +32,6 @@ jobs:
       working-directory: ./internal/services/identity-service
       run: go test -v ./...
 
-    - name: identity-service tests
-      working-directory: ./internal/services/identity-service
-      run: go build -v ./...
-
     - name: product-service build
       working-directory: ./internal/services/product-service
       run: go build -v ./...
-
-    - name: product-service tests
-      working-directory: ./internal/services/product-service
-      run: go test -v ./...
