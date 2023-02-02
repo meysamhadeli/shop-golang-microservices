@@ -2,13 +2,13 @@ package main
 
 import (
 	"github.com/go-playground/validator"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/gorm_postgres"
+	gormpgsql "github.com/meysamhadeli/shop-golang-microservices/internal/pkg/gorm_pgsql"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/grpc"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/http/context_provider"
-	echo_server "github.com/meysamhadeli/shop-golang-microservices/internal/pkg/http/echo/server"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/http_client"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/http"
+	echoserver "github.com/meysamhadeli/shop-golang-microservices/internal/pkg/http/echo/server"
+	httpclient "github.com/meysamhadeli/shop-golang-microservices/internal/pkg/http_client"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/logger"
-	open_telemetry "github.com/meysamhadeli/shop-golang-microservices/internal/pkg/open-telemetry"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/otel"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/rabbitmq"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/config"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/configurations"
@@ -29,12 +29,12 @@ func main() {
 			fx.Provide(
 				config.InitConfig,
 				logger.InitLogger,
-				context_provider.NewContext,
-				echo_server.NewEchoServer,
+				http.NewContext,
+				echoserver.NewEchoServer,
 				grpc.NewGrpcClient,
-				gorm_postgres.NewGorm,
-				open_telemetry.TracerProvider,
-				http_client.NewHttpClient,
+				gormpgsql.NewGorm,
+				otel.TracerProvider,
+				httpclient.NewHttpClient,
 				repositories.NewPostgresProductRepository,
 				rabbitmq.NewRabbitMQConn,
 				rabbitmq.NewPublisher,
@@ -44,7 +44,7 @@ func main() {
 			fx.Invoke(configurations.ConfigMiddlewares),
 			fx.Invoke(configurations.ConfigSwagger),
 			fx.Invoke(func(gorm *gorm.DB) error {
-				return gorm_postgres.Migrate(gorm, &models.Product{})
+				return gormpgsql.Migrate(gorm, &models.Product{})
 			}),
 			fx.Invoke(mappings.ConfigureMappings),
 			fx.Invoke(configurations.ConfigEndpoints),

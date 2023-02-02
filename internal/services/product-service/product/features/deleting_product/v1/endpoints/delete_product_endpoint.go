@@ -5,16 +5,16 @@ import (
 	"github.com/go-playground/validator"
 	"github.com/labstack/echo/v4"
 	"github.com/mehdihadeli/go-mediatr"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/http/echo/middleware"
+	echomiddleware "github.com/meysamhadeli/shop-golang-microservices/internal/pkg/http/echo/middleware"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/logger"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/deleting_product/v1/commands"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/deleting_product/v1/dtos"
+	commandsv1 "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/deleting_product/v1/commands"
+	dtosv1 "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/deleting_product/v1/dtos"
 	"net/http"
 )
 
 func MapRoute(validator *validator.Validate, log logger.ILogger, echo *echo.Echo, ctx context.Context) {
 	group := echo.Group("/api/v1/products")
-	group.DELETE("/:id", deleteProduct(validator, log, ctx), middleware.ValidateBearerToken())
+	group.DELETE("/:id", deleteProduct(validator, log, ctx), echomiddleware.ValidateBearerToken())
 }
 
 // DeleteProduct
@@ -30,20 +30,20 @@ func MapRoute(validator *validator.Validate, log logger.ILogger, echo *echo.Echo
 func deleteProduct(validator *validator.Validate, log logger.ILogger, ctx context.Context) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
-		request := &dtos.DeleteProductRequestDto{}
+		request := &dtosv1.DeleteProductRequestDto{}
 		if err := c.Bind(request); err != nil {
 			log.Warn("Bind", err)
 			return echo.NewHTTPError(http.StatusBadRequest, err)
 		}
 
-		command := commands.NewDeleteProduct(request.ProductID)
+		command := commandsv1.NewDeleteProduct(request.ProductID)
 
 		if err := validator.StructCtx(ctx, command); err != nil {
 			log.Warn("validate", err)
 			return echo.NewHTTPError(http.StatusBadRequest, err)
 		}
 
-		_, err := mediatr.Send[*commands.DeleteProduct, *mediatr.Unit](ctx, command)
+		_, err := mediatr.Send[*commandsv1.DeleteProduct, *mediatr.Unit](ctx, command)
 
 		if err != nil {
 			log.Warn("DeleteProduct", err)

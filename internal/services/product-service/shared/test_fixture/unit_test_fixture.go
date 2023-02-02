@@ -3,7 +3,7 @@ package test_fixture
 import (
 	"context"
 	mocks3 "github.com/meysamhadeli/shop-golang-microservices/internal/pkg/grpc/mocks"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/http/context_provider"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/http"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/logger"
 	mocks2 "github.com/meysamhadeli/shop-golang-microservices/internal/pkg/rabbitmq/mocks"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/config"
@@ -49,7 +49,7 @@ func NewUnitTestFixture(t *testing.T) *UnitTestFixture {
 			fx.Provide(
 				config.InitConfig,
 				logger.InitLogger,
-				context_provider.NewContext,
+				http.NewContext,
 			),
 			fx.Invoke(func(
 				ctx context.Context,

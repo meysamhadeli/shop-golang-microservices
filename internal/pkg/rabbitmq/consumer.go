@@ -7,7 +7,7 @@ import (
 	"github.com/iancoleman/strcase"
 	jsoniter "github.com/json-iterator/go"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/logger"
-	open_telemetry "github.com/meysamhadeli/shop-golang-microservices/internal/pkg/open-telemetry"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/otel"
 	"github.com/streadway/amqp"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
@@ -122,7 +122,7 @@ func (c Consumer) ConsumeMessage(ctx context.Context, msg interface{}) error {
 				}
 
 				// Extract headers
-				ctx = open_telemetry.ExtractAMQPHeaders(ctx, delivery.Headers)
+				ctx = otel.ExtractAMQPHeaders(ctx, delivery.Headers)
 
 				err := c.handler(q.Name, delivery)
 				if err != nil {
