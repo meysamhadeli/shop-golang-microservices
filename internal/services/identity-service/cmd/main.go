@@ -2,14 +2,14 @@ package main
 
 import (
 	"github.com/go-playground/validator"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/gorm_postgres"
+	gormpgsql "github.com/meysamhadeli/shop-golang-microservices/internal/pkg/gorm_pgsql"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/grpc"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/http/context_provider"
-	echo_server "github.com/meysamhadeli/shop-golang-microservices/internal/pkg/http/echo/server"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/http"
+	echoserver "github.com/meysamhadeli/shop-golang-microservices/internal/pkg/http/echo/server"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/http_client"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/logger"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/oauth2"
-	open_telemetry "github.com/meysamhadeli/shop-golang-microservices/internal/pkg/open-telemetry"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/otel"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/rabbitmq"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/identity-service/config"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/identity-service/identity/configurations"
@@ -30,12 +30,12 @@ func main() {
 			fx.Provide(
 				config.InitConfig,
 				logger.InitLogger,
-				context_provider.NewContext,
-				echo_server.NewEchoServer,
+				http.NewContext,
+				echoserver.NewEchoServer,
 				grpc.NewGrpcServer,
-				gorm_postgres.NewGorm,
-				open_telemetry.TracerProvider,
-				http_client.NewHttpClient,
+				gormpgsql.NewGorm,
+				otel.TracerProvider,
+				httpclient.NewHttpClient,
 				repositories.NewPostgresUserRepository,
 				rabbitmq.NewRabbitMQConn,
 				rabbitmq.NewPublisher,
@@ -45,7 +45,7 @@ func main() {
 			fx.Invoke(configurations.ConfigMiddlewares),
 			fx.Invoke(configurations.ConfigSwagger),
 			fx.Invoke(func(gorm *gorm.DB) error {
-				return gorm_postgres.Migrate(gorm, &models.User{})
+				return gormpgsql.Migrate(gorm, &models.User{})
 			}),
 			fx.Invoke(mappings.ConfigureMappings),
 			fx.Invoke(configurations.ConfigEndpoints),

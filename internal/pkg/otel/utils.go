@@ -1,4 +1,4 @@
-package open_telemetry
+package otel
 
 import (
 	"context"

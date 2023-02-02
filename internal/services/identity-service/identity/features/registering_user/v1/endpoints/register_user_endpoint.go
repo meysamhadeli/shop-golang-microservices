@@ -5,17 +5,17 @@ import (
 	"github.com/go-playground/validator"
 	"github.com/labstack/echo/v4"
 	"github.com/mehdihadeli/go-mediatr"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/http/echo/middleware"
+	echomiddleware "github.com/meysamhadeli/shop-golang-microservices/internal/pkg/http/echo/middleware"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/logger"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/services/identity-service/identity/dtos"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/services/identity-service/identity/features/registering_user/v1/commands"
+	commandsv1 "github.com/meysamhadeli/shop-golang-microservices/internal/services/identity-service/identity/features/registering_user/v1/commands"
+	dtosv1 "github.com/meysamhadeli/shop-golang-microservices/internal/services/identity-service/identity/features/registering_user/v1/dtos"
 	"github.com/pkg/errors"
 	"net/http"
 )
 
 func MapRoute(validator *validator.Validate, log logger.ILogger, echo *echo.Echo, ctx context.Context) {
 	group := echo.Group("/api/v1/users")
-	group.POST("", createUser(validator, log, ctx), middleware.ValidateBearerToken())
+	group.POST("", createUser(validator, log, ctx), echomiddleware.ValidateBearerToken())
 }
 
 // RegisterUser
@@ -31,7 +31,7 @@ func MapRoute(validator *validator.Validate, log logger.ILogger, echo *echo.Echo
 func createUser(validator *validator.Validate, log logger.ILogger, ctx context.Context) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
-		request := &dtos.RegisterUserRequestDto{}
+		request := &dtosv1.RegisterUserRequestDto{}
 
 		if err := c.Bind(request); err != nil {
 			badRequestErr := errors.Wrap(err, "[registerUserEndpoint_handler.Bind] error in the binding request")
@@ -39,7 +39,7 @@ func createUser(validator *validator.Validate, log logger.ILogger, ctx context.C
 			return echo.NewHTTPError(http.StatusBadRequest, err)
 		}
 
-		command := commands.NewRegisterUser(request.FirstName, request.LastName, request.UserName, request.Email, request.Password)
+		command := commandsv1.NewRegisterUser(request.FirstName, request.LastName, request.UserName, request.Email, request.Password)
 
 		if err := validator.StructCtx(ctx, command); err != nil {
 			validationErr := errors.Wrap(err, "[registerUserEndpoint_handler.StructCtx] command validation failed")
@@ -47,7 +47,7 @@ func createUser(validator *validator.Validate, log logger.ILogger, ctx context.C
 			return echo.NewHTTPError(http.StatusBadRequest, err)
 		}
 
-		result, err := mediatr.Send[*commands.RegisterUser, *dtos.RegisterUserResponseDto](ctx, command)
+		result, err := mediatr.Send[*commandsv1.RegisterUser, *dtosv1.RegisterUserResponseDto](ctx, command)
 
 		if err != nil {
 			log.Errorf("(RegisterUser.Handle) id: {%s}, err: {%v}", command.UserId, err)

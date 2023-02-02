@@ -8,8 +8,8 @@ import (
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/mapper"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/rabbitmq"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/contracts/data"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/creating_product/v1/dtos"
-	v12 "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/creating_product/v1/events"
+	dtosv1 "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/creating_product/v1/dtos"
+	eventsv1 "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/creating_product/v1/events"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/models"
 )
 
@@ -26,7 +26,7 @@ func NewCreateProductHandler(log logger.ILogger, rabbitmqPublisher rabbitmq.IPub
 	return &CreateProductHandler{log: log, productRepository: productRepository, ctx: ctx, rabbitmqPublisher: rabbitmqPublisher, grpcClient: grpcClient}
 }
 
-func (c *CreateProductHandler) Handle(ctx context.Context, command *CreateProduct) (*dtos.CreateProductResponseDto, error) {
+func (c *CreateProductHandler) Handle(ctx context.Context, command *CreateProduct) (*dtosv1.CreateProductResponseDto, error) {
 
 	product := &models.Product{
 		ProductId:   command.ProductID,
@@ -41,7 +41,7 @@ func (c *CreateProductHandler) Handle(ctx context.Context, command *CreateProduc
 		return nil, err
 	}
 
-	evt, err := mapper.Map[*v12.ProductCreated](createdProduct)
+	evt, err := mapper.Map[*eventsv1.ProductCreated](createdProduct)
 	if err != nil {
 		return nil, err
 	}
@@ -51,7 +51,7 @@ func (c *CreateProductHandler) Handle(ctx context.Context, command *CreateProduc
 		return nil, err
 	}
 
-	response := &dtos.CreateProductResponseDto{ProductId: product.ProductId}
+	response := &dtosv1.CreateProductResponseDto{ProductId: product.ProductId}
 	bytes, _ := json.Marshal(response)
 
 	c.log.Info("CreateProductResponseDto", string(bytes))

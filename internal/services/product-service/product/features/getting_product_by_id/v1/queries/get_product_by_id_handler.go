@@ -8,8 +8,8 @@ import (
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/mapper"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/rabbitmq"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/contracts/data"
-	general_dtos "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/dtos"
-	dtos "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/getting_product_by_id/v1/dtos"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/dtos"
+	dtosv1 "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/getting_product_by_id/v1/dtos"
 	"github.com/pkg/errors"
 )
 
@@ -26,7 +26,7 @@ func NewGetProductByIdHandler(log logger.ILogger, rabbitmqPublisher rabbitmq.IPu
 	return &GetProductByIdHandler{log: log, productRepository: productRepository, ctx: ctx, rabbitmqPublisher: rabbitmqPublisher, grpcClient: grpcClient}
 }
 
-func (q *GetProductByIdHandler) Handle(ctx context.Context, query *GetProductById) (*dtos.GetProductByIdResponseDto, error) {
+func (q *GetProductByIdHandler) Handle(ctx context.Context, query *GetProductById) (*dtosv1.GetProductByIdResponseDto, error) {
 
 	product, err := q.productRepository.GetProductById(ctx, query.ProductID)
 
@@ -35,10 +35,10 @@ func (q *GetProductByIdHandler) Handle(ctx context.Context, query *GetProductByI
 		return nil, notFoundErr
 	}
 
-	productDto, err := mapper.Map[*general_dtos.ProductDto](product)
+	productDto, err := mapper.Map[*dtos.ProductDto](product)
 	if err != nil {
 		return nil, err
 	}
 
-	return &dtos.GetProductByIdResponseDto{Product: productDto}, nil
+	return &dtosv1.GetProductByIdResponseDto{Product: productDto}, nil
 }

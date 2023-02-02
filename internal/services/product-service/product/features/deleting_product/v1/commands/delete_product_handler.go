@@ -7,7 +7,7 @@ import (
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/logger"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/rabbitmq"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/contracts/data"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/deleting_product/v1/events"
+	eventsv1 "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/deleting_product/v1/events"
 )
 
 type DeleteProductHandler struct {
@@ -29,7 +29,7 @@ func (c *DeleteProductHandler) Handle(ctx context.Context, command *DeleteProduc
 		return nil, err
 	}
 
-	err := c.rabbitmqPublisher.PublishMessage(ctx, events.ProductDeleted{
+	err := c.rabbitmqPublisher.PublishMessage(ctx, eventsv1.ProductDeleted{
 		ProductId: command.ProductID,
 	})
 	if err != nil {

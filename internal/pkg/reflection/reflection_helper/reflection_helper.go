@@ -1,4 +1,4 @@
-package reflectionHelper
+package reflecthelper
 
 // ref: https://gist.github.com/drewolson/4771479
 // https://stackoverflow.com/a/60598827/581476

@@ -9,8 +9,8 @@ import (
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/mapper"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/rabbitmq"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/contracts/data"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/updating_product/v1/dtos"
-	events_v1 "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/updating_product/v1/events"
+	dtosv1 "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/updating_product/v1/dtos"
+	eventsv1 "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/updating_product/v1/events"
 	identity_service "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/grpc_client/protos"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/models"
 	"github.com/pkg/errors"
@@ -29,7 +29,7 @@ func NewUpdateProductHandler(log logger.ILogger, rabbitmqPublisher rabbitmq.IPub
 	return &UpdateProductHandler{log: log, productRepository: productRepository, ctx: ctx, rabbitmqPublisher: rabbitmqPublisher, grpcClient: grpcClient}
 }
 
-func (c *UpdateProductHandler) Handle(ctx context.Context, command *UpdateProduct) (*dtos.UpdateProductResponseDto, error) {
+func (c *UpdateProductHandler) Handle(ctx context.Context, command *UpdateProduct) (*dtosv1.UpdateProductResponseDto, error) {
 
 	//simple call grpcClient
 	identityGrpcClient := identity_service.NewIdentityServiceClient(c.grpcClient.GetGrpcConnection())
@@ -54,14 +54,14 @@ func (c *UpdateProductHandler) Handle(ctx context.Context, command *UpdateProduc
 		return nil, err
 	}
 
-	evt, err := mapper.Map[*events_v1.ProductUpdated](updatedProduct)
+	evt, err := mapper.Map[*eventsv1.ProductUpdated](updatedProduct)
 	if err != nil {
 		return nil, err
 	}
 
 	err = c.rabbitmqPublisher.PublishMessage(ctx, evt)
 
-	response := &dtos.UpdateProductResponseDto{ProductId: product.ProductId}
+	response := &dtosv1.UpdateProductResponseDto{ProductId: product.ProductId}
 	bytes, _ := json.Marshal(response)
 
 	c.log.Info("UpdateProductResponseDto", string(bytes))

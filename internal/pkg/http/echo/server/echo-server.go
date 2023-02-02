@@ -1,4 +1,4 @@
-package server
+package echoserver
 
 import (
 	"context"
@@ -20,7 +20,7 @@ func NewEchoServer() *echo.Echo {
 	return e
 }
 
-func RunHttpServer(ctx context.Context, echo *echo.Echo, log logger.ILogger, cfg *config.EchoConfig) error {
+func RunHttpServer(ctx context.Context, echo *echo.Echo, log logger.ILogger, cfg *echoconfig.EchoConfig) error {
 	echo.Server.ReadTimeout = ReadTimeout
 	echo.Server.WriteTimeout = WriteTimeout
 	echo.Server.MaxHeaderBytes = MaxHeaderBytes

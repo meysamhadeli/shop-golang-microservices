@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/jackc/pgx/v4/pgxpool"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/gorm_postgres"
+	gormpgsql "github.com/meysamhadeli/shop-golang-microservices/internal/pkg/gorm_pgsql"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/logger"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/utils"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/contracts/data"
@@ -16,18 +16,18 @@ import (
 
 type PostgresProductRepository struct {
 	log  logger.ILogger
-	cfg  *gorm_postgres.GormPostgresConfig
+	cfg  *gormpgsql.GormPostgresConfig
 	db   *pgxpool.Pool
 	gorm *gorm.DB
 }
 
-func NewPostgresProductRepository(log logger.ILogger, cfg *gorm_postgres.GormPostgresConfig, gorm *gorm.DB) data.ProductRepository {
+func NewPostgresProductRepository(log logger.ILogger, cfg *gormpgsql.GormPostgresConfig, gorm *gorm.DB) data.ProductRepository {
 	return &PostgresProductRepository{log: log, cfg: cfg, gorm: gorm}
 }
 
 func (p *PostgresProductRepository) GetAllProducts(ctx context.Context, listQuery *utils.ListQuery) (*utils.ListResult[*models.Product], error) {
 
-	result, err := gorm_postgres.Paginate[*models.Product](ctx, listQuery, p.gorm)
+	result, err := gormpgsql.Paginate[*models.Product](ctx, listQuery, p.gorm)
 	if err != nil {
 		return nil, err
 	}
@@ -39,7 +39,7 @@ func (p *PostgresProductRepository) SearchProducts(ctx context.Context, searchTe
 	whereQuery := fmt.Sprintf("%s IN (?)", "Name")
 	query := p.gorm.Where(whereQuery, searchText)
 
-	result, err := gorm_postgres.Paginate[*models.Product](ctx, listQuery, query)
+	result, err := gormpgsql.Paginate[*models.Product](ctx, listQuery, query)
 	if err != nil {
 		return nil, err
 	}

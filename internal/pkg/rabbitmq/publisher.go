@@ -7,7 +7,7 @@ import (
 	jsoniter "github.com/json-iterator/go"
 	"github.com/labstack/echo/v4"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/logger"
-	open_telemetry "github.com/meysamhadeli/shop-golang-microservices/internal/pkg/open-telemetry"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/otel"
 	uuid "github.com/satori/go.uuid"
 	"github.com/streadway/amqp"
 	"go.opentelemetry.io/otel/attribute"
@@ -46,7 +46,7 @@ func (p Publisher) PublishMessage(ctx context.Context, msg interface{}) error {
 	defer span.End()
 
 	// Inject the context in the headers
-	headers := open_telemetry.InjectAMQPHeaders(ctx)
+	headers := otel.InjectAMQPHeaders(ctx)
 
 	channel, err := p.conn.Channel()
 	if err != nil {

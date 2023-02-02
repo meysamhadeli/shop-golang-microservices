@@ -8,7 +8,7 @@ import (
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/utils"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/contracts/data"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/dtos"
-	search_dtos "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/searching_product/v1/dtos"
+	dtosv1 "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/searching_product/v1/dtos"
 )
 
 type SearchProductsHandler struct {
@@ -24,7 +24,7 @@ func NewSearchProductsHandler(log logger.ILogger, rabbitmqPublisher rabbitmq.IPu
 	return &SearchProductsHandler{log: log, productRepository: productRepository, ctx: ctx, rabbitmqPublisher: rabbitmqPublisher, grpcClient: grpcClient}
 }
 
-func (c *SearchProductsHandler) Handle(ctx context.Context, query *SearchProducts) (*search_dtos.SearchProductsResponseDto, error) {
+func (c *SearchProductsHandler) Handle(ctx context.Context, query *SearchProducts) (*dtosv1.SearchProductsResponseDto, error) {
 
 	products, err := c.productRepository.SearchProducts(ctx, query.SearchText, query.ListQuery)
 	if err != nil {
@@ -36,5 +36,5 @@ func (c *SearchProductsHandler) Handle(ctx context.Context, query *SearchProduct
 		return nil, err
 	}
 
-	return &search_dtos.SearchProductsResponseDto{Products: listResultDto}, nil
+	return &dtosv1.SearchProductsResponseDto{Products: listResultDto}, nil
 }

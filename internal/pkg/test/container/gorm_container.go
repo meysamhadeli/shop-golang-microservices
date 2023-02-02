@@ -1,10 +1,10 @@
-package gorm
+package container
 
 import (
 	"context"
 	"fmt"
 	"github.com/docker/go-connections/nat"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/gorm_postgres"
+	gormpgsql "github.com/meysamhadeli/shop-golang-microservices/internal/pkg/gorm_pgsql"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/test/container/contracts"
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/wait"
@@ -67,7 +67,7 @@ func (g *gormTestContainers) Start(ctx context.Context, t *testing.T, options ..
 		_ = dbContainer.Terminate(ctx)
 	})
 
-	var gormConfig = &gorm_postgres.GormPostgresConfig{
+	var gormConfig = &gormpgsql.GormPostgresConfig{
 		Port:     g.defaultOptions.HostPort,
 		Host:     host,
 		Password: g.defaultOptions.Password,
@@ -76,7 +76,7 @@ func (g *gormTestContainers) Start(ctx context.Context, t *testing.T, options ..
 		User:     g.defaultOptions.UserName,
 	}
 
-	db, err := gorm_postgres.NewGorm(gormConfig)
+	db, err := gormpgsql.NewGorm(gormConfig)
 
 	return db, nil
 }

@@ -5,17 +5,17 @@ import (
 	"github.com/go-playground/validator"
 	"github.com/labstack/echo/v4"
 	"github.com/mehdihadeli/go-mediatr"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/http/echo/middleware"
+	echomiddleware "github.com/meysamhadeli/shop-golang-microservices/internal/pkg/http/echo/middleware"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/logger"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/creating_product/v1/commands"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/creating_product/v1/dtos"
+	commandsv1 "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/creating_product/v1/commands"
+	dtosv1 "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/creating_product/v1/dtos"
 	"github.com/pkg/errors"
 	"net/http"
 )
 
 func MapRoute(validator *validator.Validate, log logger.ILogger, echo *echo.Echo, ctx context.Context) {
 	group := echo.Group("/api/v1/products")
-	group.POST("", createProduct(validator, log, ctx), middleware.ValidateBearerToken())
+	group.POST("", createProduct(validator, log, ctx), echomiddleware.ValidateBearerToken())
 }
 
 // CreateProduct
@@ -31,7 +31,7 @@ func MapRoute(validator *validator.Validate, log logger.ILogger, echo *echo.Echo
 func createProduct(validator *validator.Validate, log logger.ILogger, ctx context.Context) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
-		request := &dtos.CreateProductRequestDto{}
+		request := &dtosv1.CreateProductRequestDto{}
 
 		if err := c.Bind(request); err != nil {
 			badRequestErr := errors.Wrap(err, "[createProductEndpoint_handler.Bind] error in the binding request")
@@ -39,7 +39,7 @@ func createProduct(validator *validator.Validate, log logger.ILogger, ctx contex
 			return echo.NewHTTPError(http.StatusBadRequest, err)
 		}
 
-		command := commands.NewCreateProduct(request.Name, request.Description, request.Price)
+		command := commandsv1.NewCreateProduct(request.Name, request.Description, request.Price)
 
 		if err := validator.StructCtx(ctx, command); err != nil {
 			validationErr := errors.Wrap(err, "[createProductEndpoint_handler.StructCtx] command validation failed")
@@ -47,7 +47,7 @@ func createProduct(validator *validator.Validate, log logger.ILogger, ctx contex
 			return echo.NewHTTPError(http.StatusBadRequest, err)
 		}
 
-		result, err := mediatr.Send[*commands.CreateProduct, *dtos.CreateProductResponseDto](ctx, command)
+		result, err := mediatr.Send[*commandsv1.CreateProduct, *dtosv1.CreateProductResponseDto](ctx, command)
 
 		if err != nil {
 			log.Errorf("(CreateProduct.Handle) id: {%s}, err: {%v}", command.ProductID, err)

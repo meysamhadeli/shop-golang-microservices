@@ -5,16 +5,15 @@ import (
 	"github.com/go-playground/validator"
 	"github.com/go-resty/resty/v2"
 	"github.com/labstack/echo/v4"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/gorm_postgres"
+	gormpgsql "github.com/meysamhadeli/shop-golang-microservices/internal/pkg/gorm_pgsql"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/grpc"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/http/context_provider"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/http"
 	ech_server "github.com/meysamhadeli/shop-golang-microservices/internal/pkg/http/echo/server"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/http_client"
+	httpclient "github.com/meysamhadeli/shop-golang-microservices/internal/pkg/http_client"
 	logger "github.com/meysamhadeli/shop-golang-microservices/internal/pkg/logger"
-	open_telemetry "github.com/meysamhadeli/shop-golang-microservices/internal/pkg/open-telemetry"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/otel"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/rabbitmq"
-	gorm_container "github.com/meysamhadeli/shop-golang-microservices/internal/pkg/test/container/testcontainer/gorm"
-	rabbitmq_container "github.com/meysamhadeli/shop-golang-microservices/internal/pkg/test/container/testcontainer/rabbitmq"
+	rabbitmq_container "github.com/meysamhadeli/shop-golang-microservices/internal/pkg/test/container"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/config"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/configurations"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/constants"
@@ -64,12 +63,12 @@ func NewIntegrationTestFixture(t *testing.T, option fx.Option) *IntegrationTestF
 			fx.Provide(
 				config.InitConfig,
 				logger.InitLogger,
-				context_provider.NewContext,
+				http.NewContext,
 				ech_server.NewEchoServer,
-				gorm_postgres.NewGorm,
+				gormpgsql.NewGorm,
 				grpc.NewGrpcClient,
-				open_telemetry.TracerProvider,
-				http_client.NewHttpClient,
+				otel.TracerProvider,
+				httpclient.NewHttpClient,
 				repositories.NewPostgresProductRepository,
 				rabbitmq.NewRabbitMQConn,
 				rabbitmq.NewPublisher,
@@ -89,7 +88,7 @@ func NewIntegrationTestFixture(t *testing.T, option fx.Option) *IntegrationTestF
 			) {
 
 				// get gorm-postgres from test-container
-				gormDb, err := gorm_container.NewGormTestContainers().Start(ctx, t)
+				gormDb, err := rabbitmq_container.NewGormTestContainers().Start(ctx, t)
 				if err != nil {
 					require.FailNow(t, err.Error())
 				}
@@ -114,7 +113,7 @@ func NewIntegrationTestFixture(t *testing.T, option fx.Option) *IntegrationTestF
 				integrationTestFixture.Ctx = ctx
 			}),
 			fx.Invoke(func(gorm *gorm.DB) error {
-				return gorm_postgres.Migrate(gorm, &models.Product{})
+				return gormpgsql.Migrate(gorm, &models.Product{})
 			}),
 			fx.Invoke(mappings.ConfigureMappings),
 			fx.Invoke(configurations.ConfigEndpoints),

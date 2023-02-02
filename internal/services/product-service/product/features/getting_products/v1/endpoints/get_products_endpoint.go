@@ -5,17 +5,17 @@ import (
 	"github.com/go-playground/validator"
 	"github.com/labstack/echo/v4"
 	"github.com/mehdihadeli/go-mediatr"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/http/echo/middleware"
+	echomiddleware "github.com/meysamhadeli/shop-golang-microservices/internal/pkg/http/echo/middleware"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/logger"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/utils"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/getting_products/v1/dtos"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/getting_products/v1/queries"
+	dtosv1 "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/getting_products/v1/dtos"
+	queriesv1 "github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/features/getting_products/v1/queries"
 	"net/http"
 )
 
 func MapRoute(validator *validator.Validate, log logger.ILogger, echo *echo.Echo, ctx context.Context) {
 	group := echo.Group("/api/v1/products")
-	group.GET("", getAllProducts(validator, log, ctx), middleware.ValidateBearerToken())
+	group.GET("", getAllProducts(validator, log, ctx), echomiddleware.ValidateBearerToken())
 }
 
 // GetAllProducts
@@ -36,15 +36,15 @@ func getAllProducts(validator *validator.Validate, log logger.ILogger, ctx conte
 			return echo.NewHTTPError(http.StatusBadRequest, err)
 		}
 
-		request := &dtos.GetProductsRequestDto{ListQuery: listQuery}
+		request := &dtosv1.GetProductsRequestDto{ListQuery: listQuery}
 		if err := c.Bind(request); err != nil {
 			log.Warn("Bind", err)
 			return echo.NewHTTPError(http.StatusBadRequest, err)
 		}
 
-		query := queries.NewGetProducts(request.ListQuery)
+		query := queriesv1.NewGetProducts(request.ListQuery)
 
-		queryResult, err := mediatr.Send[*queries.GetProducts, *dtos.GetProductsResponseDto](ctx, query)
+		queryResult, err := mediatr.Send[*queriesv1.GetProducts, *dtosv1.GetProductsResponseDto](ctx, query)
 
 		if err != nil {
 			log.Warnf("GetProducts", err)
