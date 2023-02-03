@@ -1,4 +1,4 @@
-package container
+package gormcontainer
 
 import (
 	"context"
@@ -8,7 +8,7 @@ import (
 )
 
 func Test_Gorm_Container(t *testing.T) {
-	gorm, err := NewGormTestContainers().Start(context.Background(), t)
+	gorm, _, err := Start(context.Background())
 	require.NoError(t, err)
 
 	assert.NotNil(t, gorm)

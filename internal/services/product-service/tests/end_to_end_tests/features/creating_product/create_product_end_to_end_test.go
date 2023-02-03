@@ -51,4 +51,6 @@ func (c *createProductEndToEndTests) SetupTest() {
 func (c *createProductEndToEndTests) TearDownTest() {
 	c.T().Log("TearDownTest")
 	// cleanup test containers with their hooks
+	defer c.PostgresContainer.Terminate(c.Ctx)
+	defer c.RabbitmqContainer.Terminate(c.Ctx)
 }

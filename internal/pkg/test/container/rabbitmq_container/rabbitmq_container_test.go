@@ -1,4 +1,4 @@
-package container
+package rabbitmqcontainer
 
 import (
 	"context"
@@ -8,7 +8,7 @@ import (
 )
 
 func Test_RabbitMQ_Container(t *testing.T) {
-	rabbitmqConn, err := NewRabbitMQTestContainers().Start(context.Background(), t)
+	rabbitmqConn, _, err := Start(context.Background())
 	require.NoError(t, err)
 
 	assert.NotNil(t, rabbitmqConn)
