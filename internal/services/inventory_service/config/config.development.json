@@ -1,0 +1,44 @@
+{
+  "serviceName": "inventory_service",
+  "deliveryType": "http",
+  "context": {
+    "timeout": 20
+  },
+  "rabbitMq": {
+    "user": "guest",
+    "password": "guest",
+    "host": "localhost",
+    "port": 5672,
+    "exchangeName": "inventory",
+    "kind" : "topic"
+  },
+  "echo": {
+    "port": ":5004",
+    "development": true,
+    "timeout": 30,
+    "basePath": "/api/v1",
+    "host": "http://localhost",
+    "debugHeaders": true,
+    "httpClientDebug": true,
+    "debugErrorsResponse": true,
+    "ignoreLogUrls": [
+      "metrics"
+    ]
+  },
+  "logger": {
+    "level": "debug"
+  },
+  "jaeger": {
+    "server": "http://localhost:14268",
+    "serviceName":"inventory_service",
+    "tracerName": "inventory_tracer"
+  },
+  "gormPostgres": {
+    "host": "localhost",
+    "port": 5432,
+    "user": "postgres",
+    "password": "postgres",
+    "dbName": "inventory_service",
+    "sslMode": false
+  }
+}
