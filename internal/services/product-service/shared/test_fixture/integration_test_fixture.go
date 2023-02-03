@@ -8,12 +8,13 @@ import (
 	gormpgsql "github.com/meysamhadeli/shop-golang-microservices/internal/pkg/gorm_pgsql"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/grpc"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/http"
-	ech_server "github.com/meysamhadeli/shop-golang-microservices/internal/pkg/http/echo/server"
+	echserver "github.com/meysamhadeli/shop-golang-microservices/internal/pkg/http/echo/server"
 	httpclient "github.com/meysamhadeli/shop-golang-microservices/internal/pkg/http_client"
-	logger "github.com/meysamhadeli/shop-golang-microservices/internal/pkg/logger"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/logger"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/otel"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/rabbitmq"
-	rabbitmq_container "github.com/meysamhadeli/shop-golang-microservices/internal/pkg/test/container"
+	gormcontainer "github.com/meysamhadeli/shop-golang-microservices/internal/pkg/test/container/gorm_container"
+	rabbitmqcontainer "github.com/meysamhadeli/shop-golang-microservices/internal/pkg/test/container/rabbitmq_container"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/config"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/configurations"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product-service/product/constants"
@@ -46,6 +47,8 @@ type IntegrationTestFixture struct {
 	GrpcClient        grpc.GrpcClient
 	ProductRepository data.ProductRepository
 	Ctx               context.Context
+	PostgresContainer *gormcontainer.PostgresContainer
+	RabbitmqContainer *rabbitmqcontainer.RabbitmqContainer
 }
 
 func NewIntegrationTestFixture(t *testing.T, option fx.Option) *IntegrationTestFixture {
@@ -64,13 +67,13 @@ func NewIntegrationTestFixture(t *testing.T, option fx.Option) *IntegrationTestF
 				config.InitConfig,
 				logger.InitLogger,
 				http.NewContext,
-				ech_server.NewEchoServer,
-				gormpgsql.NewGorm,
+				echserver.NewEchoServer,
+				gormcontainer.Start,
 				grpc.NewGrpcClient,
 				otel.TracerProvider,
 				httpclient.NewHttpClient,
 				repositories.NewPostgresProductRepository,
-				rabbitmq.NewRabbitMQConn,
+				rabbitmqcontainer.Start,
 				rabbitmq.NewPublisher,
 				validator.New,
 			),
@@ -85,22 +88,17 @@ func NewIntegrationTestFixture(t *testing.T, option fx.Option) *IntegrationTestF
 				httpClient *resty.Client,
 				validator *validator.Validate,
 				cfg *config.Config,
+				connRabbitmq *amqp.Connection,
+				gormDB *gorm.DB,
+				postgresContainer *gormcontainer.PostgresContainer,
+				rabbitContainer *rabbitmqcontainer.RabbitmqContainer,
 			) {
 
-				// get gorm-postgres from test-container
-				gormDb, err := rabbitmq_container.NewGormTestContainers().Start(ctx, t)
-				if err != nil {
-					require.FailNow(t, err.Error())
-				}
+				integrationTestFixture.Gorm = gormDB
+				integrationTestFixture.ConnRabbitmq = connRabbitmq
 
-				// get rabbitmq from test-container
-				connRabbitMq, err := rabbitmq_container.NewRabbitMQTestContainers().Start(ctx, t)
-				if err != nil {
-					require.FailNow(t, err.Error())
-				}
-
-				integrationTestFixture.Gorm = gormDb
-				integrationTestFixture.ConnRabbitmq = connRabbitMq
+				integrationTestFixture.PostgresContainer = postgresContainer
+				integrationTestFixture.RabbitmqContainer = rabbitContainer
 
 				integrationTestFixture.Log = log
 				integrationTestFixture.Cfg = cfg
