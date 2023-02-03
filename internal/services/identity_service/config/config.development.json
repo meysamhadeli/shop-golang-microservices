@@ -1,0 +1,49 @@
+{
+  "serviceName": "identity_service",
+  "deliveryType": "http",
+  "context": {
+    "timeout": 20
+  },
+  "rabbitMq": {
+    "user": "guest",
+    "password": "guest",
+    "host": "localhost",
+    "port": 5672,
+    "exchangeName": "identity",
+    "kind" : "topic"
+  },
+  "echo": {
+    "port": ":5002",
+    "development": true,
+    "timeout": 30,
+    "basePath": "/api/v1",
+    "host": "http://localhost",
+    "debugHeaders": true,
+    "httpClientDebug": true,
+    "debugErrorsResponse": true,
+    "ignoreLogUrls": [
+      "metrics"
+    ]
+  },
+  "grpc": {
+    "port": ":6600",
+    "host": "localhost",
+    "development": true
+  },
+  "logger": {
+    "level": "debug"
+  },
+  "jaeger": {
+    "server": "http://localhost:14268",
+    "serviceName":"identity_service",
+    "tracerName": "identity_tracer"
+  },
+  "gormPostgres": {
+    "host": "localhost",
+    "port": 5432,
+    "user": "postgres",
+    "password": "postgres",
+    "dbName": "identity_service",
+    "sslMode": false
+  }
+}

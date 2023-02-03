@@ -1,10 +1,7 @@
 package contracts
 
 import (
-	"context"
 	"github.com/docker/go-connections/nat"
-	"github.com/streadway/amqp"
-	"testing"
 	"time"
 )
 
@@ -18,8 +15,4 @@ type RabbitMQContainerOptions struct {
 	Name        string
 	Tag         string
 	Timeout     time.Duration
-}
-
-type RabbitMQContainer interface {
-	Start(ctx context.Context, t *testing.T, options ...*RabbitMQContainerOptions) (*amqp.Connection, error, func())
 }

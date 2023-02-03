@@ -3,10 +3,10 @@
 # ==============================================================================
 # Run Services
 run_products_service:
-	cd internal/services/product-service/ && 	go run ./cmd/main.go
+	cd internal/services/product_service/ && 	go run ./cmd/main.go
 
 run_identities_service:
-	cd internal/services/identity-service/ && 	go run ./cmd/main.go
+	cd internal/services/identity_service/ && 	go run ./cmd/main.go
 
 # ==============================================================================
 # Docker Compose
@@ -26,13 +26,13 @@ docker-compose_infra_down:
 ## grpc-server
 proto_identities_get_user_by_id_service:
 	@echo Generating identity_service proto
-	protoc --go_out=./internal/services/identity-service/identity/grpc_server/protos --go-grpc_opt=require_unimplemented_servers=false --go-grpc_out=./internal/services/identity-service/identity/grpc_server/protos ./internal/services/identity-service/identity/grpc_server/protos/*.proto
+	protoc --go_out=./internal/services/identity_service/identity/grpc_server/protos --go-grpc_opt=require_unimplemented_servers=false --go-grpc_out=./internal/services/identity_service/identity/grpc_server/protos ./internal/services/identity_service/identity/grpc_server/protos/*.proto
 
 
 ## grpc-client
 proto_identities_get_user_by_id_service:
 	@echo Generating identity_service proto
-	protoc --go_out=./internal/services/product-service/product/grpc_client/protos --go-grpc_opt=require_unimplemented_servers=false --go-grpc_out=./internal/services/product-service/product/grpc_client/protos ./internal/services/product-service/product/grpc_client/protos/*.proto
+	protoc --go_out=./internal/services/product_service/product/grpc_client/protos --go-grpc_opt=require_unimplemented_servers=false --go-grpc_out=./internal/services/product_service/product/grpc_client/protos ./internal/services/product_service/product/grpc_client/protos/*.proto
 
 # ==============================================================================
 # Swagger products Service  #https://github.com/swaggo/swag/issues/817
@@ -41,8 +41,12 @@ proto_identities_get_user_by_id_service:
 
 swagger_products:
 	@echo Starting swagger generating
-	swag init -g ./internal/services/product-service/cmd/main.go -o ./internal/services/product-service/docs
+	swag init -g ./internal/services/product_service/cmd/main.go -o ./internal/services/product_service/docs
 
 swagger_identities:
 	@echo Starting swagger generating
-	swag init -g ./internal/services/identity-service/cmd/main.go -o ./internal/services/identity-service/docs
+	swag init -g ./internal/services/identity_service/cmd/main.go -o ./internal/services/identity_service/docs
+
+swagger_inventories:
+	@echo Starting swagger generating
+	swag init -g ./internal/services/inventory_service/cmd/main.go -o ./internal/services/inventory_service/docs
