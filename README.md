@@ -46,7 +46,6 @@ I will try to register future goals and additions in the [Issues](https://github
 - ✔️ **[`stretchr/testify`](https://github.com/stretchr/testify)** - A toolkit with common assertions and mocks that plays nicely with the standard library
 - ✔️ **[`uber-go/fx`](https://github.com/uber-go/fx)** - Fx is a dependency injection system for Go
 
-Linter 
 
 ## Structure of Project
 
