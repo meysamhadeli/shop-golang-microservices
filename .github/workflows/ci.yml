@@ -32,22 +32,23 @@ jobs:
       working-directory: ./internal/services/identity_service
       run: go test -v ./...
 
-    - name: identity_service test
-      working-directory: ./internal/services/identity_service
-      run: go test -v ./...
-
     - name: product_service build
       working-directory: ./internal/services/product_service
       run: go build -v ./...
-
-    - name: product_service test
-      working-directory: ./internal/services/product_service
-      run: go test -v ./...
 
     - name: inventory_service build
       working-directory: ./internal/services/inventory_service
       run: go build -v ./...
 
+    - name: product_service test
+      working-directory: ./internal/services/product_service
+      run: go test -p 1 -count 1 ./...
+
+    - name: identity_service test
+      working-directory: ./internal/services/identity_service
+      run: go test -p 1 -count 1 ./...
+
     - name: inventory_service test
       working-directory: ./internal/services/inventory_service
-      run: go test -v ./...
+      run: go test -p 1 -count 1 ./...
+
