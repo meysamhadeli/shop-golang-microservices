@@ -24,15 +24,15 @@ type IConsumer interface {
 
 var consumedMessages []string
 
-type Consumer struct {
+type Consumer[T any] struct {
 	cfg          *RabbitMQConfig
 	conn         *amqp.Connection
 	log          logger.ILogger
-	handler      func(queue string, msg amqp.Delivery) error
+	handler      func(queue string, msg amqp.Delivery, dependencies T) error
 	jaegerTracer trace.Tracer
 }
 
-func (c Consumer) ConsumeMessage(ctx context.Context, msg interface{}) error {
+func (c Consumer[T]) ConsumeMessage(ctx context.Context, msg interface{}, dependencies T) error {
 
 	strName := strings.Split(runtime.FuncForPC(reflect.ValueOf(c.handler).Pointer()).Name(), ".")
 	var consumerHandlerName = strName[len(strName)-1]
@@ -124,7 +124,7 @@ func (c Consumer) ConsumeMessage(ctx context.Context, msg interface{}) error {
 				// Extract headers
 				ctx = otel.ExtractAMQPHeaders(ctx, delivery.Headers)
 
-				err := c.handler(q.Name, delivery)
+				err := c.handler(q.Name, delivery, dependencies)
 				if err != nil {
 					c.log.Error(err.Error())
 				}
@@ -166,7 +166,7 @@ func (c Consumer) ConsumeMessage(ctx context.Context, msg interface{}) error {
 	return nil
 }
 
-func (c Consumer) IsConsumed(msg interface{}) bool {
+func (c Consumer[T]) IsConsumed(msg interface{}) bool {
 	timeOutTime := 20 * time.Second
 	startTime := time.Now()
 	timeOutExpired := false
@@ -191,6 +191,6 @@ func (c Consumer) IsConsumed(msg interface{}) bool {
 	}
 }
 
-func NewConsumer(cfg *RabbitMQConfig, conn *amqp.Connection, log logger.ILogger, jaegerTracer trace.Tracer, handler func(queue string, msg amqp.Delivery) error) *Consumer {
-	return &Consumer{cfg: cfg, conn: conn, log: log, jaegerTracer: jaegerTracer, handler: handler}
+func NewConsumer[T any](cfg *RabbitMQConfig, conn *amqp.Connection, log logger.ILogger, jaegerTracer trace.Tracer, handler func(queue string, msg amqp.Delivery, dependencies T) error) *Consumer[T] {
+	return &Consumer[T]{cfg: cfg, conn: conn, log: log, jaegerTracer: jaegerTracer, handler: handler}
 }

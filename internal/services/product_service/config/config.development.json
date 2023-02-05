@@ -1,0 +1,49 @@
+{
+  "serviceName": "product_service",
+  "deliveryType": "http",
+  "context": {
+    "timeout": 20
+  },
+  "rabbitMq": {
+    "user": "guest",
+    "password": "guest",
+    "host": "localhost",
+    "port": 5672,
+    "exchangeName": "product",
+    "kind" : "topic"
+  },
+  "echo": {
+    "port": ":5000",
+    "development": true,
+    "timeout": 30,
+    "basePath": "/api/v1",
+    "host": "http://localhost",
+    "debugHeaders": true,
+    "httpClientDebug": true,
+    "debugErrorsResponse": true,
+    "ignoreLogUrls": [
+      "metrics"
+    ]
+  },
+  "grpc": {
+    "port": ":6600",
+    "host": "localhost",
+    "development": true
+  },
+  "logger": {
+    "level": "debug"
+  },
+  "jaeger": {
+    "server": "http://localhost:14268",
+    "serviceName":"product_service",
+    "tracerName": "product_tracer"
+  },
+  "gormPostgres": {
+    "host": "localhost",
+    "port": 5432,
+    "user": "postgres",
+    "password": "postgres",
+    "dbName": "product_service",
+    "sslMode": false
+  }
+}

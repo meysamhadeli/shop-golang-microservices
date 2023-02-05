@@ -111,8 +111,7 @@ func Migrate(gorm *gorm.DB, types ...interface{}) error {
 	return nil
 }
 
-//Ref: https://dev.to/rafaelgfirmino/pagination-using-gorm-scopes-3k5f
-
+// Ref: https://dev.to/rafaelgfirmino/pagination-using-gorm-scopes-3k5f
 func Paginate[T any](ctx context.Context, listQuery *utils.ListQuery, db *gorm.DB) (*utils.ListResult[T], error) {
 
 	var items []T
