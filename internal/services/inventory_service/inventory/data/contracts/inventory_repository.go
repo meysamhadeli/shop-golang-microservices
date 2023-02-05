@@ -6,5 +6,5 @@ import (
 )
 
 type InventoryRepository interface {
-	AddProductsToInventory(ctx context.Context, inventory *models.Inventory) (*models.Inventory, error)
+	AddProductItemToInventory(ctx context.Context, inventory *models.ProductItem) (*models.ProductItem, error)
 }

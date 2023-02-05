@@ -7,10 +7,11 @@ import (
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/logger"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/rabbitmq"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product_service/config"
-	consumers2 "github.com/meysamhadeli/shop-golang-microservices/internal/services/product_service/product/consumers"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product_service/product/consumers"
 	creatingproductcommandsv1 "github.com/meysamhadeli/shop-golang-microservices/internal/services/product_service/product/features/creating_product/v1/commands"
 	creatingproductdtosv1 "github.com/meysamhadeli/shop-golang-microservices/internal/services/product_service/product/features/creating_product/v1/dtos"
 	creatingproducteventsv1 "github.com/meysamhadeli/shop-golang-microservices/internal/services/product_service/product/features/creating_product/v1/events"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product_service/shared/delivery"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product_service/shared/test_fixture"
 	"github.com/streadway/amqp"
 	"github.com/stretchr/testify/require"
@@ -24,13 +25,13 @@ type createProductIntegrationTests struct {
 	*test_fixture.IntegrationTestFixture
 }
 
-var consumer *rabbitmq.Consumer
+var consumer *rabbitmq.Consumer[*delivery.ProductDeliveryBase]
 
 func TestCreateProductIntegration(t *testing.T) {
 	suite.Run(t, &createProductIntegrationTests{IntegrationTestFixture: test_fixture.NewIntegrationTestFixture(t, fx.Options(
 		fx.Invoke(func(ctx context.Context, jaegerTracer trace.Tracer, log logger.ILogger, connRabbitmq *amqp.Connection, cfg *config.Config) {
-			consumer = rabbitmq.NewConsumer(cfg.Rabbitmq, connRabbitmq, log, jaegerTracer, consumers2.HandleConsumeCreateProduct)
-			err := consumer.ConsumeMessage(ctx, creatingproducteventsv1.ProductCreated{})
+			consumer = rabbitmq.NewConsumer(cfg.Rabbitmq, connRabbitmq, log, jaegerTracer, consumers.HandleConsumeCreateProduct)
+			err := consumer.ConsumeMessage(ctx, creatingproducteventsv1.ProductCreated{}, nil)
 			if err != nil {
 				require.FailNow(t, err.Error())
 			}
@@ -40,7 +41,7 @@ func TestCreateProductIntegration(t *testing.T) {
 
 func (c *createProductIntegrationTests) Test_Should_Create_New_Product_To_DB() {
 
-	command := creatingproductcommandsv1.NewCreateProduct(gofakeit.Name(), gofakeit.AdjectiveDescriptive(), gofakeit.Price(150, 6000))
+	command := creatingproductcommandsv1.NewCreateProduct(gofakeit.Name(), gofakeit.AdjectiveDescriptive(), gofakeit.Price(150, 6000), gofakeit.Int64())
 	result, err := mediatr.Send[*creatingproductcommandsv1.CreateProduct, *creatingproductdtosv1.CreateProductResponseDto](c.Ctx, command)
 	c.Require().NoError(err)
 

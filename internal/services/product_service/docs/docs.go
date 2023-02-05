@@ -266,6 +266,9 @@ const docTemplate = `{
                 "description": {
                     "type": "string"
                 },
+                "inventoryId": {
+                    "type": "integer"
+                },
                 "name": {
                     "type": "string"
                 },

@@ -49,7 +49,6 @@ func main() {
 			fx.Invoke(mappings.ConfigureMappings),
 			fx.Invoke(configurations.ConfigEndpoints),
 			fx.Invoke(configurations.ConfigProductsMediator),
-			fx.Invoke(configurations.ConfigConsumers),
 		),
 	).Run()
 }

@@ -3,6 +3,8 @@ definitions:
     properties:
       description:
         type: string
+      inventoryId:
+        type: integer
       name:
         type: string
       price:

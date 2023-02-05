@@ -5,7 +5,6 @@ import (
 	"github.com/go-playground/validator"
 	"github.com/labstack/echo/v4"
 	"github.com/mehdihadeli/go-mediatr"
-	echomiddleware "github.com/meysamhadeli/shop-golang-microservices/internal/pkg/http/echo/middleware"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/logger"
 	commandsv1 "github.com/meysamhadeli/shop-golang-microservices/internal/services/product_service/product/features/creating_product/v1/commands"
 	dtosv1 "github.com/meysamhadeli/shop-golang-microservices/internal/services/product_service/product/features/creating_product/v1/dtos"
@@ -15,7 +14,7 @@ import (
 
 func MapRoute(validator *validator.Validate, log logger.ILogger, echo *echo.Echo, ctx context.Context) {
 	group := echo.Group("/api/v1/products")
-	group.POST("", createProduct(validator, log, ctx), echomiddleware.ValidateBearerToken())
+	group.POST("", createProduct(validator, log, ctx))
 }
 
 // CreateProduct
@@ -39,7 +38,7 @@ func createProduct(validator *validator.Validate, log logger.ILogger, ctx contex
 			return echo.NewHTTPError(http.StatusBadRequest, err)
 		}
 
-		command := commandsv1.NewCreateProduct(request.Name, request.Description, request.Price)
+		command := commandsv1.NewCreateProduct(request.Name, request.Description, request.Price, request.InventoryId)
 
 		if err := validator.StructCtx(ctx, command); err != nil {
 			validationErr := errors.Wrap(err, "[createProductEndpoint_handler.StructCtx] command validation failed")

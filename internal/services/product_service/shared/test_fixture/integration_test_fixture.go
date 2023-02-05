@@ -22,6 +22,7 @@ import (
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product_service/product/data/repositories"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product_service/product/mappings"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product_service/product/models"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product_service/shared/delivery"
 	"github.com/streadway/amqp"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
@@ -38,7 +39,7 @@ type IntegrationTestFixture struct {
 	Log               logger.ILogger
 	Cfg               *config.Config
 	RabbitmqPublisher rabbitmq.IPublisher
-	RabbitmqConsumer  *rabbitmq.Consumer
+	RabbitmqConsumer  *rabbitmq.Consumer[delivery.ProductDeliveryBase]
 	ConnRabbitmq      *amqp.Connection
 	HttpClient        *resty.Client
 	JaegerTracer      trace.Tracer
