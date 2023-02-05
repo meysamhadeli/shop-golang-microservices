@@ -22,11 +22,11 @@ func NewPostgresInventoryRepository(log logger.ILogger, cfg *gormpgsql.GormPostg
 	return &PostgresInventoryRepository{log: log, cfg: cfg, gorm: gorm}
 }
 
-func (p *PostgresInventoryRepository) AddProductsToInventory(ctx context.Context, inventory *models.Inventory) (*models.Inventory, error) {
+func (p *PostgresInventoryRepository) AddProductItemToInventory(ctx context.Context, productItem *models.ProductItem) (*models.ProductItem, error) {
 
-	if err := p.gorm.Create(&inventory).Error; err != nil {
+	if err := p.gorm.Create(&productItem).Error; err != nil {
 		return nil, errors.Wrap(err, "error in the inserting product into the database.")
 	}
 
-	return inventory, nil
+	return productItem, nil
 }

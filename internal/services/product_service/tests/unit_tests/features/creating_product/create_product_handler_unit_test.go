@@ -34,6 +34,7 @@ func (c *createProductHandlerUnitTests) Test_Handle_Should_Create_New_Product_Wi
 		CreatedAt:   time.Now(),
 		Description: gofakeit.EmojiDescription(),
 		Price:       gofakeit.Price(100, 1000),
+		InventoryId: gofakeit.Int64(),
 	}
 
 	product := test_data.Products[0]

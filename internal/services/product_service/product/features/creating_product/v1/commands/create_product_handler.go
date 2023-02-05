@@ -33,6 +33,7 @@ func (c *CreateProductHandler) Handle(ctx context.Context, command *CreateProduc
 		Name:        command.Name,
 		Description: command.Description,
 		Price:       command.Price,
+		InventoryId: command.InventoryId,
 		CreatedAt:   command.CreatedAt,
 	}
 

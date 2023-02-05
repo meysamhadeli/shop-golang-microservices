@@ -11,6 +11,7 @@ import (
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/rabbitmq"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/inventory_service/config"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/inventory_service/inventory/configurations"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/services/inventory_service/inventory/data"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/inventory_service/inventory/data/repositories"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/inventory_service/inventory/mappings"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/inventory_service/inventory/models"
@@ -42,7 +43,12 @@ func main() {
 			fx.Invoke(configurations.ConfigMiddlewares),
 			fx.Invoke(configurations.ConfigSwagger),
 			fx.Invoke(func(gorm *gorm.DB) error {
-				return gormpgsql.Migrate(gorm, &models.Inventory{}, &models.ProductItem{})
+
+				err := gormpgsql.Migrate(gorm, &models.Inventory{}, &models.ProductItem{})
+				if err != nil {
+					return err
+				}
+				return data.SeedData(gorm)
 			}),
 			fx.Invoke(mappings.ConfigureMappings),
 			fx.Invoke(configurations.ConfigEndpoints),

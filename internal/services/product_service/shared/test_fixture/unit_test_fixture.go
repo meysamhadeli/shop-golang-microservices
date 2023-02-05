@@ -32,10 +32,6 @@ type UnitTestFixture struct {
 
 func NewUnitTestFixture(t *testing.T) *UnitTestFixture {
 
-	// we could use EmptyLogger if we don't want to log anything
-	//log := logger.Logger
-	//cfg := &config.Config{}
-
 	err := os.Setenv("APP_ENV", constants.Test)
 
 	if err != nil {
