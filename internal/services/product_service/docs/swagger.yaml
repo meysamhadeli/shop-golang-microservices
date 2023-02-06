@@ -1,6 +1,8 @@
 definitions:
   dtos.CreateProductRequestDto:
     properties:
+      count:
+        type: integer
       description:
         type: string
       inventoryId:
@@ -27,10 +29,14 @@ definitions:
     type: object
   dtos.ProductDto:
     properties:
+      count:
+        type: integer
       createdAt:
         type: string
       description:
         type: string
+      inventoryId:
+        type: integer
       name:
         type: string
       price:
@@ -47,13 +53,19 @@ definitions:
     type: object
   dtos.UpdateProductRequestDto:
     properties:
+      count:
+        type: integer
       description:
         type: string
+      inventoryId:
+        type: integer
       name:
         type: string
       price:
         type: number
     required:
+    - count
+    - inventoryId
     - name
     - price
     type: object

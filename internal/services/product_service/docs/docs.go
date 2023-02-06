@@ -263,6 +263,9 @@ const docTemplate = `{
         "dtos.CreateProductRequestDto": {
             "type": "object",
             "properties": {
+                "count": {
+                    "type": "integer"
+                },
                 "description": {
                     "type": "string"
                 },
@@ -304,11 +307,17 @@ const docTemplate = `{
         "dtos.ProductDto": {
             "type": "object",
             "properties": {
+                "count": {
+                    "type": "integer"
+                },
                 "createdAt": {
                     "type": "string"
                 },
                 "description": {
                     "type": "string"
+                },
+                "inventoryId": {
+                    "type": "integer"
                 },
                 "name": {
                     "type": "string"
@@ -335,12 +344,20 @@ const docTemplate = `{
         "dtos.UpdateProductRequestDto": {
             "type": "object",
             "required": [
+                "count",
+                "inventoryId",
                 "name",
                 "price"
             ],
             "properties": {
+                "count": {
+                    "type": "integer"
+                },
                 "description": {
                     "type": "string"
+                },
+                "inventoryId": {
+                    "type": "integer"
                 },
                 "name": {
                     "type": "string"

@@ -39,7 +39,7 @@ func createProduct(validator *validator.Validate, log logger.ILogger, ctx contex
 			return echo.NewHTTPError(http.StatusBadRequest, err)
 		}
 
-		command := commandsv1.NewCreateProduct(request.Name, request.Description, request.Price, request.InventoryId)
+		command := commandsv1.NewCreateProduct(request.Name, request.Description, request.Price, request.InventoryId, request.Count)
 
 		if err := validator.StructCtx(ctx, command); err != nil {
 			validationErr := errors.Wrap(err, "[createProductEndpoint_handler.StructCtx] command validation failed")
