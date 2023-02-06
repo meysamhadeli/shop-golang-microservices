@@ -18,6 +18,7 @@ func ConfigConsumers(
 	jaegerTracer trace.Tracer,
 	log logger.ILogger,
 	connRabbitmq *amqp.Connection,
+	rabbitmqPublisher rabbitmq.IPublisher,
 	inventoryRepository contracts.InventoryRepository,
 	cfg *config.Config) error {
 
@@ -26,6 +27,7 @@ func ConfigConsumers(
 		Cfg:                 cfg,
 		JaegerTracer:        jaegerTracer,
 		ConnRabbitmq:        connRabbitmq,
+		RabbitmqPublisher:   rabbitmqPublisher,
 		InventoryRepository: inventoryRepository,
 		Ctx:                 ctx,
 	}
