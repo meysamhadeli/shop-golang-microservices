@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/mapper"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/inventory_service/inventory/consumers/events"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/inventory_service/inventory/models"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/inventory_service/shared/delivery"
@@ -29,13 +30,19 @@ func HandleConsumeCreateProduct(queue string, msg amqp.Delivery, inventoryDelive
 		count = productItem.Count + count
 	}
 
-	_, err = inventoryDeliveryBase.InventoryRepository.AddProductItemToInventory(inventoryDeliveryBase.Ctx, &models.ProductItem{
+	p, err := inventoryDeliveryBase.InventoryRepository.AddProductItemToInventory(inventoryDeliveryBase.Ctx, &models.ProductItem{
 		Id:          uuid.NewV4(),
 		ProductId:   productCreated.ProductId,
 		Count:       count,
 		InventoryId: productCreated.InventoryId,
 	})
 
+	evt, err := mapper.Map[*events.InventoryUpdated](p)
+	if err != nil {
+		return err
+	}
+
+	err = inventoryDeliveryBase.RabbitmqPublisher.PublishMessage(inventoryDeliveryBase.Ctx, evt)
 	if err != nil {
 		return err
 	}
