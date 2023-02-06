@@ -21,10 +21,18 @@ func HandleConsumeCreateProduct(queue string, msg amqp.Delivery, inventoryDelive
 		return err
 	}
 
+	count := productCreated.Count
+
+	productItem, _ := inventoryDeliveryBase.InventoryRepository.GetProductInInventories(inventoryDeliveryBase.Ctx, productCreated.ProductId)
+
+	if productItem != nil {
+		count = productItem.Count + count
+	}
+
 	_, err = inventoryDeliveryBase.InventoryRepository.AddProductItemToInventory(inventoryDeliveryBase.Ctx, &models.ProductItem{
 		Id:          uuid.NewV4(),
 		ProductId:   productCreated.ProductId,
-		Count:       1,
+		Count:       count,
 		InventoryId: productCreated.InventoryId,
 	})
 
