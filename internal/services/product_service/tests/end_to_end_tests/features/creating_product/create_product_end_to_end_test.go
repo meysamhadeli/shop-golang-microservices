@@ -31,8 +31,8 @@ func (c *createProductEndToEndTests) Test_Should_Return_Ok_Status_When_Create_Ne
 		Name:        gofakeit.Name(),
 		Description: gofakeit.AdjectiveDescriptive(),
 		Price:       gofakeit.Price(150, 6000),
-		InventoryId: gofakeit.Int64(),
-		Count:       gofakeit.Int32(),
+		InventoryId: 1,
+		Count:       1,
 	}
 
 	e.POST("/api/v1/products").
