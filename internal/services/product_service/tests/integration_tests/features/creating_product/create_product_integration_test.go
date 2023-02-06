@@ -41,7 +41,7 @@ func TestCreateProductIntegration(t *testing.T) {
 
 func (c *createProductIntegrationTests) Test_Should_Create_New_Product_To_DB() {
 
-	command := creatingproductcommandsv1.NewCreateProduct(gofakeit.Name(), gofakeit.AdjectiveDescriptive(), gofakeit.Price(150, 6000), gofakeit.Int64())
+	command := creatingproductcommandsv1.NewCreateProduct(gofakeit.Name(), gofakeit.AdjectiveDescriptive(), gofakeit.Price(150, 6000), gofakeit.Int64(), gofakeit.Int32())
 	result, err := mediatr.Send[*creatingproductcommandsv1.CreateProduct, *creatingproductdtosv1.CreateProductResponseDto](c.Ctx, command)
 	c.Require().NoError(err)
 

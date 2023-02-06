@@ -11,8 +11,11 @@ type UpdateProduct struct {
 	Description string    `validate:"required,gte=0,lte=5000"`
 	Price       float64   `validate:"required,gte=0"`
 	UpdatedAt   time.Time `validate:"required"`
+	Count       int32     `validate:"required,gt=0"`
+	InventoryId int64     `validate:"required,gt=0"`
 }
 
-func NewUpdateProduct(productID uuid.UUID, name string, description string, price float64) *UpdateProduct {
-	return &UpdateProduct{ProductID: productID, Name: name, Description: description, Price: price, UpdatedAt: time.Now()}
+func NewUpdateProduct(productID uuid.UUID, name string, description string, price float64, inventoryId int64, count int32) *UpdateProduct {
+	return &UpdateProduct{ProductID: productID, Name: name, Description: description,
+		Price: price, UpdatedAt: time.Now(), InventoryId: inventoryId, Count: count}
 }

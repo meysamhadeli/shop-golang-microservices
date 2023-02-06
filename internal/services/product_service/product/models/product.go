@@ -13,6 +13,7 @@ type Product struct {
 	Description string    `json:"description"`
 	Price       float64   `json:"price"`
 	InventoryId int64     `json:"inventoryId"`
+	Count       int32     `json:"count"`
 	CreatedAt   time.Time `json:"createdAt"`
 	UpdatedAt   time.Time `json:"updatedAt"`
 }
