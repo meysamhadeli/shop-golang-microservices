@@ -48,7 +48,7 @@ I will try to register future goals and additions in the [Issues](https://github
 
 ## The Domain And Bounded Context - Service Boundary
 
-![](./assets/shop-golang-microservices.svg)
+![](./assets/shop-golang-microservices.png)
 
 ## Structure of Project
 
