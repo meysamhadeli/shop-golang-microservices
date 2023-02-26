@@ -11,6 +11,10 @@ on:
      - "CHANGELOG.md"
   pull_request:
     branches: [ "main" , "develop" ]
+    
+ concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.sha }}
+  cancel-in-progress: true   
 
 jobs:
 
