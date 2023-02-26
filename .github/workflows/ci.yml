@@ -12,9 +12,9 @@ on:
   pull_request:
     branches: [ "main" , "develop" ]
     
- concurrency:
-  group: ${{ github.workflow }}-${{ github.head_ref || github.sha }}
-  cancel-in-progress: true   
+concurrency:
+ group: ${{ github.workflow }}-${{ github.head_ref || github.sha }}
+ cancel-in-progress: true   
 
 jobs:
 
