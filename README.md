@@ -63,7 +63,9 @@ When adding or changing a feature in an application in n-tire architecture, we a
 
 With this approach, each of our vertical slices can decide for itself how to best fulfill the request. New features only add code, we're not changing shared code and worrying about side effects.
 
-![](./assets/Vertical-Slice-Architecture.jpg)
+<div align="center">
+  <img src="./assets/vertical-slice-architecture.png" />
+</div>
 
 Instead of grouping related action methods in one endpoint, I used the [REPR pattern](https://deviq.com/design-patterns/repr-design-pattern). Each action gets its own small endpoint, and for communication between our endpoint and handlers, I use [Go-MediatR](https://github.com/mehdihadeli/Go-MediatR) for decouple our endpoint to handlers directly, and it gives use some pipeline behavior for logging, caching, validation and... easily.
 
