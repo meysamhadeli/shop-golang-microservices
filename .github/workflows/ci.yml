@@ -51,6 +51,3 @@ jobs:
     - name: inventory_service test
       working-directory: ./internal/services/inventory_service
       run: go test -p 1 -v ./...
-      
-
-
