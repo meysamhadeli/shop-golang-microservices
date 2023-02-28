@@ -14,8 +14,7 @@ import (
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product_service/shared/delivery"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product_service/shared/test_fixture"
 	"github.com/streadway/amqp"
-	"github.com/stretchr/testify/require"
-	"github.com/stretchr/testify/suite"
+	"github.com/stretchr/testify/assert"
 	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/fx"
 	"testing"
@@ -27,52 +26,44 @@ type createProductIntegrationTests struct {
 
 var consumer *rabbitmq.Consumer[*delivery.ProductDeliveryBase]
 
-func TestCreateProductIntegration(t *testing.T) {
-	suite.Run(t, &createProductIntegrationTests{IntegrationTestFixture: test_fixture.NewIntegrationTestFixture(t, fx.Options(
-		fx.Invoke(func(ctx context.Context, jaegerTracer trace.Tracer, log logger.ILogger, connRabbitmq *amqp.Connection, cfg *config.Config) {
-			consumer = rabbitmq.NewConsumer(cfg.Rabbitmq, connRabbitmq, log, jaegerTracer, consumers.HandleConsumeCreateProduct)
-			err := consumer.ConsumeMessage(ctx, creatingproducteventsv1.ProductCreated{}, nil)
-			if err != nil {
-				require.FailNow(t, err.Error())
-			}
-		}),
-	))})
+func TestRunner(t *testing.T) {
+
+	//https://pkg.go.dev/testing@master#hdr-Subtests_and_Sub_benchmarks
+	t.Run("A=create-product-integration-tests", func(t *testing.T) {
+
+		var integrationTestFixture = test_fixture.NewIntegrationTestFixture(t, fx.Options(
+			fx.Invoke(func(ctx context.Context, jaegerTracer trace.Tracer, log logger.ILogger, connRabbitmq *amqp.Connection, cfg *config.Config) {
+				consumer = rabbitmq.NewConsumer(cfg.Rabbitmq, connRabbitmq, log, jaegerTracer, consumers.HandleConsumeCreateProduct)
+				err := consumer.ConsumeMessage(ctx, creatingproducteventsv1.ProductCreated{}, nil)
+				if err != nil {
+					assert.Error(t, err)
+				}
+			})))
+
+		testFixture := &createProductIntegrationTests{integrationTestFixture}
+		testFixture.Test_Should_Create_New_Product_To_DB()
+
+		defer testFixture.PostgresContainer.Terminate(testFixture.Ctx)
+		defer testFixture.RabbitmqContainer.Terminate(testFixture.Ctx)
+	})
 }
 
 func (c *createProductIntegrationTests) Test_Should_Create_New_Product_To_DB() {
 
-	defer c.PostgresContainer.Terminate(c.Ctx)
-	defer c.RabbitmqContainer.Terminate(c.Ctx)
-
 	command := creatingproductcommandsv1.NewCreateProduct(gofakeit.Name(), gofakeit.AdjectiveDescriptive(), gofakeit.Price(150, 6000), 1, 1)
 	result, err := mediatr.Send[*creatingproductcommandsv1.CreateProduct, *creatingproductdtosv1.CreateProductResponseDto](c.Ctx, command)
-	c.Require().NoError(err)
+
+	assert.NoError(c.T, err)
+	assert.NotNil(c.T, result)
+	assert.Equal(c.T, command.ProductID, result.ProductId)
 
 	isPublished := c.RabbitmqPublisher.IsPublished(creatingproducteventsv1.ProductCreated{})
-	c.Assert().Equal(true, isPublished)
+	assert.Equal(c.T, true, isPublished)
 
 	isConsumed := consumer.IsConsumed(creatingproducteventsv1.ProductCreated{})
-	c.Assert().Equal(true, isConsumed)
-
-	c.Require().NoError(err)
-
-	c.Assert().NotNil(result)
-	c.Assert().Equal(command.ProductID, result.ProductId)
+	assert.Equal(c.T, true, isConsumed)
 
 	createdProduct, err := c.IntegrationTestFixture.ProductRepository.GetProductById(c.Ctx, result.ProductId)
-	c.Require().NoError(err)
-	c.Assert().NotNil(createdProduct)
-}
-
-func (c *createProductIntegrationTests) BeforeTest(suiteName, testName string) {
-	// some functionality before run tests
-}
-
-func (c *createProductIntegrationTests) SetupTest() {
-	c.T().Log("SetupTest")
-}
-
-func (c *createProductIntegrationTests) TearDownTest() {
-	c.T().Log("TearDownTest")
-	// cleanup test containers with their hooks
+	assert.NoError(c.T, err)
+	assert.NotNil(c.T, createdProduct)
 }

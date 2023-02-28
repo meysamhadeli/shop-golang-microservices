@@ -25,7 +25,6 @@ import (
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product_service/shared/delivery"
 	"github.com/streadway/amqp"
 	"github.com/stretchr/testify/require"
-	"github.com/stretchr/testify/suite"
 	"go.opentelemetry.io/otel/trace"
 	"go.uber.org/fx"
 	"go.uber.org/fx/fxtest"
@@ -35,7 +34,7 @@ import (
 )
 
 type IntegrationTestFixture struct {
-	suite.Suite
+	*testing.T
 	Log               logger.ILogger
 	Cfg               *config.Config
 	RabbitmqPublisher rabbitmq.IPublisher
@@ -60,7 +59,7 @@ func NewIntegrationTestFixture(t *testing.T, option fx.Option) *IntegrationTestF
 		require.FailNow(t, err.Error())
 	}
 
-	integrationTestFixture := &IntegrationTestFixture{}
+	integrationTestFixture := &IntegrationTestFixture{T: t}
 
 	app := fxtest.New(t,
 		fx.Options(
@@ -94,7 +93,6 @@ func NewIntegrationTestFixture(t *testing.T, option fx.Option) *IntegrationTestF
 				postgresContainer *gormcontainer.PostgresContainer,
 				rabbitContainer *rabbitmqcontainer.RabbitmqContainer,
 			) {
-
 				integrationTestFixture.Gorm = gormDB
 				integrationTestFixture.ConnRabbitmq = connRabbitmq
 

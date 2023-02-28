@@ -6,8 +6,8 @@ import (
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product_service/shared/test_fixture"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product_service/tests/unit_tests/test_data"
 	uuid "github.com/satori/go.uuid"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-	"github.com/stretchr/testify/suite"
 	"testing"
 	"time"
 )
@@ -17,8 +17,19 @@ type createProductHandlerUnitTests struct {
 	createProductHandler *creatingproductv1commands.CreateProductHandler
 }
 
-func TestCreateProductHandlerUnit(t *testing.T) {
-	suite.Run(t, &createProductHandlerUnitTests{UnitTestFixture: test_fixture.NewUnitTestFixture(t)})
+func TestRunner(t *testing.T) {
+
+	//https://pkg.go.dev/testing@master#hdr-Subtests_and_Sub_benchmarks
+	t.Run("A=create-product-unit-tests", func(t *testing.T) {
+
+		var unitTestFixture = test_fixture.NewUnitTestFixture(t)
+
+		mockCreateProductHandler := creatingproductv1commands.NewCreateProductHandler(unitTestFixture.Log, unitTestFixture.RabbitmqPublisher,
+			unitTestFixture.ProductRepository, unitTestFixture.Ctx, unitTestFixture.GrpcClient)
+
+		testFixture := &createProductHandlerUnitTests{unitTestFixture, mockCreateProductHandler}
+		testFixture.Test_Handle_Should_Create_New_Product_With_Valid_Data()
+	})
 }
 
 func (c *createProductHandlerUnitTests) SetupTest() {
@@ -46,9 +57,9 @@ func (c *createProductHandlerUnitTests) Test_Handle_Should_Create_New_Product_Wi
 
 	dto, err := c.createProductHandler.Handle(c.Ctx, createProductCommand)
 
-	c.Require().NoError(err)
+	assert.NoError(c.T, err)
 
-	c.ProductRepository.AssertNumberOfCalls(c.T(), "CreateProduct", 1)
-	c.RabbitmqPublisher.AssertNumberOfCalls(c.T(), "PublishMessage", 1)
-	c.Equal(dto.ProductId, createProductCommand.ProductID)
+	c.ProductRepository.AssertNumberOfCalls(c.T, "CreateProduct", 1)
+	c.RabbitmqPublisher.AssertNumberOfCalls(c.T, "PublishMessage", 1)
+	assert.Equal(c.T, dto.ProductId, createProductCommand.ProductID)
 }
