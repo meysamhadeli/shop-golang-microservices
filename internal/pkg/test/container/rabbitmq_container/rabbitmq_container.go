@@ -17,8 +17,9 @@ type RabbitmqContainer struct {
 }
 
 func (c *RabbitmqContainer) Terminate(ctx context.Context) {
-	if c.Container != nil {
-		c.Container.Terminate(ctx)
+	err := c.Container.Terminate(ctx)
+	if err != nil {
+		return
 	}
 }
 

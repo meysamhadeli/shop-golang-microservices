@@ -25,8 +25,13 @@ func TestRunner(t *testing.T) {
 		testFixture := &createProductEndToEndTests{endToEndTestFixture}
 		testFixture.Test_Should_Return_Ok_Status_When_Create_New_Product_To_DB()
 
-		defer testFixture.PostgresContainer.Terminate(testFixture.Ctx)
-		defer testFixture.RabbitmqContainer.Terminate(testFixture.Ctx)
+		// Clean up the container after the test is complete
+		t.Cleanup(func() {
+			testFixture.PostgresContainer.Terminate(testFixture.Ctx)
+			testFixture.RabbitmqContainer.Terminate(testFixture.Ctx)
+		})
+		//testFixture.PostgresContainer.Terminate(testFixture.Ctx)
+		//testFixture.RabbitmqContainer.Terminate(testFixture.Ctx)
 	})
 }
 

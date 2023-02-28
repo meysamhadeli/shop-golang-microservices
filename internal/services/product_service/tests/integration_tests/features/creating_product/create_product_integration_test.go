@@ -42,13 +42,37 @@ func TestRunner(t *testing.T) {
 
 		testFixture := &createProductIntegrationTests{integrationTestFixture}
 		testFixture.Test_Should_Create_New_Product_To_DB()
+		testFixture.Test_Should_Create_New_Product_To_DB_2()
 
-		defer testFixture.PostgresContainer.Terminate(testFixture.Ctx)
-		defer testFixture.RabbitmqContainer.Terminate(testFixture.Ctx)
+		// Clean up the container after the test is complete
+		t.Cleanup(func() {
+			testFixture.PostgresContainer.Terminate(testFixture.Ctx)
+			testFixture.RabbitmqContainer.Terminate(testFixture.Ctx)
+		})
 	})
 }
 
 func (c *createProductIntegrationTests) Test_Should_Create_New_Product_To_DB() {
+
+	command := creatingproductcommandsv1.NewCreateProduct(gofakeit.Name(), gofakeit.AdjectiveDescriptive(), gofakeit.Price(150, 6000), 1, 1)
+	result, err := mediatr.Send[*creatingproductcommandsv1.CreateProduct, *creatingproductdtosv1.CreateProductResponseDto](c.Ctx, command)
+
+	assert.NoError(c.T, err)
+	assert.NotNil(c.T, result)
+	assert.Equal(c.T, command.ProductID, result.ProductId)
+
+	isPublished := c.RabbitmqPublisher.IsPublished(creatingproducteventsv1.ProductCreated{})
+	assert.Equal(c.T, true, isPublished)
+
+	isConsumed := consumer.IsConsumed(creatingproducteventsv1.ProductCreated{})
+	assert.Equal(c.T, true, isConsumed)
+
+	createdProduct, err := c.IntegrationTestFixture.ProductRepository.GetProductById(c.Ctx, result.ProductId)
+	assert.NoError(c.T, err)
+	assert.NotNil(c.T, createdProduct)
+}
+
+func (c *createProductIntegrationTests) Test_Should_Create_New_Product_To_DB_2() {
 
 	command := creatingproductcommandsv1.NewCreateProduct(gofakeit.Name(), gofakeit.AdjectiveDescriptive(), gofakeit.Price(150, 6000), 1, 1)
 	result, err := mediatr.Send[*creatingproductcommandsv1.CreateProduct, *creatingproductdtosv1.CreateProductResponseDto](c.Ctx, command)

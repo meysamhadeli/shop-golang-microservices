@@ -17,8 +17,9 @@ type PostgresContainer struct {
 }
 
 func (c *PostgresContainer) Terminate(ctx context.Context) {
-	if c.Container != nil {
-		c.Container.Terminate(ctx)
+	err := c.Container.Terminate(ctx)
+	if err != nil {
+		return
 	}
 }
 
