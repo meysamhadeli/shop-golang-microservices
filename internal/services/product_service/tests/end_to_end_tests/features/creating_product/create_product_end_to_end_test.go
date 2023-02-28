@@ -5,7 +5,6 @@ import (
 	"github.com/gavv/httpexpect/v2"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product_service/product/features/creating_product/v1/dtos"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product_service/shared/test_fixture"
-	"github.com/stretchr/testify/suite"
 	"go.uber.org/fx"
 	"net/http"
 	"net/http/httptest"
@@ -16,19 +15,27 @@ type createProductEndToEndTests struct {
 	*test_fixture.IntegrationTestFixture
 }
 
-func TestCreateProductEndToEndTest(t *testing.T) {
-	suite.Run(t, &createProductEndToEndTests{IntegrationTestFixture: test_fixture.NewIntegrationTestFixture(t, fx.Options())})
+func TestRunner(t *testing.T) {
+
+	//https://pkg.go.dev/testing@master#hdr-Subtests_and_Sub_benchmarks
+	t.Run("A=create-product-end-to-end-tests", func(t *testing.T) {
+
+		var endToEndTestFixture = test_fixture.NewIntegrationTestFixture(t, fx.Options())
+
+		testFixture := &createProductEndToEndTests{endToEndTestFixture}
+		testFixture.Test_Should_Return_Ok_Status_When_Create_New_Product_To_DB()
+
+		defer testFixture.PostgresContainer.Terminate(testFixture.Ctx)
+		defer testFixture.RabbitmqContainer.Terminate(testFixture.Ctx)
+	})
 }
 
 func (c *createProductEndToEndTests) Test_Should_Return_Ok_Status_When_Create_New_Product_To_DB() {
 
-	defer c.PostgresContainer.Terminate(c.Ctx)
-	defer c.RabbitmqContainer.Terminate(c.Ctx)
-
 	tsrv := httptest.NewServer(c.Echo)
 	defer tsrv.Close()
 
-	e := httpexpect.Default(c.T(), tsrv.URL)
+	e := httpexpect.Default(c.T, tsrv.URL)
 
 	request := &dtos.CreateProductRequestDto{
 		Name:        gofakeit.Name(),
@@ -43,17 +50,4 @@ func (c *createProductEndToEndTests) Test_Should_Return_Ok_Status_When_Create_Ne
 		WithJSON(request).
 		Expect().
 		Status(http.StatusCreated)
-}
-
-func (c *createProductEndToEndTests) BeforeTest(suiteName, testName string) {
-	// some functionality before run tests
-}
-
-func (c *createProductEndToEndTests) SetupTest() {
-	c.T().Log("SetupTest")
-}
-
-func (c *createProductEndToEndTests) TearDownTest() {
-	c.T().Log("TearDownTest")
-	// cleanup test containers with their hooks
 }

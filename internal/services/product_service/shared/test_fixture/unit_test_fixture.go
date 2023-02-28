@@ -12,7 +12,6 @@ import (
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/product_service/tests/unit_tests/mocks"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
-	"github.com/stretchr/testify/suite"
 	"go.uber.org/fx"
 	"go.uber.org/fx/fxtest"
 	"os"
@@ -20,7 +19,7 @@ import (
 )
 
 type UnitTestFixture struct {
-	suite.Suite
+	*testing.T
 	Log               logger.ILogger
 	Cfg               *config.Config
 	Ctx               context.Context
@@ -38,7 +37,7 @@ func NewUnitTestFixture(t *testing.T) *UnitTestFixture {
 		require.FailNow(t, err.Error())
 	}
 
-	unitTestFixture := &UnitTestFixture{}
+	unitTestFixture := &UnitTestFixture{T: t}
 
 	app := fxtest.New(t,
 		fx.Options(
