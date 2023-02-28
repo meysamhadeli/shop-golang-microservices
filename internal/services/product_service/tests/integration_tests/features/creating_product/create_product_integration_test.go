@@ -41,6 +41,9 @@ func TestCreateProductIntegration(t *testing.T) {
 
 func (c *createProductIntegrationTests) Test_Should_Create_New_Product_To_DB() {
 
+	defer c.PostgresContainer.Terminate(c.Ctx)
+	defer c.RabbitmqContainer.Terminate(c.Ctx)
+
 	command := creatingproductcommandsv1.NewCreateProduct(gofakeit.Name(), gofakeit.AdjectiveDescriptive(), gofakeit.Price(150, 6000), 1, 1)
 	result, err := mediatr.Send[*creatingproductcommandsv1.CreateProduct, *creatingproductdtosv1.CreateProductResponseDto](c.Ctx, command)
 	c.Require().NoError(err)
@@ -72,6 +75,6 @@ func (c *createProductIntegrationTests) SetupTest() {
 func (c *createProductIntegrationTests) TearDownTest() {
 	c.T().Log("TearDownTest")
 	// cleanup test containers with their hooks
-	defer c.PostgresContainer.Terminate(c.Ctx)
-	defer c.RabbitmqContainer.Terminate(c.Ctx)
+	//defer c.PostgresContainer.Terminate(c.Ctx)
+	//defer c.RabbitmqContainer.Terminate(c.Ctx)
 }
