@@ -22,10 +22,11 @@ func TestCreateProductEndToEndTest(t *testing.T) {
 
 func (c *createProductEndToEndTests) Test_Should_Return_Ok_Status_When_Create_New_Product_To_DB() {
 
-	tsrv := httptest.NewServer(c.Echo)
-	defer tsrv.Close()
 	defer c.PostgresContainer.Terminate(c.Ctx)
 	defer c.RabbitmqContainer.Terminate(c.Ctx)
+
+	tsrv := httptest.NewServer(c.Echo)
+	defer tsrv.Close()
 
 	e := httpexpect.Default(c.T(), tsrv.URL)
 
@@ -55,6 +56,4 @@ func (c *createProductEndToEndTests) SetupTest() {
 func (c *createProductEndToEndTests) TearDownTest() {
 	c.T().Log("TearDownTest")
 	// cleanup test containers with their hooks
-	//defer c.PostgresContainer.Terminate(c.Ctx)
-	//defer c.RabbitmqContainer.Terminate(c.Ctx)
 }
