@@ -43,8 +43,10 @@ func TestRunner(t *testing.T) {
 		testFixture := &createProductIntegrationTests{integrationTestFixture}
 		testFixture.Test_Should_Create_New_Product_To_DB()
 
-		defer testFixture.PostgresContainer.Terminate(testFixture.Ctx)
-		defer testFixture.RabbitmqContainer.Terminate(testFixture.Ctx)
+		defer func() {
+			testFixture.PostgresContainer.Terminate(testFixture.Ctx)
+			testFixture.RabbitmqContainer.Terminate(testFixture.Ctx)
+		}()
 	})
 }
 

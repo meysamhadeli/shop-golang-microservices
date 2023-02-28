@@ -6,6 +6,7 @@ import (
 	"github.com/docker/go-connections/nat"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/rabbitmq"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/test/container/contracts"
+	log "github.com/sirupsen/logrus"
 	"github.com/streadway/amqp"
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/wait"
@@ -55,6 +56,7 @@ func Start(ctx context.Context) (*amqp.Connection, *RabbitmqContainer, error) {
 		return nil, nil, fmt.Errorf("failed to get exposed container port: %v", err)
 	}
 
+	log.Info(realPort)
 	containerPort := realPort.Int()
 
 	var rabbitmqConfig = &rabbitmq.RabbitMQConfig{
