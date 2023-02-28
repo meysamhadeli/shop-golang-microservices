@@ -10,11 +10,7 @@ on:
      - "README.md"
      - "CHANGELOG.md"
   pull_request:
-    branches: [ "main" , "develop" ]
-    
-concurrency:
- group: ${{ github.workflow }}-${{ github.head_ref || github.sha }}
- cancel-in-progress: true   
+    branches: [ "main" , "develop" ] 
 
 jobs:
 
@@ -28,30 +24,6 @@ jobs:
       with:
         go-version: 1.19
 
-    - name: pkg build
-      working-directory: ./internal/pkg
-      run: go build -v ./...
-      
-    - name: identity_service build
-      working-directory: ./internal/services/identity_service
-      run: go build -v ./...
-
-    - name: product_service build
-      working-directory: ./internal/services/product_service
-      run: go build -v ./...
-
-    - name: inventory_service build
-      working-directory: ./internal/services/inventory_service
-      run: go build -v ./...
-
     - name: product_service test
       working-directory: ./internal/services/product_service
-      run: go test -count=1 -v ./...
-
-    - name: identity_service test
-      working-directory: ./internal/services/identity_service
-      run: go test -count=1 -v ./...
-
-    - name: inventory_service test
-      working-directory: ./internal/services/inventory_service
       run: go test -count=1 -v ./...

@@ -49,7 +49,6 @@ func TestRunner(t *testing.T) {
 			testFixture.PostgresContainer.Terminate(testFixture.Ctx)
 			testFixture.RabbitmqContainer.Terminate(testFixture.Ctx)
 		})
-	})
 }
 
 func (c *createProductIntegrationTests) Test_Should_Create_New_Product_To_DB() {
