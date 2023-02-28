@@ -7,23 +7,47 @@ on:
   push:
     branches: [ "main" , "develop"]
     paths-ignore:
-     - "README.md"
-     - "CHANGELOG.md"
+      - "README.md"
+      - "CHANGELOG.md"
   pull_request:
-    branches: [ "main" , "develop" ] 
+    branches: [ "main" , "develop" ]
 
 jobs:
 
   build-test:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-    - name: Set up Go
-      uses: actions/setup-go@v3
-      with:
-        go-version: 1.19
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.19
 
-    - name: product_service test
-      working-directory: ./internal/services/product_service
-      run: go test -count=1 -v ./...
+      - name: pkg build
+        working-directory: ./internal/pkg
+        run: go build -v ./...
+
+      - name: identity_service build
+        working-directory: ./internal/services/identity_service
+        run: go build -v ./...
+
+      - name: product_service build
+        working-directory: ./internal/services/product_service
+        run: go build -v ./...
+
+      - name: inventory_service build
+        working-directory: ./internal/services/inventory_service
+        run: go build -v ./...
+
+      - name: product_service test
+        working-directory: ./internal/services/product_service
+        run: go test -count=1 -p=1 -v ./...
+
+      - name: identity_service test
+        working-directory: ./internal/services/identity_service
+        run: go test -count=1 -p=1 -v ./...
+
+      - name: inventory_service test
+        working-directory: ./internal/services/inventory_service
+        run: go test -count=1 -p=1 -v ./...
