@@ -6,6 +6,7 @@ replace github.com/meysamhadeli/shop-golang-microservices/internal/pkg => ../../
 
 require (
 	github.com/go-playground/validator v9.31.0+incompatible
+	github.com/go-resty/resty/v2 v2.7.0
 	github.com/jackc/pgx/v4 v4.16.1
 	github.com/labstack/echo/v4 v4.9.1
 	github.com/meysamhadeli/problem-details v1.2.4
@@ -40,7 +41,6 @@ require (
 	github.com/go-playground/locales v0.14.0 // indirect
 	github.com/go-playground/universal-translator v0.18.0 // indirect
 	github.com/go-playground/validator/v10 v10.10.0 // indirect
-	github.com/go-resty/resty/v2 v2.7.0 // indirect
 	github.com/goccy/go-json v0.9.7 // indirect
 	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
