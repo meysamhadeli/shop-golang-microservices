@@ -92,6 +92,8 @@ Thanks a bunch for supporting me!
 
 Thanks to all [contributors](https://github.com/meysamhadeli/shop-golang-microservices/graphs/contributors), you're awesome and this wouldn't be possible without you! The goal is to build a categorized community-driven collection of very well-known resources.
 
+Please follow this [contribution guideline](./CONTRIBUTION.md) to submit a pull request or create the issue.
+
 ## Project References & Credits
 
 - [https://github.com/AleksK1NG/Go-Elasticsearch-RabbitMQ](https://github.com/AleksK1NG/Go-Elasticsearch-RabbitMQ)
