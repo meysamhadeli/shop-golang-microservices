@@ -34,8 +34,9 @@ func (c *PostgresContainer) Terminate(ctx context.Context) {
 	}
 }
 
-func Start(ctx context.Context) (*gorm.DB, *PostgresContainer, error) {
+func Start() (*gorm.DB, *PostgresContainer, error) {
 
+	var ctx = context.Background()
 	defaultPostgresOptions, err := getDefaultPostgresTestContainers()
 	if err != nil {
 		return nil, nil, err

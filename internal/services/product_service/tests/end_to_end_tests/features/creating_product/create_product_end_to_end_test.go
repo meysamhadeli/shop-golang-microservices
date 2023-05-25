@@ -29,56 +29,10 @@ func TestRunner(t *testing.T) {
 
 		testFixture := &createProductEndToEndTests{endToEndTestFixture}
 		testFixture.Test_Should_Return_Ok_Status_When_Create_New_Product_To_DB()
-		testFixture.Test_Should_Return_Ok_Status_When_Create_New_Product_To_DB_2()
-		testFixture.Test_Should_Return_Ok_Status_When_Create_New_Product_To_DB_3()
 	})
 }
 
 func (c *createProductEndToEndTests) Test_Should_Return_Ok_Status_When_Create_New_Product_To_DB() {
-
-	tsrv := httptest.NewServer(c.Echo)
-	defer tsrv.Close()
-
-	e := httpexpect.Default(c.T, tsrv.URL)
-
-	request := &dtos.CreateProductRequestDto{
-		Name:        gofakeit.Name(),
-		Description: gofakeit.AdjectiveDescriptive(),
-		Price:       gofakeit.Price(150, 6000),
-		InventoryId: 1,
-		Count:       1,
-	}
-
-	e.POST("/api/v1/products").
-		WithContext(c.Ctx).
-		WithJSON(request).
-		Expect().
-		Status(http.StatusCreated)
-}
-
-func (c *createProductEndToEndTests) Test_Should_Return_Ok_Status_When_Create_New_Product_To_DB_2() {
-
-	tsrv := httptest.NewServer(c.Echo)
-	defer tsrv.Close()
-
-	e := httpexpect.Default(c.T, tsrv.URL)
-
-	request := &dtos.CreateProductRequestDto{
-		Name:        gofakeit.Name(),
-		Description: gofakeit.AdjectiveDescriptive(),
-		Price:       gofakeit.Price(150, 6000),
-		InventoryId: 1,
-		Count:       1,
-	}
-
-	e.POST("/api/v1/products").
-		WithContext(c.Ctx).
-		WithJSON(request).
-		Expect().
-		Status(http.StatusCreated)
-}
-
-func (c *createProductEndToEndTests) Test_Should_Return_Ok_Status_When_Create_New_Product_To_DB_3() {
 
 	tsrv := httptest.NewServer(c.Echo)
 	defer tsrv.Close()

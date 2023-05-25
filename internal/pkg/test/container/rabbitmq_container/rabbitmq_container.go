@@ -35,11 +35,12 @@ func (c *RabbitmqContainer) Terminate(ctx context.Context) {
 }
 
 // ref: https://github.com/romnn/testcontainers/blob/60ec1eb7563985ae83e51bb04ca3c67236787a26/rabbitmq/rabbitmq.go
-func Start(ctx context.Context) (*amqp.Connection, *RabbitmqContainer, error) {
+func Start() (*amqp.Connection, *RabbitmqContainer, error) {
+
+	var ctx = context.Background()
 
 	defaultRabbitmqOptions, err := getDefaultRabbitMQTestContainers()
 	if err != nil {
-		fmt.Errorf("---------------error in line 42-----------------")
 		return nil, nil, err
 	}
 
@@ -53,20 +54,18 @@ func Start(ctx context.Context) (*amqp.Connection, *RabbitmqContainer, error) {
 		})
 
 	if err != nil {
-		fmt.Errorf("---------------error in line 57-----------------")
 		return nil, nil, err
 	}
 
 	host, err := rmqContainer.Host(ctx)
 	if err != nil {
-		fmt.Errorf("---------------error in line 62-----------------")
+
 		return nil, nil, fmt.Errorf("failed to get container host: %v", err)
 	}
 
 	realPort, err := rmqContainer.MappedPort(ctx, defaultRabbitmqOptions.Port)
 
 	if err != nil {
-		fmt.Errorf("---------------error in line 69-----------------")
 		return nil, nil, fmt.Errorf("failed to get exposed container port: %v", err)
 	}
 
@@ -83,7 +82,6 @@ func Start(ctx context.Context) (*amqp.Connection, *RabbitmqContainer, error) {
 	conn, err := rabbitmq.NewRabbitMQConn(rabbitmqConfig, ctx)
 
 	if err != nil {
-		fmt.Errorf("---------------error in line 86-----------------")
 		return nil, nil, err
 	}
 
@@ -109,7 +107,6 @@ func getContainerRequest(opts *RabbitMQContainerOptions) testcontainers.Containe
 func getDefaultRabbitMQTestContainers() (*RabbitMQContainerOptions, error) {
 	port, err := nat.NewPort("", "5672")
 	if err != nil {
-		fmt.Errorf("---------------error in line 112-----------------")
 		return nil, fmt.Errorf("failed to build port: %v", err)
 	}
 
