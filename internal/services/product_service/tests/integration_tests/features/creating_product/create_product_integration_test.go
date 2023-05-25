@@ -28,25 +28,25 @@ var consumer *rabbitmq.Consumer[*delivery.ProductDeliveryBase]
 
 func TestRunner(t *testing.T) {
 
+	var integrationTestFixture = test_fixture.NewIntegrationTestFixture(t, fx.Options(
+		fx.Invoke(func(ctx context.Context, jaegerTracer trace.Tracer, log logger.ILogger, connRabbitmq *amqp.Connection, cfg *config.Config) {
+			consumer = rabbitmq.NewConsumer(cfg.Rabbitmq, connRabbitmq, log, jaegerTracer, consumers.HandleConsumeCreateProduct)
+			err := consumer.ConsumeMessage(ctx, creatingproducteventsv1.ProductCreated{}, nil)
+			if err != nil {
+				assert.Error(t, err)
+			}
+		})))
+
+	defer func() {
+		integrationTestFixture.PostgresContainer.Terminate(integrationTestFixture.Ctx)
+		integrationTestFixture.RabbitmqContainer.Terminate(integrationTestFixture.Ctx)
+	}()
+
 	//https://pkg.go.dev/testing@master#hdr-Subtests_and_Sub_benchmarks
 	t.Run("A=create-product-integration-tests", func(t *testing.T) {
 
-		var integrationTestFixture = test_fixture.NewIntegrationTestFixture(t, fx.Options(
-			fx.Invoke(func(ctx context.Context, jaegerTracer trace.Tracer, log logger.ILogger, connRabbitmq *amqp.Connection, cfg *config.Config) {
-				consumer = rabbitmq.NewConsumer(cfg.Rabbitmq, connRabbitmq, log, jaegerTracer, consumers.HandleConsumeCreateProduct)
-				err := consumer.ConsumeMessage(ctx, creatingproducteventsv1.ProductCreated{}, nil)
-				if err != nil {
-					assert.Error(t, err)
-				}
-			})))
-
 		testFixture := &createProductIntegrationTests{integrationTestFixture}
 		testFixture.Test_Should_Create_New_Product_To_DB()
-
-		defer func() {
-			testFixture.PostgresContainer.Terminate(testFixture.Ctx)
-			testFixture.RabbitmqContainer.Terminate(testFixture.Ctx)
-		}()
 	})
 }
 

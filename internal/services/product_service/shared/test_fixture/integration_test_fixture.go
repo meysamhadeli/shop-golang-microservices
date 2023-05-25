@@ -64,16 +64,16 @@ func NewIntegrationTestFixture(t *testing.T, option fx.Option) *IntegrationTestF
 	app := fxtest.New(t,
 		fx.Options(
 			fx.Provide(
+				rabbitmqcontainer.Start,
+				gormcontainer.Start,
 				config.InitConfig,
 				logger.InitLogger,
 				http.NewContext,
 				echserver.NewEchoServer,
-				gormcontainer.Start,
 				grpc.NewGrpcClient,
 				otel.TracerProvider,
 				httpclient.NewHttpClient,
 				repositories.NewPostgresProductRepository,
-				rabbitmqcontainer.Start,
 				rabbitmq.NewPublisher,
 				validator.New,
 			),
