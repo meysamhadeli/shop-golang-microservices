@@ -5,12 +5,24 @@ import (
 	"fmt"
 	"github.com/docker/go-connections/nat"
 	gormpgsql "github.com/meysamhadeli/shop-golang-microservices/internal/pkg/gorm_pgsql"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/test/container/contracts"
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/wait"
 	"gorm.io/gorm"
 	"time"
 )
+
+type PostgresContainerOptions struct {
+	Database  string
+	Host      string
+	Port      nat.Port
+	HostPort  int
+	UserName  string
+	Password  string
+	ImageName string
+	Name      string
+	Tag       string
+	Timeout   time.Duration
+}
 
 type PostgresContainer struct {
 	Container testcontainers.Container
@@ -79,7 +91,7 @@ func Start(ctx context.Context) (*gorm.DB, *PostgresContainer, error) {
 	return db, &PostgresContainer{Container: postgresContainer}, nil
 }
 
-func getContainerRequest(opts *contracts.PostgresContainerOptions) testcontainers.ContainerRequest {
+func getContainerRequest(opts *PostgresContainerOptions) testcontainers.ContainerRequest {
 
 	containerReq := testcontainers.ContainerRequest{
 		Image:        fmt.Sprintf("%s:%s", opts.ImageName, opts.Tag),
@@ -96,13 +108,13 @@ func getContainerRequest(opts *contracts.PostgresContainerOptions) testcontainer
 	return containerReq
 }
 
-func getDefaultPostgresTestContainers() (*contracts.PostgresContainerOptions, error) {
+func getDefaultPostgresTestContainers() (*PostgresContainerOptions, error) {
 	port, err := nat.NewPort("", "5432")
 	if err != nil {
 		return nil, fmt.Errorf("failed to build port: %v", err)
 	}
 
-	return &contracts.PostgresContainerOptions{
+	return &PostgresContainerOptions{
 		Database:  "test_db",
 		Port:      port,
 		Host:      "localhost",

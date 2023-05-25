@@ -5,13 +5,24 @@ import (
 	"fmt"
 	"github.com/docker/go-connections/nat"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/rabbitmq"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/test/container/contracts"
 	log "github.com/sirupsen/logrus"
 	"github.com/streadway/amqp"
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/wait"
 	"time"
 )
+
+type RabbitMQContainerOptions struct {
+	Host        string
+	VirtualHost string
+	Port        nat.Port
+	UserName    string
+	Password    string
+	ImageName   string
+	Name        string
+	Tag         string
+	Timeout     time.Duration
+}
 
 type RabbitmqContainer struct {
 	Container testcontainers.Container
@@ -75,7 +86,7 @@ func Start(ctx context.Context) (*amqp.Connection, *RabbitmqContainer, error) {
 	return conn, &RabbitmqContainer{Container: rmqContainer}, nil
 }
 
-func getContainerRequest(opts *contracts.RabbitMQContainerOptions) testcontainers.ContainerRequest {
+func getContainerRequest(opts *RabbitMQContainerOptions) testcontainers.ContainerRequest {
 
 	containerReq := testcontainers.ContainerRequest{
 		Image:        fmt.Sprintf("%s:%s", opts.ImageName, opts.Tag),
@@ -91,13 +102,13 @@ func getContainerRequest(opts *contracts.RabbitMQContainerOptions) testcontainer
 	return containerReq
 }
 
-func getDefaultRabbitMQTestContainers() (*contracts.RabbitMQContainerOptions, error) {
+func getDefaultRabbitMQTestContainers() (*RabbitMQContainerOptions, error) {
 	port, err := nat.NewPort("", "5672")
 	if err != nil {
 		return nil, fmt.Errorf("failed to build port: %v", err)
 	}
 
-	return &contracts.RabbitMQContainerOptions{
+	return &RabbitMQContainerOptions{
 		Port:        port,
 		Host:        "localhost",
 		VirtualHost: "/",
