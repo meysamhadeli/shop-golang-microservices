@@ -27,10 +27,10 @@ func TestRunner(t *testing.T) {
 		testFixture.Test_Should_Return_Ok_Status_When_Create_New_Product_To_DB_2()
 		testFixture.Test_Should_Return_Ok_Status_When_Create_New_Product_To_DB_3()
 
-		defer func() {
-			testFixture.PostgresContainer.Terminate(testFixture.Ctx)
-			testFixture.RabbitmqContainer.Terminate(testFixture.Ctx)
-		}()
+		//defer func() {
+		//	testFixture.PostgresContainer.Terminate(testFixture.Ctx)
+		//	testFixture.RabbitmqContainer.Terminate(testFixture.Ctx)
+		//}()
 
 	})
 }
