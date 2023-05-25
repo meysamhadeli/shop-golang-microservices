@@ -20,8 +20,12 @@ func TestRunner(t *testing.T) {
 	var endToEndTestFixture = test_fixture.NewIntegrationTestFixture(t, fx.Options())
 
 	defer func() {
+		t.Log(".................log in defer start terminate postgres...................")
 		endToEndTestFixture.PostgresContainer.Terminate(endToEndTestFixture.Ctx)
+		t.Log(".................log in defer end terminate postgres...................")
+		t.Log(".................log in defer start terminate rabbitmq...................")
 		endToEndTestFixture.RabbitmqContainer.Terminate(endToEndTestFixture.Ctx)
+		t.Log(".................log in defer end terminate rabbitmq...................")
 	}()
 
 	//https://pkg.go.dev/testing@master#hdr-Subtests_and_Sub_benchmarks
@@ -29,8 +33,11 @@ func TestRunner(t *testing.T) {
 
 		testFixture := &createProductEndToEndTests{endToEndTestFixture}
 		testFixture.Test_Should_Return_Ok_Status_When_Create_New_Product_To_DB()
+		t.Log(".................log test 1 is ok...................")
 		testFixture.Test_Should_Return_Ok_Status_When_Create_New_Product_To_DB_2()
+		t.Log(".................log test 2 is ok...................")
 		testFixture.Test_Should_Return_Ok_Status_When_Create_New_Product_To_DB_3()
+		t.Log(".................log test 3 is ok...................")
 	})
 }
 
