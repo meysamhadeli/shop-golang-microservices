@@ -59,15 +59,35 @@ func NewIntegrationTestFixture(t *testing.T, option fx.Option) *IntegrationTestF
 		require.FailNow(t, err.Error())
 	}
 
+	ctx := http.NewContext()
+
+	rabbitConfig, rabbitmqContainer, err := rabbitmqcontainer.Start(ctx)
+	if err != nil {
+		t.Fatalf("failed to start container rabbitmq: %v", err)
+		return nil
+	}
+
+	postgresConfig, postgresContainer, err := gormcontainer.Start(ctx)
+	if err != nil {
+		t.Fatalf("failed to start container postgres: %v", err)
+		return nil
+	}
+
 	integrationTestFixture := &IntegrationTestFixture{T: t}
 
 	app := fxtest.New(t,
 		fx.Options(
 			fx.Provide(
-				http.NewContext,
+				func() context.Context {
+					return ctx
+				},
 				config.InitTestConfig,
-				rabbitmqcontainer.Start,
-				gormcontainer.Start,
+				func() *gormpgsql.GormPostgresConfig {
+					return postgresConfig
+				},
+				func() *rabbitmq.RabbitMQConfig {
+					return rabbitConfig
+				},
 				logger.InitLogger,
 				echserver.NewEchoServer,
 				grpc.NewGrpcClient,
@@ -82,7 +102,6 @@ func NewIntegrationTestFixture(t *testing.T, option fx.Option) *IntegrationTestF
 			fx.Invoke(func(
 				rabbitmqPublisher rabbitmq.IPublisher,
 				productRepository contracts.ProductRepository,
-				ctx context.Context,
 				grpcClient grpc.GrpcClient,
 				echo *echo.Echo,
 				log logger.ILogger,
@@ -92,14 +111,12 @@ func NewIntegrationTestFixture(t *testing.T, option fx.Option) *IntegrationTestF
 				cfg *config.Config,
 				connRabbitmq *amqp.Connection,
 				gormDB *gorm.DB,
-				postgresContainer *gormcontainer.PostgresContainer,
-				rabbitContainer *rabbitmqcontainer.RabbitmqContainer,
 			) {
 				integrationTestFixture.Gorm = gormDB
 				integrationTestFixture.ConnRabbitmq = connRabbitmq
 
 				integrationTestFixture.PostgresContainer = postgresContainer
-				integrationTestFixture.RabbitmqContainer = rabbitContainer
+				integrationTestFixture.RabbitmqContainer = rabbitmqContainer
 
 				integrationTestFixture.Log = log
 				integrationTestFixture.Cfg = cfg
