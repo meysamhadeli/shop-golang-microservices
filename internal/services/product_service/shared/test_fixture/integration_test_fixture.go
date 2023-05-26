@@ -87,7 +87,7 @@ func NewIntegrationTestFixture(t *testing.T, option fx.Option) *IntegrationTestF
 				func() (*gormpgsql.GormPostgresConfig, *gorm.DB) {
 					gormDB, err := gormpgsql.NewGorm(postgresConfig)
 					if err != nil {
-						t.Fatalf("failed to create connection for postgres: %v", err)
+						t.Errorf("failed to create connection for postgres: %v", err)
 						return nil, nil
 					}
 					return postgresConfig, gormDB
@@ -95,7 +95,7 @@ func NewIntegrationTestFixture(t *testing.T, option fx.Option) *IntegrationTestF
 				func() (*rabbitmq.RabbitMQConfig, *amqp.Connection) {
 					conn, err := rabbitmq.NewRabbitMQConn(rabbitConfig, ctx)
 					if err != nil {
-						t.Fatalf("failed to create connection for rabbitmq: %v", err)
+						t.Errorf("failed to create connection for rabbitmq: %v", err)
 						return nil, nil
 					}
 					return rabbitConfig, conn
@@ -151,7 +151,12 @@ func NewIntegrationTestFixture(t *testing.T, option fx.Option) *IntegrationTestF
 	if err := app.Start(integrationTestFixture.Ctx); err != nil {
 		t.Fatalf("failed to start the Uber FX application: %v", err)
 	}
-	defer app.Stop(integrationTestFixture.Ctx)
+	defer func(app *fxtest.App, ctx context.Context) {
+		err := app.Stop(ctx)
+		if err != nil {
+			t.Fatalf("failed to stop the Uber FX application: %v", err)
+		}
+	}(app, integrationTestFixture.Ctx)
 
 	configurations.ConfigMiddlewares(integrationTestFixture.Echo, integrationTestFixture.Cfg.Jaeger)
 

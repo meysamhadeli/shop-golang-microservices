@@ -5,6 +5,7 @@ import (
 	"fmt"
 	log "github.com/sirupsen/logrus"
 	"github.com/streadway/amqp"
+	"time"
 )
 
 type RabbitMQConfig struct {
@@ -18,7 +19,6 @@ type RabbitMQConfig struct {
 
 // Initialize new channel for rabbitmq
 func NewRabbitMQConn(cfg *RabbitMQConfig, ctx context.Context) (*amqp.Connection, error) {
-
 	connAddr := fmt.Sprintf(
 		"amqp://%s:%s@%s:%d/",
 		cfg.User,
@@ -27,26 +27,46 @@ func NewRabbitMQConn(cfg *RabbitMQConfig, ctx context.Context) (*amqp.Connection
 		cfg.Port,
 	)
 
-	conn, err := amqp.Dial(connAddr)
-	if err != nil {
-		log.Error(err, "Failed to connect to RabbitMQ")
-		return nil, err
-	}
+	var conn *amqp.Connection
 
-	go func() {
-		select {
-		case <-ctx.Done():
-			defer func(conn *amqp.Connection) {
+	retryInterval := 1 * time.Second
+	maxRetries := 3
+
+	err := retryWithBackoff(func() error {
+		conn, err := amqp.Dial(connAddr)
+		if err != nil {
+			log.Errorf("Failed to connect to RabbitMQ: %v. Connection information: %s", err, connAddr)
+			return err
+		}
+
+		go func() {
+			select {
+			case <-ctx.Done():
 				err := conn.Close()
 				if err != nil {
-					log.Error("Failed to close connection")
+					log.Error("Failed to close RabbitMQ connection")
 				}
-			}(conn)
-			log.Info("Connection is closed")
+				log.Info("RabbitMQ connection is closed")
+			}
+		}()
+
+		log.Info("Connected to RabbitMQ")
+		return nil
+	}, retryInterval, maxRetries)
+
+	return conn, err
+}
+
+func retryWithBackoff(fn func() error, retryInterval time.Duration, maxRetries int) error {
+	for i := 0; i < maxRetries; i++ {
+		err := fn()
+		if err == nil {
+			return nil
 		}
-	}()
 
-	log.Info("Connected to RabbitMQ")
+		time.Sleep(retryInterval)
+		retryInterval *= 2 // exponential backoff
+	}
 
-	return conn, nil
+	return fmt.Errorf("maximum number of retries reached")
 }
