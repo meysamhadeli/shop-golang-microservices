@@ -27,22 +27,13 @@ func NewRabbitMQConn(cfg *RabbitMQConfig, ctx context.Context) (*amqp.Connection
 		cfg.Port,
 	)
 
-	var conn *amqp.Connection
-	var err error
+	conn, err := amqp.Dial(connAddr)
+	if err != nil {
+		log.Errorf("Failed to connect to RabbitMQ: %v. Connection information: %s", err, connAddr)
+		return nil, err
+	}
 
-	retryInterval := 1 * time.Second
-	maxRetries := 3
-
-	err = retryWithBackoff(func() error {
-		conn, err = amqp.Dial(connAddr)
-		if err != nil {
-			log.Errorf("Failed to connect to RabbitMQ: %v. Connection information: %s", err, connAddr)
-			return err
-		}
-
-		log.Info("Connected to RabbitMQ")
-		return nil
-	}, retryInterval, maxRetries)
+	log.Info("Connected to RabbitMQ")
 
 	go func() {
 		select {

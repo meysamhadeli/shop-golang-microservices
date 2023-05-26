@@ -10,7 +10,6 @@ import (
 	gorm_postgres "gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"strings"
-	"time"
 )
 
 type GormPostgresConfig struct {
@@ -49,21 +48,11 @@ func NewGorm(config *GormPostgresConfig) (*gorm.DB, error) {
 		config.Password,
 	)
 
-	var gormDb *gorm.DB
+	gormDb, err := gorm.Open(gorm_postgres.Open(dataSourceName), &gorm.Config{})
 
-	retryInterval := 1 * time.Second
-	maxRetries := 3
-
-	err = retryWithBackoff(func() error {
-		gormDb, err = gorm.Open(gorm_postgres.Open(dataSourceName), &gorm.Config{})
-
-		if err != nil {
-			return errors.Errorf("failed to connect postgres: %v and connection information: %s", err, dataSourceName)
-		}
-
-		return nil
-
-	}, retryInterval, maxRetries)
+	if err != nil {
+		return nil, errors.Errorf("failed to connect postgres: %v and connection information: %s", err, dataSourceName)
+	}
 
 	return gormDb, err
 }
@@ -163,18 +152,4 @@ func Paginate[T any](ctx context.Context, listQuery *utils.ListQuery, db *gorm.D
 	}
 
 	return utils.NewListResult[T](items, listQuery.GetSize(), listQuery.GetPage(), totalRows), nil
-}
-
-func retryWithBackoff(fn func() error, retryInterval time.Duration, maxRetries int) error {
-	for i := 0; i < maxRetries; i++ {
-		err := fn()
-		if err == nil {
-			return nil
-		}
-
-		time.Sleep(retryInterval)
-		retryInterval *= 2 // exponential backoff
-	}
-
-	return fmt.Errorf("maximum number of retries reached")
 }
