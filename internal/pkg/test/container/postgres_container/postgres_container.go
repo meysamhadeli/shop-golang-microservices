@@ -53,15 +53,6 @@ func Start(ctx context.Context) (*gormpgsql.GormPostgresConfig, *PostgresContain
 		return nil, nil, err
 	}
 
-	go func() {
-		for {
-			select {
-			case <-ctx.Done():
-				postgresContainer.Terminate(ctx)
-			}
-		}
-	}()
-
 	host, err := postgresContainer.Host(ctx)
 	if err != nil {
 

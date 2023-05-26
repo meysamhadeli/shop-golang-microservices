@@ -56,15 +56,6 @@ func Start(ctx context.Context) (*rabbitmq.RabbitMQConfig, *RabbitmqContainer, e
 		return nil, nil, err
 	}
 
-	go func() {
-		for {
-			select {
-			case <-ctx.Done():
-				rmqContainer.Terminate(ctx)
-			}
-		}
-	}()
-
 	host, err := rmqContainer.Host(ctx)
 	if err != nil {
 
