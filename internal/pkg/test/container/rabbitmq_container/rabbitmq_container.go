@@ -6,7 +6,6 @@ import (
 	"github.com/docker/go-connections/nat"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/rabbitmq"
 	log "github.com/sirupsen/logrus"
-	"github.com/streadway/amqp"
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/wait"
 	"time"
@@ -21,7 +20,9 @@ type RabbitMQContainerOptions struct {
 	ImageName   string
 	Name        string
 	Tag         string
+	Exchange    string
 	Timeout     time.Duration
+	Kind        string
 }
 
 type RabbitmqContainer struct {
@@ -35,9 +36,7 @@ func (c *RabbitmqContainer) Terminate(ctx context.Context) {
 }
 
 // ref: https://github.com/romnn/testcontainers/blob/60ec1eb7563985ae83e51bb04ca3c67236787a26/rabbitmq/rabbitmq.go
-func Start() (*amqp.Connection, *RabbitmqContainer, error) {
-
-	var ctx = context.Background()
+func Start(ctx context.Context) (*rabbitmq.RabbitMQConfig, *RabbitmqContainer, error) {
 
 	defaultRabbitmqOptions, err := getDefaultRabbitMQTestContainers()
 	if err != nil {
@@ -57,6 +56,15 @@ func Start() (*amqp.Connection, *RabbitmqContainer, error) {
 		return nil, nil, err
 	}
 
+	go func() {
+		for {
+			select {
+			case <-ctx.Done():
+				rmqContainer.Terminate(ctx)
+			}
+		}
+	}()
+
 	host, err := rmqContainer.Host(ctx)
 	if err != nil {
 
@@ -73,19 +81,15 @@ func Start() (*amqp.Connection, *RabbitmqContainer, error) {
 	containerPort := realPort.Int()
 
 	var rabbitmqConfig = &rabbitmq.RabbitMQConfig{
-		User:     defaultRabbitmqOptions.UserName,
-		Password: defaultRabbitmqOptions.Password,
-		Host:     host,
-		Port:     containerPort,
+		User:         defaultRabbitmqOptions.UserName,
+		Password:     defaultRabbitmqOptions.Password,
+		Host:         host,
+		Port:         containerPort,
+		ExchangeName: defaultRabbitmqOptions.Exchange,
+		Kind:         defaultRabbitmqOptions.Kind,
 	}
 
-	conn, err := rabbitmq.NewRabbitMQConn(rabbitmqConfig, ctx)
-
-	if err != nil {
-		return nil, nil, err
-	}
-
-	return conn, &RabbitmqContainer{Container: rmqContainer}, nil
+	return rabbitmqConfig, &RabbitmqContainer{Container: rmqContainer}, nil
 }
 
 func getContainerRequest(opts *RabbitMQContainerOptions) testcontainers.ContainerRequest {
@@ -118,6 +122,8 @@ func getDefaultRabbitMQTestContainers() (*RabbitMQContainerOptions, error) {
 		Password:    "guest",
 		Tag:         "3-management",
 		ImageName:   "rabbitmq",
+		Exchange:    "test",
+		Kind:        "topic",
 		Name:        "rabbitmq-testcontainers",
 		Timeout:     5 * time.Minute,
 	}, nil
