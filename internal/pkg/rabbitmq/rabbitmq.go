@@ -28,31 +28,32 @@ func NewRabbitMQConn(cfg *RabbitMQConfig, ctx context.Context) (*amqp.Connection
 	)
 
 	var conn *amqp.Connection
+	var err error
 
 	retryInterval := 1 * time.Second
 	maxRetries := 3
 
-	err := retryWithBackoff(func() error {
-		conn, err := amqp.Dial(connAddr)
+	err = retryWithBackoff(func() error {
+		conn, err = amqp.Dial(connAddr)
 		if err != nil {
 			log.Errorf("Failed to connect to RabbitMQ: %v. Connection information: %s", err, connAddr)
 			return err
 		}
 
-		go func() {
-			select {
-			case <-ctx.Done():
-				err := conn.Close()
-				if err != nil {
-					log.Error("Failed to close RabbitMQ connection")
-				}
-				log.Info("RabbitMQ connection is closed")
-			}
-		}()
-
 		log.Info("Connected to RabbitMQ")
 		return nil
 	}, retryInterval, maxRetries)
+
+	go func() {
+		select {
+		case <-ctx.Done():
+			err := conn.Close()
+			if err != nil {
+				log.Error("Failed to close RabbitMQ connection")
+			}
+			log.Info("RabbitMQ connection is closed")
+		}
+	}()
 
 	return conn, err
 }
