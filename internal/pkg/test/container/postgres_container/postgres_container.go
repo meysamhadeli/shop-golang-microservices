@@ -7,7 +7,6 @@ import (
 	gormpgsql "github.com/meysamhadeli/shop-golang-microservices/internal/pkg/gorm_pgsql"
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/wait"
-	"gorm.io/gorm"
 	"time"
 )
 
@@ -34,9 +33,8 @@ func (c *PostgresContainer) Terminate(ctx context.Context) {
 	}
 }
 
-func Start() (*gorm.DB, *PostgresContainer, error) {
+func Start(ctx context.Context) (*gormpgsql.GormPostgresConfig, *PostgresContainer, error) {
 
-	var ctx = context.Background()
 	defaultPostgresOptions, err := getDefaultPostgresTestContainers()
 	if err != nil {
 		return nil, nil, err
@@ -51,6 +49,10 @@ func Start() (*gorm.DB, *PostgresContainer, error) {
 			Started:          true,
 		})
 
+	if err != nil {
+		return nil, nil, err
+	}
+
 	go func() {
 		for {
 			select {
@@ -59,10 +61,6 @@ func Start() (*gorm.DB, *PostgresContainer, error) {
 			}
 		}
 	}()
-
-	if err != nil {
-		return nil, nil, err
-	}
 
 	host, err := postgresContainer.Host(ctx)
 	if err != nil {
@@ -87,9 +85,7 @@ func Start() (*gorm.DB, *PostgresContainer, error) {
 		SSLMode:  false,
 	}
 
-	db, err := gormpgsql.NewGorm(gormConfig)
-
-	return db, &PostgresContainer{Container: postgresContainer}, nil
+	return gormConfig, &PostgresContainer{Container: postgresContainer}, nil
 }
 
 func getContainerRequest(opts *PostgresContainerOptions) testcontainers.ContainerRequest {
