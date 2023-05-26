@@ -58,11 +58,10 @@ func Start(ctx context.Context) (*rabbitmq.RabbitMQConfig, *RabbitmqContainer, e
 
 	host, err := rmqContainer.Host(ctx)
 	if err != nil {
-
 		return nil, nil, fmt.Errorf("failed to get container host: %v", err)
 	}
 
-	realPort, err := rmqContainer.MappedPort(ctx, defaultRabbitmqOptions.Port)
+	realPort, err := rmqContainer.MappedPort(ctx, "5672")
 
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to get exposed container port: %v", err)
@@ -87,9 +86,8 @@ func getContainerRequest(opts *RabbitMQContainerOptions) testcontainers.Containe
 
 	containerReq := testcontainers.ContainerRequest{
 		Image:        fmt.Sprintf("%s:%s", opts.ImageName, opts.Tag),
-		Hostname:     opts.Host,
-		ExposedPorts: []string{string(opts.Port)},
-		WaitingFor:   wait.ForListeningPort(opts.Port).WithStartupTimeout(opts.Timeout),
+		ExposedPorts: []string{"5672/tcp"},
+		WaitingFor:   wait.ForListeningPort("5672/tcp"),
 		Env: map[string]string{
 			"RABBITMQ_DEFAULT_USER": opts.UserName,
 			"RABBITMQ_DEFAULT_PASS": opts.Password,

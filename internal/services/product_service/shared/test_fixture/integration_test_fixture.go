@@ -121,9 +121,11 @@ func NewIntegrationTestFixture(t *testing.T, option fx.Option) *IntegrationTestF
 		),
 	)
 
-	//https://github.com/uber-go/fx/blob/master/app_test.go
-	defer app.RequireStart().RequireStop()
-	require.NoError(t, app.Err())
+	// Start the Uber FX application
+	if err := app.Start(integrationTestFixture.Ctx); err != nil {
+		t.Fatalf("failed to start the Uber FX application: %v", err)
+	}
+	defer app.Stop(integrationTestFixture.Ctx)
 
 	configurations.ConfigMiddlewares(integrationTestFixture.Echo, integrationTestFixture.Cfg.Jaeger)
 

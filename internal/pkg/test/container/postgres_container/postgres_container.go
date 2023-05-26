@@ -59,7 +59,7 @@ func Start(ctx context.Context) (*gormpgsql.GormPostgresConfig, *PostgresContain
 		return nil, nil, fmt.Errorf("failed to get container host: %v", err)
 	}
 
-	realPort, err := postgresContainer.MappedPort(ctx, defaultPostgresOptions.Port)
+	realPort, err := postgresContainer.MappedPort(ctx, "5432")
 
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to get exposed container port: %v", err)
@@ -83,9 +83,8 @@ func getContainerRequest(opts *PostgresContainerOptions) testcontainers.Containe
 
 	containerReq := testcontainers.ContainerRequest{
 		Image:        fmt.Sprintf("%s:%s", opts.ImageName, opts.Tag),
-		Hostname:     opts.Host,
-		ExposedPorts: []string{string(opts.Port)},
-		WaitingFor:   wait.ForListeningPort(opts.Port).WithStartupTimeout(opts.Timeout),
+		ExposedPorts: []string{"5432/tcp"},
+		WaitingFor:   wait.ForListeningPort("5432/tcp"),
 		Env: map[string]string{
 			"POSTGRES_DB":       opts.Database,
 			"POSTGRES_PASSWORD": opts.Password,
