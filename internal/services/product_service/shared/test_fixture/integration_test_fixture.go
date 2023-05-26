@@ -82,19 +82,28 @@ func NewIntegrationTestFixture(t *testing.T, option fx.Option) *IntegrationTestF
 					return ctx
 				},
 				config.InitTestConfig,
-				func() *gormpgsql.GormPostgresConfig {
-					return postgresConfig
-				},
-				func() *rabbitmq.RabbitMQConfig {
-					return rabbitConfig
-				},
 				logger.InitLogger,
+
+				func() (*gormpgsql.GormPostgresConfig, *gorm.DB) {
+					gormDB, err := gormpgsql.NewGorm(postgresConfig)
+					if err != nil {
+						t.Fatalf("failed to create connection for postgres: %v", err)
+						return nil, nil
+					}
+					return postgresConfig, gormDB
+				},
+				func() (*rabbitmq.RabbitMQConfig, *amqp.Connection) {
+					conn, err := rabbitmq.NewRabbitMQConn(rabbitConfig, ctx)
+					if err != nil {
+						t.Fatalf("failed to create connection for rabbitmq: %v", err)
+						return nil, nil
+					}
+					return rabbitConfig, conn
+				},
 				echserver.NewEchoServer,
 				grpc.NewGrpcClient,
 				otel.TracerProvider,
 				httpclient.NewHttpClient,
-				gormpgsql.NewGorm,
-				rabbitmq.NewRabbitMQConn,
 				repositories.NewPostgresProductRepository,
 				rabbitmq.NewPublisher,
 				validator.New,
