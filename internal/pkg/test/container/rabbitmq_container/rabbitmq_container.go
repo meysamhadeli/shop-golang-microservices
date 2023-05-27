@@ -3,9 +3,12 @@ package rabbitmqcontainer
 import (
 	"context"
 	"fmt"
+	"github.com/cenkalti/backoff/v4"
 	"github.com/docker/go-connections/nat"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/rabbitmq"
+	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
+	"github.com/streadway/amqp"
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/wait"
 	"time"
@@ -36,11 +39,11 @@ func (c *RabbitmqContainer) Terminate(ctx context.Context) {
 }
 
 // ref: https://github.com/romnn/testcontainers/blob/60ec1eb7563985ae83e51bb04ca3c67236787a26/rabbitmq/rabbitmq.go
-func Start(ctx context.Context) (*rabbitmq.RabbitMQConfig, *RabbitmqContainer, error) {
+func Start(ctx context.Context) (*amqp.Connection, *rabbitmq.RabbitMQConfig, *RabbitmqContainer, error) {
 
 	defaultRabbitmqOptions, err := getDefaultRabbitMQTestContainers()
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, nil, err
 	}
 
 	req := getContainerRequest(defaultRabbitmqOptions)
@@ -53,33 +56,53 @@ func Start(ctx context.Context) (*rabbitmq.RabbitMQConfig, *RabbitmqContainer, e
 		})
 
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, nil, err
 	}
 
-	host, err := rmqContainer.Host(ctx)
+	var conn *amqp.Connection
+	var rabbitmqConfig *rabbitmq.RabbitMQConfig
+
+	bo := backoff.NewExponentialBackOff()
+	bo.MaxElapsedTime = 10 * time.Second // Maximum time to retry
+	maxRetries := 5                      // Number of retries (including the initial attempt)
+
+	err = backoff.Retry(func() error {
+		host, err := rmqContainer.Host(ctx)
+		if err != nil {
+			return errors.Errorf("failed to get container host: %v", err)
+		}
+
+		realPort, err := rmqContainer.MappedPort(ctx, "5672")
+
+		if err != nil {
+			return errors.Errorf("failed to get exposed container port: %v", err)
+		}
+
+		log.Info(realPort)
+		containerPort := realPort.Int()
+
+		rabbitmqConfig = &rabbitmq.RabbitMQConfig{
+			User:         defaultRabbitmqOptions.UserName,
+			Password:     defaultRabbitmqOptions.Password,
+			Host:         host,
+			Port:         containerPort,
+			ExchangeName: defaultRabbitmqOptions.Exchange,
+			Kind:         defaultRabbitmqOptions.Kind,
+		}
+
+		conn, err = rabbitmq.NewRabbitMQConn(rabbitmqConfig, ctx)
+		if err != nil {
+			log.Errorf("Failed to create connection for rabbitmq: %v", err)
+			return err
+		}
+		return nil
+	}, backoff.WithMaxRetries(bo, uint64(maxRetries-1)))
+
 	if err != nil {
-		return nil, nil, fmt.Errorf("failed to get container host: %v", err)
+		return nil, nil, nil, errors.Errorf("failed to create connection for rabbitmq after retries: %v", err)
 	}
 
-	realPort, err := rmqContainer.MappedPort(ctx, "5672")
-
-	if err != nil {
-		return nil, nil, fmt.Errorf("failed to get exposed container port: %v", err)
-	}
-
-	log.Info(realPort)
-	containerPort := realPort.Int()
-
-	var rabbitmqConfig = &rabbitmq.RabbitMQConfig{
-		User:         defaultRabbitmqOptions.UserName,
-		Password:     defaultRabbitmqOptions.Password,
-		Host:         host,
-		Port:         containerPort,
-		ExchangeName: defaultRabbitmqOptions.Exchange,
-		Kind:         defaultRabbitmqOptions.Kind,
-	}
-
-	return rabbitmqConfig, &RabbitmqContainer{Container: rmqContainer}, nil
+	return conn, rabbitmqConfig, &RabbitmqContainer{Container: rmqContainer}, err
 }
 
 func getContainerRequest(opts *RabbitMQContainerOptions) testcontainers.ContainerRequest {

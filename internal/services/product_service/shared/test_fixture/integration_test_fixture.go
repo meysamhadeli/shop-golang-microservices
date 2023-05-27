@@ -61,13 +61,13 @@ func NewIntegrationTestFixture(t *testing.T, option fx.Option) *IntegrationTestF
 
 	ctx := http.NewContext()
 
-	rabbitConfig, rabbitmqContainer, err := rabbitmqcontainer.Start(ctx)
+	rabbitmqConn, rabbitmqConfig, rabbitmqContainer, err := rabbitmqcontainer.Start(ctx)
 	if err != nil {
 		t.Fatalf("failed to start container rabbitmq: %v", err)
 		return nil
 	}
 
-	postgresConfig, postgresContainer, err := gormcontainer.Start(ctx)
+	gormDB, gormConfig, postgresContainer, err := gormcontainer.Start(ctx)
 	if err != nil {
 		t.Fatalf("failed to start container postgres: %v", err)
 		return nil
@@ -81,25 +81,14 @@ func NewIntegrationTestFixture(t *testing.T, option fx.Option) *IntegrationTestF
 				func() context.Context {
 					return ctx
 				},
+				func() (*amqp.Connection, *rabbitmq.RabbitMQConfig) {
+					return rabbitmqConn, rabbitmqConfig
+				},
+				func() (*gorm.DB, *gormpgsql.GormPostgresConfig) {
+					return gormDB, gormConfig
+				},
 				config.InitTestConfig,
 				logger.InitLogger,
-
-				func() (*gormpgsql.GormPostgresConfig, *gorm.DB) {
-					gormDB, err := gormpgsql.NewGorm(postgresConfig)
-					if err != nil {
-						t.Errorf("failed to create connection for postgres: %v", err)
-						return nil, nil
-					}
-					return postgresConfig, gormDB
-				},
-				func() (*rabbitmq.RabbitMQConfig, *amqp.Connection) {
-					conn, err := rabbitmq.NewRabbitMQConn(rabbitConfig, ctx)
-					if err != nil {
-						t.Errorf("failed to create connection for rabbitmq: %v", err)
-						return nil, nil
-					}
-					return rabbitConfig, conn
-				},
 				echserver.NewEchoServer,
 				grpc.NewGrpcClient,
 				otel.TracerProvider,
