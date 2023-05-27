@@ -71,7 +71,7 @@ func Start(ctx context.Context) (*gorm.DB, *gormpgsql.GormPostgresConfig, *Postg
 			return errors.Errorf("failed to get container host: %v", err)
 		}
 
-		realPort, err := postgresContainer.MappedPort(ctx, "5432")
+		realPort, err := postgresContainer.MappedPort(ctx, defaultPostgresOptions.Port)
 
 		if err != nil {
 			return errors.Errorf("failed to get exposed container port: %v", err)

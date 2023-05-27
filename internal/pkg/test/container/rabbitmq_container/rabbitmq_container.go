@@ -72,7 +72,7 @@ func Start(ctx context.Context) (*amqp.Connection, *rabbitmq.RabbitMQConfig, *Ra
 			return errors.Errorf("failed to get container host: %v", err)
 		}
 
-		realPort, err := rmqContainer.MappedPort(ctx, "5672")
+		realPort, err := rmqContainer.MappedPort(ctx, defaultRabbitmqOptions.Port)
 
 		if err != nil {
 			return errors.Errorf("failed to get exposed container port: %v", err)
