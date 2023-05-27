@@ -3,10 +3,13 @@ package postgrescontainer
 import (
 	"context"
 	"fmt"
+	"github.com/cenkalti/backoff/v4"
 	"github.com/docker/go-connections/nat"
 	gormpgsql "github.com/meysamhadeli/shop-golang-microservices/internal/pkg/gorm_pgsql"
+	"github.com/pkg/errors"
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/wait"
+	"gorm.io/gorm"
 	"time"
 )
 
@@ -33,11 +36,11 @@ func (c *PostgresContainer) Terminate(ctx context.Context) {
 	}
 }
 
-func Start(ctx context.Context) (*gormpgsql.GormPostgresConfig, *PostgresContainer, error) {
+func Start(ctx context.Context) (*gorm.DB, *gormpgsql.GormPostgresConfig, *PostgresContainer, error) {
 
 	defaultPostgresOptions, err := getDefaultPostgresTestContainers()
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, nil, err
 	}
 
 	req := getContainerRequest(defaultPostgresOptions)
@@ -50,42 +53,60 @@ func Start(ctx context.Context) (*gormpgsql.GormPostgresConfig, *PostgresContain
 		})
 
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, nil, err
 	}
 
-	host, err := postgresContainer.Host(ctx)
+	var gormDB *gorm.DB
+	var gormConfig *gormpgsql.GormPostgresConfig
+
+	bo := backoff.NewExponentialBackOff()
+	bo.MaxElapsedTime = 10 * time.Second // Maximum time to retry
+	maxRetries := 5                      // Number of retries (including the initial attempt)
+
+	err = backoff.Retry(func() error {
+
+		host, err := postgresContainer.Host(ctx)
+		if err != nil {
+
+			return errors.Errorf("failed to get container host: %v", err)
+		}
+
+		realPort, err := postgresContainer.MappedPort(ctx, defaultPostgresOptions.Port)
+
+		if err != nil {
+			return errors.Errorf("failed to get exposed container port: %v", err)
+		}
+
+		containerPort := realPort.Int()
+
+		gormConfig = &gormpgsql.GormPostgresConfig{
+			Port:     containerPort,
+			Host:     host,
+			DBName:   defaultPostgresOptions.Database,
+			User:     defaultPostgresOptions.UserName,
+			Password: defaultPostgresOptions.Password,
+			SSLMode:  false,
+		}
+		gormDB, err = gormpgsql.NewGorm(gormConfig)
+		if err != nil {
+			return err
+		}
+		return nil
+	}, backoff.WithMaxRetries(bo, uint64(maxRetries-1)))
+
 	if err != nil {
-
-		return nil, nil, fmt.Errorf("failed to get container host: %v", err)
+		return nil, nil, nil, errors.Errorf("failed to create connection for postgres after retries: %v", err)
 	}
 
-	realPort, err := postgresContainer.MappedPort(ctx, defaultPostgresOptions.Port)
-
-	if err != nil {
-		return nil, nil, fmt.Errorf("failed to get exposed container port: %v", err)
-	}
-
-	containerPort := realPort.Int()
-
-	var gormConfig = &gormpgsql.GormPostgresConfig{
-		Port:     containerPort,
-		Host:     host,
-		DBName:   defaultPostgresOptions.Database,
-		User:     defaultPostgresOptions.UserName,
-		Password: defaultPostgresOptions.Password,
-		SSLMode:  false,
-	}
-
-	return gormConfig, &PostgresContainer{Container: postgresContainer}, nil
+	return gormDB, gormConfig, &PostgresContainer{Container: postgresContainer}, nil
 }
 
 func getContainerRequest(opts *PostgresContainerOptions) testcontainers.ContainerRequest {
 
 	containerReq := testcontainers.ContainerRequest{
 		Image:        fmt.Sprintf("%s:%s", opts.ImageName, opts.Tag),
-		Hostname:     opts.Host,
-		ExposedPorts: []string{string(opts.Port)},
-		WaitingFor:   wait.ForListeningPort(opts.Port).WithStartupTimeout(opts.Timeout),
+		ExposedPorts: []string{"5432/tcp"},
+		WaitingFor:   wait.ForListeningPort("5432/tcp"),
 		Env: map[string]string{
 			"POSTGRES_DB":       opts.Database,
 			"POSTGRES_PASSWORD": opts.Password,

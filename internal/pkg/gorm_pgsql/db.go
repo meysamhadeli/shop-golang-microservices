@@ -51,9 +51,10 @@ func NewGorm(config *GormPostgresConfig) (*gorm.DB, error) {
 	gormDb, err := gorm.Open(gorm_postgres.Open(dataSourceName), &gorm.Config{})
 
 	if err != nil {
-		return nil, err
+		return nil, errors.Errorf("failed to connect postgres: %v and connection information: %s", err, dataSourceName)
 	}
-	return gormDb, nil
+
+	return gormDb, err
 }
 
 func (db *Gorm) Close() {
