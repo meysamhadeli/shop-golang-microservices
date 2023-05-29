@@ -19,11 +19,6 @@ func TestRunner(t *testing.T) {
 
 	var endToEndTestFixture = test_fixture.NewIntegrationTestFixture(t, fx.Options())
 
-	defer func() {
-		endToEndTestFixture.PostgresContainer.Terminate(endToEndTestFixture.Ctx)
-		endToEndTestFixture.RabbitmqContainer.Terminate(endToEndTestFixture.Ctx)
-	}()
-
 	//https://pkg.go.dev/testing@master#hdr-Subtests_and_Sub_benchmarks
 	t.Run("A=create-product-end-to-end-tests", func(t *testing.T) {
 
