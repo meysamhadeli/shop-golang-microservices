@@ -37,11 +37,6 @@ func TestRunner(t *testing.T) {
 			}
 		})))
 
-	defer func() {
-		integrationTestFixture.PostgresContainer.Terminate(integrationTestFixture.Ctx)
-		integrationTestFixture.RabbitmqContainer.Terminate(integrationTestFixture.Ctx)
-	}()
-
 	//https://pkg.go.dev/testing@master#hdr-Subtests_and_Sub_benchmarks
 	t.Run("A=create-product-integration-tests", func(t *testing.T) {
 

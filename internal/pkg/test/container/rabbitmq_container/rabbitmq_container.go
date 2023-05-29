@@ -11,6 +11,7 @@ import (
 	"github.com/streadway/amqp"
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/wait"
+	"testing"
 	"time"
 )
 
@@ -28,22 +29,12 @@ type RabbitMQContainerOptions struct {
 	Kind        string
 }
 
-type RabbitmqContainer struct {
-	Container testcontainers.Container
-}
-
-func (c *RabbitmqContainer) Terminate(ctx context.Context) {
-	if c.Container != nil {
-		c.Container.Terminate(ctx)
-	}
-}
-
 // ref: https://github.com/romnn/testcontainers/blob/60ec1eb7563985ae83e51bb04ca3c67236787a26/rabbitmq/rabbitmq.go
-func Start(ctx context.Context) (*amqp.Connection, *rabbitmq.RabbitMQConfig, *RabbitmqContainer, error) {
+func Start(ctx context.Context, t *testing.T) (*amqp.Connection, *rabbitmq.RabbitMQConfig, error) {
 
 	defaultRabbitmqOptions, err := getDefaultRabbitMQTestContainers()
 	if err != nil {
-		return nil, nil, nil, err
+		return nil, nil, err
 	}
 
 	req := getContainerRequest(defaultRabbitmqOptions)
@@ -56,8 +47,15 @@ func Start(ctx context.Context) (*amqp.Connection, *rabbitmq.RabbitMQConfig, *Ra
 		})
 
 	if err != nil {
-		return nil, nil, nil, err
+		return nil, nil, err
 	}
+
+	// Clean up the container after the test is complete
+	t.Cleanup(func() {
+		if err := rmqContainer.Terminate(ctx); err != nil {
+			t.Fatalf("failed to terminate container: %s", err)
+		}
+	})
 
 	var conn *amqp.Connection
 	var rabbitmqConfig *rabbitmq.RabbitMQConfig
@@ -99,10 +97,10 @@ func Start(ctx context.Context) (*amqp.Connection, *rabbitmq.RabbitMQConfig, *Ra
 	}, backoff.WithMaxRetries(bo, uint64(maxRetries-1)))
 
 	if err != nil {
-		return nil, nil, nil, errors.Errorf("failed to create connection for rabbitmq after retries: %v", err)
+		return nil, nil, errors.Errorf("failed to create connection for rabbitmq after retries: %v", err)
 	}
 
-	return conn, rabbitmqConfig, &RabbitmqContainer{Container: rmqContainer}, err
+	return conn, rabbitmqConfig, err
 }
 
 func getContainerRequest(opts *RabbitMQContainerOptions) testcontainers.ContainerRequest {

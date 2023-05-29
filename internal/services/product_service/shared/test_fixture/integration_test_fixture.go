@@ -47,8 +47,6 @@ type IntegrationTestFixture struct {
 	GrpcClient        grpc.GrpcClient
 	ProductRepository contracts.ProductRepository
 	Ctx               context.Context
-	PostgresContainer *gormcontainer.PostgresContainer
-	RabbitmqContainer *rabbitmqcontainer.RabbitmqContainer
 }
 
 func NewIntegrationTestFixture(t *testing.T, option fx.Option) *IntegrationTestFixture {
@@ -61,13 +59,13 @@ func NewIntegrationTestFixture(t *testing.T, option fx.Option) *IntegrationTestF
 
 	ctx := http.NewContext()
 
-	rabbitmqConn, rabbitmqConfig, rabbitmqContainer, err := rabbitmqcontainer.Start(ctx)
+	rabbitmqConn, rabbitmqConfig, err := rabbitmqcontainer.Start(ctx, t)
 	if err != nil {
 		t.Fatalf("failed to start container rabbitmq: %v", err)
 		return nil
 	}
 
-	gormDB, gormConfig, postgresContainer, err := gormcontainer.Start(ctx)
+	gormDB, gormConfig, err := gormcontainer.Start(ctx, t)
 	if err != nil {
 		t.Fatalf("failed to start container postgres: %v", err)
 		return nil
@@ -112,9 +110,6 @@ func NewIntegrationTestFixture(t *testing.T, option fx.Option) *IntegrationTestF
 			) {
 				integrationTestFixture.Gorm = gormDB
 				integrationTestFixture.ConnRabbitmq = connRabbitmq
-
-				integrationTestFixture.PostgresContainer = postgresContainer
-				integrationTestFixture.RabbitmqContainer = rabbitmqContainer
 
 				integrationTestFixture.Log = log
 				integrationTestFixture.Cfg = cfg
