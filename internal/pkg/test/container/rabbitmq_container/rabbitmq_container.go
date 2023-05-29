@@ -110,7 +110,7 @@ func getContainerRequest(opts *RabbitMQContainerOptions) testcontainers.Containe
 	containerReq := testcontainers.ContainerRequest{
 		Image:        fmt.Sprintf("%s:%s", opts.ImageName, opts.Tag),
 		ExposedPorts: []string{"5672/tcp"},
-		WaitingFor:   wait.ForListeningPort("5672/tcp"),
+		WaitingFor:   wait.ForLog("Ready to accept connections"),
 		Env: map[string]string{
 			"RABBITMQ_DEFAULT_USER": opts.UserName,
 			"RABBITMQ_DEFAULT_PASS": opts.Password,
