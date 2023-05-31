@@ -57,35 +57,18 @@ func NewIntegrationTestFixture(t *testing.T, option fx.Option) *IntegrationTestF
 		require.FailNow(t, err.Error())
 	}
 
-	ctx := http.NewContext()
-
-	rabbitmqConn, rabbitmqConfig, err := rabbitmqcontainer.Start(ctx, t)
-	if err != nil {
-		t.Fatalf("failed to start container rabbitmq: %v", err)
-		return nil
-	}
-
-	gormDB, gormConfig, err := gormcontainer.Start(ctx, t)
-	if err != nil {
-		t.Fatalf("failed to start container postgres: %v", err)
-		return nil
-	}
-
 	integrationTestFixture := &IntegrationTestFixture{T: t}
 
 	app := fxtest.New(t,
 		fx.Options(
 			fx.Provide(
-				func() context.Context {
-					return ctx
+				func() *testing.T {
+					return t
 				},
-				func() (*amqp.Connection, *rabbitmq.RabbitMQConfig) {
-					return rabbitmqConn, rabbitmqConfig
-				},
-				func() (*gorm.DB, *gormpgsql.GormPostgresConfig) {
-					return gormDB, gormConfig
-				},
-				config.InitTestConfig,
+				http.NewContext,
+				config.InitConfig,
+				rabbitmqcontainer.Start,
+				gormcontainer.Start,
 				logger.InitLogger,
 				echserver.NewEchoServer,
 				grpc.NewGrpcClient,
@@ -107,6 +90,7 @@ func NewIntegrationTestFixture(t *testing.T, option fx.Option) *IntegrationTestF
 				cfg *config.Config,
 				connRabbitmq *amqp.Connection,
 				gormDB *gorm.DB,
+				ctx context.Context,
 			) {
 				integrationTestFixture.Gorm = gormDB
 				integrationTestFixture.ConnRabbitmq = connRabbitmq
@@ -135,6 +119,7 @@ func NewIntegrationTestFixture(t *testing.T, option fx.Option) *IntegrationTestF
 	if err := app.Start(integrationTestFixture.Ctx); err != nil {
 		t.Fatalf("failed to start the Uber FX application: %v", err)
 	}
+
 	defer func(app *fxtest.App, ctx context.Context) {
 		err := app.Stop(ctx)
 		if err != nil {

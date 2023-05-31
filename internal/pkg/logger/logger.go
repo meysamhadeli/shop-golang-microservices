@@ -6,6 +6,8 @@ import (
 )
 
 // Logger methods interface
+//
+//go:generate mockery --name ILogger
 type ILogger interface {
 	getLevel() log.Level
 	Debug(args ...interface{})
@@ -27,6 +29,10 @@ type ILogger interface {
 var (
 	Logger ILogger
 )
+
+type LoggerConfig struct {
+	LogLevel string `mapstructure:"level"`
+}
 
 // Application logger
 type appLogger struct {
@@ -53,10 +59,6 @@ func (l *appLogger) getLevel() log.Level {
 	}
 
 	return level
-}
-
-type LoggerConfig struct {
-	LogLevel string `mapstructure:"level"`
 }
 
 // InitLogger Init logger

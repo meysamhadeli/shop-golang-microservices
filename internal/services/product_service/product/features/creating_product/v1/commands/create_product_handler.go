@@ -48,7 +48,7 @@ func (c *CreateProductHandler) Handle(ctx context.Context, command *CreateProduc
 		return nil, err
 	}
 
-	err = c.rabbitmqPublisher.PublishMessage(ctx, evt)
+	err = c.rabbitmqPublisher.PublishMessage(evt)
 	if err != nil {
 		return nil, err
 	}

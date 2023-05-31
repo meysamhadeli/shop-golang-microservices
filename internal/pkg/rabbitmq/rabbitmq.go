@@ -3,6 +3,7 @@ package rabbitmq
 import (
 	"context"
 	"fmt"
+	"github.com/cenkalti/backoff/v4"
 	log "github.com/sirupsen/logrus"
 	"github.com/streadway/amqp"
 	"time"
@@ -27,11 +28,23 @@ func NewRabbitMQConn(cfg *RabbitMQConfig, ctx context.Context) (*amqp.Connection
 		cfg.Port,
 	)
 
-	conn, err := amqp.Dial(connAddr)
-	if err != nil {
-		log.Errorf("Failed to connect to RabbitMQ: %v. Connection information: %s", err, connAddr)
-		return nil, err
-	}
+	bo := backoff.NewExponentialBackOff()
+	bo.MaxElapsedTime = 10 * time.Second // Maximum time to retry
+	maxRetries := 5                      // Number of retries (including the initial attempt)
+
+	var conn *amqp.Connection
+	var err error
+
+	err = backoff.Retry(func() error {
+
+		conn, err = amqp.Dial(connAddr)
+		if err != nil {
+			log.Errorf("Failed to connect to RabbitMQ: %v. Connection information: %s", err, connAddr)
+			return err
+		}
+
+		return nil
+	}, backoff.WithMaxRetries(bo, uint64(maxRetries-1)))
 
 	log.Info("Connected to RabbitMQ")
 
@@ -47,18 +60,4 @@ func NewRabbitMQConn(cfg *RabbitMQConfig, ctx context.Context) (*amqp.Connection
 	}()
 
 	return conn, err
-}
-
-func retryWithBackoff(fn func() error, retryInterval time.Duration, maxRetries int) error {
-	for i := 0; i < maxRetries; i++ {
-		err := fn()
-		if err == nil {
-			return nil
-		}
-
-		time.Sleep(retryInterval)
-		retryInterval *= 2 // exponential backoff
-	}
-
-	return fmt.Errorf("maximum number of retries reached")
 }

@@ -27,11 +27,11 @@ type PostgresContainerOptions struct {
 	Timeout   time.Duration
 }
 
-func Start(ctx context.Context, t *testing.T) (*gorm.DB, *gormpgsql.GormPostgresConfig, error) {
+func Start(ctx context.Context, t *testing.T) (*gorm.DB, error) {
 
 	defaultPostgresOptions, err := getDefaultPostgresTestContainers()
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
 	req := getContainerRequest(defaultPostgresOptions)
@@ -44,7 +44,7 @@ func Start(ctx context.Context, t *testing.T) (*gorm.DB, *gormpgsql.GormPostgres
 		})
 
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
 	// Clean up the container after the test is complete
@@ -93,10 +93,10 @@ func Start(ctx context.Context, t *testing.T) (*gorm.DB, *gormpgsql.GormPostgres
 	}, backoff.WithMaxRetries(bo, uint64(maxRetries-1)))
 
 	if err != nil {
-		return nil, nil, errors.Errorf("failed to create connection for postgres after retries: %v", err)
+		return nil, errors.Errorf("failed to create connection for postgres after retries: %v", err)
 	}
 
-	return gormDB, gormConfig, nil
+	return gormDB, nil
 }
 
 func getContainerRequest(opts *PostgresContainerOptions) testcontainers.ContainerRequest {

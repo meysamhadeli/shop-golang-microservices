@@ -10,6 +10,7 @@ type grpcClient struct {
 	conn *grpc.ClientConn
 }
 
+//go:generate mockery --name GrpcClient
 type GrpcClient interface {
 	GetGrpcConnection() *grpc.ClientConn
 	Close() error

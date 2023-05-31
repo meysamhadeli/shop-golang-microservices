@@ -24,7 +24,6 @@ type UnitTestFixture struct {
 	Cfg               *config.Config
 	Ctx               context.Context
 	RabbitmqPublisher *mocks2.IPublisher
-	RabbitmqConsumer  *mocks2.IConsumer
 	ProductRepository *mocks.ProductRepository
 	GrpcClient        *mocks3.GrpcClient
 }
@@ -65,12 +64,11 @@ func NewUnitTestFixture(t *testing.T) *UnitTestFixture {
 
 	// create new mocks
 	unitTestFixture.RabbitmqPublisher = &mocks2.IPublisher{}
-	unitTestFixture.RabbitmqConsumer = &mocks2.IConsumer{}
+
 	unitTestFixture.ProductRepository = &mocks.ProductRepository{}
 	unitTestFixture.GrpcClient = &mocks3.GrpcClient{}
 
 	unitTestFixture.RabbitmqPublisher.On("PublishMessage", mock.Anything, mock.Anything).Return(nil)
-	unitTestFixture.RabbitmqConsumer.On("ConsumeMessage", mock.Anything, mock.Anything).Return(nil)
 
 	return unitTestFixture
 }

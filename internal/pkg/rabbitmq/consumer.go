@@ -17,8 +17,9 @@ import (
 	"time"
 )
 
-type IConsumer interface {
-	ConsumeMessage(ctx context.Context, msg interface{}) error
+//go:generate mockery --name IConsumer
+type IConsumer[T any] interface {
+	ConsumeMessage(msg interface{}, dependencies T) error
 	IsConsumed(msg interface{}) bool
 }
 
@@ -30,9 +31,10 @@ type Consumer[T any] struct {
 	log          logger.ILogger
 	handler      func(queue string, msg amqp.Delivery, dependencies T) error
 	jaegerTracer trace.Tracer
+	ctx          context.Context
 }
 
-func (c Consumer[T]) ConsumeMessage(ctx context.Context, msg interface{}, dependencies T) error {
+func (c Consumer[T]) ConsumeMessage(msg interface{}, dependencies T) error {
 
 	strName := strings.Split(runtime.FuncForPC(reflect.ValueOf(c.handler).Pointer()).Name(), ".")
 	var consumerHandlerName = strName[len(strName)-1]
@@ -104,7 +106,7 @@ func (c Consumer[T]) ConsumeMessage(ctx context.Context, msg interface{}, depend
 	go func() {
 
 		select {
-		case <-ctx.Done():
+		case <-c.ctx.Done():
 			defer func(ch *amqp.Channel) {
 				err := ch.Close()
 				if err != nil {
@@ -122,7 +124,7 @@ func (c Consumer[T]) ConsumeMessage(ctx context.Context, msg interface{}, depend
 				}
 
 				// Extract headers
-				ctx = otel.ExtractAMQPHeaders(ctx, delivery.Headers)
+				c.ctx = otel.ExtractAMQPHeaders(c.ctx, delivery.Headers)
 
 				err := c.handler(q.Name, delivery, dependencies)
 				if err != nil {
@@ -131,7 +133,7 @@ func (c Consumer[T]) ConsumeMessage(ctx context.Context, msg interface{}, depend
 
 				consumedMessages = append(consumedMessages, snakeTypeName)
 
-				_, span := c.jaegerTracer.Start(ctx, consumerHandlerName)
+				_, span := c.jaegerTracer.Start(c.ctx, consumerHandlerName)
 
 				h, err := jsoniter.Marshal(delivery.Headers)
 
@@ -191,6 +193,6 @@ func (c Consumer[T]) IsConsumed(msg interface{}) bool {
 	}
 }
 
-func NewConsumer[T any](cfg *RabbitMQConfig, conn *amqp.Connection, log logger.ILogger, jaegerTracer trace.Tracer, handler func(queue string, msg amqp.Delivery, dependencies T) error) *Consumer[T] {
-	return &Consumer[T]{cfg: cfg, conn: conn, log: log, jaegerTracer: jaegerTracer, handler: handler}
+func NewConsumer[T any](ctx context.Context, cfg *RabbitMQConfig, conn *amqp.Connection, log logger.ILogger, jaegerTracer trace.Tracer, handler func(queue string, msg amqp.Delivery, dependencies T) error) IConsumer[T] {
+	return &Consumer[T]{ctx: ctx, cfg: cfg, conn: conn, log: log, jaegerTracer: jaegerTracer, handler: handler}
 }
