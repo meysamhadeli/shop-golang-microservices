@@ -5,7 +5,7 @@ import (
 	"fmt"
 	gormpgsql "github.com/meysamhadeli/shop-golang-microservices/internal/pkg/gorm_pgsql"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/grpc"
-	echoconfig "github.com/meysamhadeli/shop-golang-microservices/internal/pkg/http/echo/config"
+	echoserver "github.com/meysamhadeli/shop-golang-microservices/internal/pkg/http/echo/server"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/logger"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/otel"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/rabbitmq"
@@ -23,7 +23,7 @@ type Config struct {
 	ServiceName  string                        `mapstructure:"serviceName"`
 	Logger       *logger.LoggerConfig          `mapstructure:"logger"`
 	Rabbitmq     *rabbitmq.RabbitMQConfig      `mapstructure:"rabbitmq"`
-	Echo         *echoconfig.EchoConfig        `mapstructure:"echo"`
+	Echo         *echoserver.EchoConfig        `mapstructure:"echo"`
 	Grpc         *grpc.GrpcConfig              `mapstructure:"grpc"`
 	GormPostgres *gormpgsql.GormPostgresConfig `mapstructure:"gormPostgres"`
 	Jaeger       *otel.JaegerConfig            `mapstructure:"jaeger"`
@@ -34,7 +34,7 @@ func init() {
 }
 
 func InitConfig() (*Config, *logger.LoggerConfig, *otel.JaegerConfig, *gormpgsql.GormPostgresConfig,
-	*grpc.GrpcConfig, *echoconfig.EchoConfig, *rabbitmq.RabbitMQConfig, error) {
+	*grpc.GrpcConfig, *echoserver.EchoConfig, *rabbitmq.RabbitMQConfig, error) {
 
 	env := os.Getenv("APP_ENV")
 	if env == "" {

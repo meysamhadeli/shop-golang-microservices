@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"github.com/labstack/echo/v4"
-	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/http/echo/config"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/logger"
 	"time"
 )
@@ -15,12 +14,22 @@ const (
 	WriteTimeout   = 15 * time.Second
 )
 
+type EchoConfig struct {
+	Port                string   `mapstructure:"port" validate:"required"`
+	Development         bool     `mapstructure:"development"`
+	BasePath            string   `mapstructure:"basePath" validate:"required"`
+	DebugErrorsResponse bool     `mapstructure:"debugErrorsResponse"`
+	IgnoreLogUrls       []string `mapstructure:"ignoreLogUrls"`
+	Timeout             int      `mapstructure:"timeout"`
+	Host                string   `mapstructure:"host"`
+}
+
 func NewEchoServer() *echo.Echo {
 	e := echo.New()
 	return e
 }
 
-func RunHttpServer(ctx context.Context, echo *echo.Echo, log logger.ILogger, cfg *echoconfig.EchoConfig) error {
+func RunHttpServer(ctx context.Context, echo *echo.Echo, log logger.ILogger, cfg *EchoConfig) error {
 	echo.Server.ReadTimeout = ReadTimeout
 	echo.Server.WriteTimeout = WriteTimeout
 	echo.Server.MaxHeaderBytes = MaxHeaderBytes

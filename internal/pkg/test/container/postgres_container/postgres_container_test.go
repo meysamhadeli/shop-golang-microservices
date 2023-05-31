@@ -8,7 +8,7 @@ import (
 )
 
 func Test_Gorm_Container(t *testing.T) {
-	gorm, _, _, err := Start(context.Background())
+	gorm, err := Start(context.Background(), t)
 	require.NoError(t, err)
 
 	assert.NotNil(t, gorm)

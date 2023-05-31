@@ -16,8 +16,9 @@ import (
 	"time"
 )
 
+//go:generate mockery --name IPublisher
 type IPublisher interface {
-	PublishMessage(ctx context.Context, msg interface{}) error
+	PublishMessage(msg interface{}) error
 	IsPublished(msg interface{}) bool
 }
 
@@ -28,9 +29,10 @@ type Publisher struct {
 	conn         *amqp.Connection
 	log          logger.ILogger
 	jaegerTracer trace.Tracer
+	ctx          context.Context
 }
 
-func (p Publisher) PublishMessage(ctx context.Context, msg interface{}) error {
+func (p Publisher) PublishMessage(msg interface{}) error {
 
 	data, err := jsoniter.Marshal(msg)
 
@@ -42,7 +44,7 @@ func (p Publisher) PublishMessage(ctx context.Context, msg interface{}) error {
 	typeName := reflect.TypeOf(msg).Elem().Name()
 	snakeTypeName := strcase.ToSnake(typeName)
 
-	ctx, span := p.jaegerTracer.Start(ctx, typeName)
+	ctx, span := p.jaegerTracer.Start(p.ctx, typeName)
 	defer span.End()
 
 	// Inject the context in the headers
@@ -125,6 +127,6 @@ func (p Publisher) IsPublished(msg interface{}) bool {
 	return isPublished
 }
 
-func NewPublisher(cfg *RabbitMQConfig, conn *amqp.Connection, log logger.ILogger, jaegerTracer trace.Tracer) IPublisher {
-	return &Publisher{cfg: cfg, conn: conn, log: log, jaegerTracer: jaegerTracer}
+func NewPublisher(ctx context.Context, cfg *RabbitMQConfig, conn *amqp.Connection, log logger.ILogger, jaegerTracer trace.Tracer) IPublisher {
+	return &Publisher{ctx: ctx, cfg: cfg, conn: conn, log: log, jaegerTracer: jaegerTracer}
 }

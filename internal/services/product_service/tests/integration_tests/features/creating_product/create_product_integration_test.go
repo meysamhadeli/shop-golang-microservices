@@ -24,14 +24,14 @@ type createProductIntegrationTests struct {
 	*test_fixture.IntegrationTestFixture
 }
 
-var consumer *rabbitmq.Consumer[*delivery.ProductDeliveryBase]
+var consumer rabbitmq.IConsumer[*delivery.ProductDeliveryBase]
 
 func TestRunner(t *testing.T) {
 
 	var integrationTestFixture = test_fixture.NewIntegrationTestFixture(t, fx.Options(
 		fx.Invoke(func(ctx context.Context, jaegerTracer trace.Tracer, log logger.ILogger, connRabbitmq *amqp.Connection, cfg *config.Config) {
-			consumer = rabbitmq.NewConsumer(cfg.Rabbitmq, connRabbitmq, log, jaegerTracer, consumers.HandleConsumeCreateProduct)
-			err := consumer.ConsumeMessage(ctx, creatingproducteventsv1.ProductCreated{}, nil)
+			consumer = rabbitmq.NewConsumer(ctx, cfg.Rabbitmq, connRabbitmq, log, jaegerTracer, consumers.HandleConsumeCreateProduct)
+			err := consumer.ConsumeMessage(creatingproducteventsv1.ProductCreated{}, nil)
 			if err != nil {
 				assert.Error(t, err)
 			}

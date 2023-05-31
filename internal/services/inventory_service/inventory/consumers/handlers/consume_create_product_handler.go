@@ -42,7 +42,7 @@ func HandleConsumeCreateProduct(queue string, msg amqp.Delivery, inventoryDelive
 		return err
 	}
 
-	err = inventoryDeliveryBase.RabbitmqPublisher.PublishMessage(inventoryDeliveryBase.Ctx, evt)
+	err = inventoryDeliveryBase.RabbitmqPublisher.PublishMessage(evt)
 	if err != nil {
 		return err
 	}

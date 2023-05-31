@@ -32,10 +32,10 @@ func ConfigConsumers(
 		Ctx:                 ctx,
 	}
 
-	createProductConsumer := rabbitmq.NewConsumer[*delivery.InventoryDeliveryBase](cfg.Rabbitmq, connRabbitmq, log, jaegerTracer, handlers.HandleConsumeCreateProduct)
+	createProductConsumer := rabbitmq.NewConsumer[*delivery.InventoryDeliveryBase](ctx, cfg.Rabbitmq, connRabbitmq, log, jaegerTracer, handlers.HandleConsumeCreateProduct)
 
 	go func() {
-		err := createProductConsumer.ConsumeMessage(ctx, events.ProductCreated{}, &inventoryDeliveryBase)
+		err := createProductConsumer.ConsumeMessage(events.ProductCreated{}, &inventoryDeliveryBase)
 		if err != nil {
 			log.Error(err)
 		}
