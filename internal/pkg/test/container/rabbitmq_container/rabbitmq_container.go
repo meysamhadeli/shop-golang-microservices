@@ -30,11 +30,11 @@ type RabbitMQContainerOptions struct {
 }
 
 // ref: https://github.com/romnn/testcontainers/blob/60ec1eb7563985ae83e51bb04ca3c67236787a26/rabbitmq/rabbitmq.go
-func Start(ctx context.Context, t *testing.T) (*amqp.Connection, *rabbitmq.RabbitMQConfig, error) {
+func Start(ctx context.Context, t *testing.T) (*amqp.Connection, error) {
 
 	defaultRabbitmqOptions, err := getDefaultRabbitMQTestContainers()
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
 	req := getContainerRequest(defaultRabbitmqOptions)
@@ -47,7 +47,7 @@ func Start(ctx context.Context, t *testing.T) (*amqp.Connection, *rabbitmq.Rabbi
 		})
 
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
 	// Clean up the container after the test is complete
@@ -97,10 +97,10 @@ func Start(ctx context.Context, t *testing.T) (*amqp.Connection, *rabbitmq.Rabbi
 	}, backoff.WithMaxRetries(bo, uint64(maxRetries-1)))
 
 	if err != nil {
-		return nil, nil, errors.Errorf("failed to create connection for rabbitmq after retries: %v", err)
+		return nil, errors.Errorf("failed to create connection for rabbitmq after retries: %v", err)
 	}
 
-	return conn, rabbitmqConfig, err
+	return conn, err
 }
 
 func getContainerRequest(opts *RabbitMQContainerOptions) testcontainers.ContainerRequest {

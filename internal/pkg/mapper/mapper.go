@@ -35,6 +35,10 @@ const (
 	DestKeyIndex
 )
 
+type MapperConfig struct {
+	MapUnexportedFields bool
+}
+
 type mappingsEntry struct {
 	SourceType      reflect.Type
 	DestinationType reflect.Type

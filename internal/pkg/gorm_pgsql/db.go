@@ -4,12 +4,14 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"github.com/cenkalti/backoff/v4"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/utils"
 	"github.com/pkg/errors"
 	"github.com/uptrace/bun/driver/pgdriver"
 	gorm_postgres "gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"strings"
+	"time"
 )
 
 type GormPostgresConfig struct {
@@ -48,11 +50,23 @@ func NewGorm(config *GormPostgresConfig) (*gorm.DB, error) {
 		config.Password,
 	)
 
-	gormDb, err := gorm.Open(gorm_postgres.Open(dataSourceName), &gorm.Config{})
+	bo := backoff.NewExponentialBackOff()
+	bo.MaxElapsedTime = 10 * time.Second // Maximum time to retry
+	maxRetries := 5                      // Number of retries (including the initial attempt)
 
-	if err != nil {
-		return nil, errors.Errorf("failed to connect postgres: %v and connection information: %s", err, dataSourceName)
-	}
+	var gormDb *gorm.DB
+
+	err = backoff.Retry(func() error {
+
+		gormDb, err = gorm.Open(gorm_postgres.Open(dataSourceName), &gorm.Config{})
+
+		if err != nil {
+			return errors.Errorf("failed to connect postgres: %v and connection information: %s", err, dataSourceName)
+		}
+
+		return nil
+
+	}, backoff.WithMaxRetries(bo, uint64(maxRetries-1)))
 
 	return gormDb, err
 }
