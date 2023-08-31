@@ -19,6 +19,8 @@ The main idea of creating this project is implementing an infrastructure for up 
 - :sparkle: Using `Echo framework` for RESTFul api.
 - :sparkle: Using `Swagger` with `swaggo/swag` library.
 - :sparkle: Using `uber-go/fx` library for dependency injection.
+- :sparkle: Using `Viper` for configuration management.
+- :sparkle: Using `logrus` as a structured logger
 - :sparkle: Using `Unit Testing`,`Integration Testing` and `End To End Testing` for testing level.
 - :sparkle: Using `Docker-Compose` for our deployment mechanism.
 
@@ -46,6 +48,10 @@ I will try to register future goals and additions in the [Issues](https://github
 - ✔️ **[`stretchr/testify`](https://github.com/stretchr/testify)** - A toolkit with common assertions and mocks that plays nicely with the standard library
 - ✔️ **[`uber-go/fx`](https://github.com/uber-go/fx)** - Fx is a dependency injection system for Go
 - ✔️ **[`cenkalti/backoff`](https://github.com/cenkalti/backoff)** - This is a Go port of the exponential backoff algorithm
+- ✔️ **[`stretchr/testify`](https://github.com/stretchr/testify)** - A toolkit with common assertions and mocks that plays nicely with the standard library
+- ✔️ **[`testcontainers/testcontainers-go`](https://github.com/testcontainers/testcontainers-go)** - it's a package to create and clean up container for automated integration/smoke tests
+- ✔️ **[`avast/retry-go`](https://github.com/avast/retry-go)** - Simple golang library for retry mechanism
+- ✔️ **[`ahmetb/go-linq`](https://github.com/ahmetb/go-linq)** - .NET LINQ capabilities in Go
 
 ## The Domain And Bounded Context - Service Boundary
 
