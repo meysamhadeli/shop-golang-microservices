@@ -8,21 +8,21 @@ The main idea of creating this project is implementing an infrastructure for up 
 
 ## The Goals of This Project
 
-- :sparkle: Using `Vertical Slice Architecture` for architecture level.
+- :sparkle: Using `Vertical Slice Architecture` for `architecture level`.
 - :sparkle: Using `Rabbitmq` for `Event Driven Architecture` between our microservices with `streadway/amqp` library.
-- :sparkle: Using `gRPC` for internal communication between our microservices with `grpc/grpc-go` library.
+- :sparkle: Using `gRPC` for `internal communication` between our microservices with `grpc/grpc-go` library.
 - :sparkle: Using `CQRS` implementation with `mehdihadeli/Go-MediatR` library.
-- :sparkle: Using `Postgres` for database in our microservices with `go-gorm/gorm` library.
-- :sparkle: Using `go-playground/validator` for validating input data in the REST calls.
-- :sparkle: Using `OpenTelemetry` for distributed tracing with `open-telemetry/opentelemetry-go` library.
-- :sparkle: Using `OAuth2` for implementation authentication and authorization with `go-oauth2/oauth2` library.
-- :sparkle: Using `Echo framework` for RESTFul api.
-- :sparkle: Using `Swagger` with `swaggo/swag` library.
-- :sparkle: Using `uber-go/fx` library for dependency injection.
-- :sparkle: Using `Viper` for configuration management.
-- :sparkle: Using `logrus` as a structured logger
+- :sparkle: Using `Postgres` for `database` in our microservices with `go-gorm/gorm` library.
+- :sparkle: Using `go-playground/validator` for `validating input` data in the REST calls.
+- :sparkle: Using `OpenTelemetry` for `distributed tracing` with `open-telemetry/opentelemetry-go` library.
+- :sparkle: Using `OAuth2` for implementation `authentication` and `authorization` with `go-oauth2/oauth2` library.
+- :sparkle: Using `Echo framework` for `RESTFul api`.
+- :sparkle: Using `Swagger` with `swaggo/swag` library for api documentation.
+- :sparkle: Using `uber-go/fx` library for `dependency injection`.
+- :sparkle: Using `Viper` for `configuration management`.
+- :sparkle: Using `logrus` as a `structured logger`.
 - :sparkle: Using `Unit Testing`,`Integration Testing` and `End To End Testing` for testing level.
-- :sparkle: Using `Docker-Compose` for our deployment mechanism.
+- :sparkle: Using `Docker-Compose` for our `deployment` mechanism.
 
 ## Plan
 
