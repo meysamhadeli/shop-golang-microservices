@@ -16,24 +16,6 @@ services:
 
 
     #######################################################
-    #  Mongo
-    #######################################################
-  mongo:
-    image: mongo
-    container_name: mongo
-    restart: unless-stopped
-    # environment:
-    #   - MONGO_INITDB_ROOT_USERNAME=root
-    #   - MONGO_INITDB_ROOT_PASSWORD=secret
-    networks:
-      - shop
-    ports:
-      - 27017:27017
-    volumes:
-      - mongo:/data/db
-
-
-    #######################################################
     #  Postgress
     #######################################################
   postgres:
@@ -67,15 +49,10 @@ services:
       - 14268:14268
       - 16686:16686    
       
-  
+
 networks:
   shop:
-    name: shop
 
-
-volumes:
-  mongo:
-    driver: local
 
 
 
