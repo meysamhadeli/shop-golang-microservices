@@ -24,8 +24,8 @@ The main idea of creating this project is implementing an infrastructure for up 
 - :sparkle: Using `Unit Testing`,`Integration Testing` and `End To End Testing` for testing level.
 - :sparkle: Using `Docker-Compose` for our `deployment` mechanism.
 - :construction: Using `OpenTelemetry` for `monitoring` top of `Prometteuse` and `Grafana`
-- :construction: Using `MongoDB` for read side.
-- :construction: Using `Domain Driven Design` (DDD) to implement all `business` processes in microservices
+- :construction: Using `MongoDB` for read side with `mongo-driver`.
+- :construction: Using `Domain Driven Design` (DDD) to implement all `business` processes in microservices.
 - :construction: Using `Inbox Pattern` for ensuring message idempotency for receiver and `Exactly once Delivery`.
 - :construction: Using `Outbox Pattern` for ensuring no message is lost and there is at `At Least One Delivery`.
   
