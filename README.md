@@ -14,7 +14,7 @@ The main idea of creating this project is implementing an infrastructure for up 
 - :sparkle: Using `CQRS` implementation with `mehdihadeli/Go-MediatR` library.
 - :sparkle: Using `Postgres` for `database` in our microservices with `go-gorm/gorm` library.
 - :sparkle: Using `go-playground/validator` for `validating input` data in the REST calls.
-- :sparkle: Using `OpenTelemetry` for `distributed tracing` with `open-telemetry/opentelemetry-go` library.
+- :sparkle: Using `OpenTelemetry` for `distributed tracing` top of `Jaeger`.
 - :sparkle: Using `OAuth2` for implementation `authentication` and `authorization` with `go-oauth2/oauth2` library.
 - :sparkle: Using `Echo framework` for `RESTFul api`.
 - :sparkle: Using `Swagger` with `swaggo/swag` library for api documentation.
@@ -23,7 +23,12 @@ The main idea of creating this project is implementing an infrastructure for up 
 - :sparkle: Using `logrus` as a `structured logger`.
 - :sparkle: Using `Unit Testing`,`Integration Testing` and `End To End Testing` for testing level.
 - :sparkle: Using `Docker-Compose` for our `deployment` mechanism.
-
+- :construction: Using `OpenTelemetry` for `monitoring` top of `Prometteuse` and `Grafana`
+- :construction: Using `MongoDB` for read side.
+- :construction: Using `Domain Driven Design` (DDD) to implement all `business` processes in microservices
+- :construction: Using `Inbox Pattern` for ensuring message idempotency for receiver and `Exactly once Delivery`.
+- :construction: Using `Outbox Pattern` for ensuring no message is lost and there is at `At Least One Delivery`.
+  
 ## Plan
 
 > 🌀This project is a work in progress, new features will be added over time.🌀
