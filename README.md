@@ -143,6 +143,7 @@ go test -v ./...
 > ### Documentation Apis
 
 Each microservice uses swagger open api, navigate to `/swagger` for getting the list endpoints.
+
 Also, to test apis, I created the [shop.rest](./shop.rest) file. This file run with [REST Client](https://github.com/Huachao/vscode-restclient) `VSCode plugin`.
 
 # Support
