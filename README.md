@@ -6,6 +6,22 @@ The main idea of creating this project is implementing an infrastructure for up 
 
 <a href="https://gitpod.io/#https://github.com/meysamhadeli/shop-golang-microservices"><img alt="Open in Gitpod" src="https://gitpod.io/button/open-in-gitpod.svg"/></a>
 
+# Table of Contents
+
+- [The Goals of This Project](#the-goals-of-this-project)
+- [Plan](#plan)
+- [Technologies - Libraries](#technologies---libraries)
+- [The Domain and Bounded Context - Service Boundary](#the-domain-and-bounded-context---service-boundary)
+- [Structure of Project](#structure-of-project)
+- [How to Run](#how-to-run)
+    - [Docker-Compose](#docker-compose)
+    - [Build](#build)
+    - [Run](#run)
+    - [Test](#test)
+- [Documentation Apis](#documentation-apis)  
+- [Support](#support)
+- [Contribution](#contribution)
+
 ## The Goals of This Project
 
 - :sparkle: Using `Vertical Slice Architecture` for `architecture level`.
@@ -91,6 +107,43 @@ I used CQRS to decompose my features into small parts that makes our application
 
 Using the CQRS pattern, we cut each business functionality into vertical slices, for each of these slices we group classes (see [technical folders structure](http://www.kamilgrzybek.com/design/feature-folders)) specific to that feature together (command, handlers, infrastructure, repository, controllers, etc). In our CQRS pattern each command/query handler is a separate slice. This is where you can reduce coupling between layers. Each handler can be a separated code unit, even copy/pasted. Thanks to that, we can tune down the specific method to not follow general conventions (e.g. use custom postgresql query or even different storage). In a traditional layered architecture, when we change the core generic mechanism in one layer, it can impact all methods.
 
+
+## How to Run
+
+> ### Docker-Compose
+
+Run our `infrastructure` with `docker` using the [infrastructure.yaml](./deployments/docker-compose/infrastructure.yaml) file with the below command at the root of app:
+
+```bash
+docker-compose -f ./deployments/docker-compose/infrastructure.yaml up -d
+```
+##### Todo
+I will add `docker-compsoe` for up and running whole app here in the next...
+
+
+> ### Build
+For `building` each microservice, Run this command in root of each microservice where `go.mod` located:
+```bash
+go build -v ./...
+```
+
+> ### Run
+For `runing` each microservice, Run this command in root of each microservice where `go.mod` located:
+```bash
+go run -v ./...
+```
+
+> ### Test
+
+For `testing` each microservice, Run this command in root of each microservice where `go.mod` located:
+```bash
+go test -v ./...
+```
+
+> ### Documentation Apis
+
+Each microservice uses swagger open api, navigate to /swagger for a list of every endpoint.
+To test apis, I used the [REST Client](https://github.com/Huachao/vscode-restclient) VSCode plugin for running this file [shop.rest](./shop.rest).
 
 # Support
 
