@@ -112,7 +112,7 @@ Using the CQRS pattern, we cut each business functionality into vertical slices,
 
 > ### Docker-Compose
 
-Run our `infrastructure` with `docker` using the [infrastructure.yaml](./deployments/docker-compose/infrastructure.yaml) file with the below command at the root of app:
+Run our `infrastructure` with `docker` using the [infrastructure.yaml](./deployments/docker-compose/infrastructure.yaml) file with the below command at the `root` of app:
 
 ```bash
 docker-compose -f ./deployments/docker-compose/infrastructure.yaml up -d
@@ -142,8 +142,8 @@ go test -v ./...
 
 > ### Documentation Apis
 
-Each microservice uses swagger open api, navigate to /swagger for a list of every endpoint.
-To test apis, I used the [REST Client](https://github.com/Huachao/vscode-restclient) VSCode plugin for running this file [shop.rest](./shop.rest).
+Each microservice uses swagger open api, navigate to `/swagger` for getting the list endpoints.
+Also, to test apis, I created the [shop.rest](./shop.rest) file. This file run with [REST Client](https://github.com/Huachao/vscode-restclient) `VSCode plugin`.
 
 # Support
 
