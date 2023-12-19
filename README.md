@@ -112,7 +112,7 @@ Using the CQRS pattern, we cut each business functionality into vertical slices,
 
 > ### Docker-Compose
 
-Run our `infrastructure` with `docker` using the [infrastructure.yaml](./deployments/docker-compose/infrastructure.yaml) file with the below command at the `root` of app:
+Use the command below to run our `infrastructure` with `docker` using the [infrastructure.yaml](./deployments/docker-compose/infrastructure.yaml) file at the `root` of the app:
 
 ```bash
 docker-compose -f ./deployments/docker-compose/infrastructure.yaml up -d
@@ -122,29 +122,33 @@ I will add `docker-compsoe` for up and running whole app here in the next...
 
 
 > ### Build
-For `building` each microservice, Run this command in root of each microservice where `go.mod` located:
+To `build` each microservice, run this command in the root directory of each microservice where the `go.mod` file is located:
+
 ```bash
 go build -v ./...
 ```
 
 > ### Run
-For `runing` each microservice, Run this command in root of each microservice where `go.mod` located:
+To `run` each microservice, run this command in the root of the microservice where `go.mod` is located:
+
 ```bash
 go run -v ./...
 ```
 
 > ### Test
+To `test` each microservice, run this command in the root directory of the microservice where the `go.mod` file is located:
 
-For `testing` each microservice, Run this command in root of each microservice where `go.mod` located:
 ```bash
 go test -v ./...
 ```
 
 > ### Documentation Apis
 
-Each microservice uses swagger open api, navigate to `/swagger` for getting the list endpoints.
 
-Also, to test apis, I created the [shop.rest](./shop.rest) file. This file run with [REST Client](https://github.com/Huachao/vscode-restclient) `VSCode plugin`.
+Each microservice has a `Swagger OpenAPI`. Browse to `/swagger` for a list of endpoints.
+
+As part of API testing, I created the [shop.rest](./shop.rest) file which can be run with the [REST Client](https://github.com/Huachao/vscode-restclient) `VSCode plugin`.
+
 
 # Support
 
