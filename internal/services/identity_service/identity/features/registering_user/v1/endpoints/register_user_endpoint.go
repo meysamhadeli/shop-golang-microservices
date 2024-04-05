@@ -50,11 +50,11 @@ func createUser(validator *validator.Validate, log logger.ILogger, ctx context.C
 		result, err := mediatr.Send[*commandsv1.RegisterUser, *dtosv1.RegisterUserResponseDto](ctx, command)
 
 		if err != nil {
-			log.Errorf("(RegisterUser.Handle) id: {%s}, err: {%v}", command.UserId, err)
+			log.Errorf("(RegisterUser.Handle) id: {%d}, err: {%v}", result.UserId, err)
 			return echo.NewHTTPError(http.StatusBadRequest, err)
 		}
 
-		log.Infof("(user registered) id: {%s}", command.UserId)
+		log.Infof("(user registered) id: {%d}", result.UserId)
 		return c.JSON(http.StatusCreated, result)
 	}
 }

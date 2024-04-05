@@ -11,9 +11,13 @@ import (
 	"github.com/go-oauth2/oauth2/v4/store"
 	"github.com/golang-jwt/jwt"
 	"github.com/labstack/echo/v4"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/utils"
+	uuid "github.com/satori/go.uuid"
+	"gorm.io/gorm"
 	"log"
 	"net/http"
 	"sync"
+	"time"
 )
 
 var (
@@ -23,6 +27,18 @@ var (
 	privateKey = []byte(`secret`)
 	clients    = []*models.Client{{ID: "clientId", Secret: "clientSecret"}, {ID: "clientId2", Secret: "clientSecret2"}}
 )
+
+// User model
+type User struct {
+	UserId    uuid.UUID `json:"userId" gorm:"primaryKey"`
+	FirstName string    `json:"firstName"`
+	LastName  string    `json:"lastName"`
+	UserName  string    `json:"userName"`
+	Email     string    `json:"email"`
+	Password  string    `json:"password"`
+	CreatedAt time.Time `json:"createdAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
+}
 
 func init() {
 	manager = manage.NewDefaultManager()
@@ -52,13 +68,24 @@ func clientStore(clients ...*models.Client) oauth2.ClientStore {
 }
 
 // ref: https://github.com/go-oauth2/oauth2
-func RunOauthServer(e *echo.Echo) {
+func RunOauthServer(e *echo.Echo, gorm *gorm.DB) {
 
 	manager.MapClientStorage(clientStore(clients...))
 
 	srv.SetPasswordAuthorizationHandler(func(ctx context.Context, clientID, username, password string) (userID string, err error) {
-		if username == "admin" && password == "admin" {
-			userID = "1"
+
+		u := User{}
+		gorm.Where("user_name = ?", username).First(&u)
+
+		// now use p
+		isMatch, err := utils.ComparePasswords(u.Password, password)
+
+		if err != nil {
+			return "", err
+		}
+
+		if isMatch {
+			return u.UserId.String(), nil
 		}
 		return
 	})

@@ -12,7 +12,7 @@ GET {{identity-api}}
 
 ###
 # @name Token
-GET {{identity-api}}/connect/token?grant_type=password&client_id=clientId&client_secret=clientSecret&scope=all&username=admin&password=admin
+GET {{identity-api}}/connect/token?grant_type=password&client_id=clientId&client_secret=clientSecret&scope=all&username=admin_user&password=Admin@12345
 Content-Type: application/json
 accept: application/json
 ###
@@ -43,13 +43,15 @@ authorization: Bearer {{Token.response.body.access_token}}
 {
   "description": "test-desc",
   "name": "test-product",
-  "price": 20
+  "price": 20,
+  "inventoryId": 1,
+  "count": 10
 }
 ###
 
 ###
 # @name Update
-Put {{product-api}}/api/v1/products/232e696b-d8f9-4261-a87b-9b69a8cdb5b2
+Put {{product-api}}/api/v1/products/09d7ef0b-b1ba-4c4c-a44b-9541fc8719bb
 accept: application/json
 Content-Type: application/json
 authorization: Bearer {{Token.response.body.access_token}}
@@ -57,7 +59,9 @@ authorization: Bearer {{Token.response.body.access_token}}
 {
   "description": "test-desc",
   "name": "test-product",
-  "price": 40
+  "price": 50,
+  "inventoryId": 1,
+  "count": 10
 }
 ###
 

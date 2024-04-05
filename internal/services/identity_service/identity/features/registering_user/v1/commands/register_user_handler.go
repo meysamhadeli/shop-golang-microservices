@@ -32,7 +32,6 @@ func (c *RegisterUserHandler) Handle(ctx context.Context, command *RegisterUser)
 	}
 
 	product := &models.User{
-		UserId:    command.UserId,
 		Email:     command.Email,
 		Password:  pass,
 		UserName:  command.UserName,

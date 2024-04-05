@@ -14,7 +14,7 @@ string Name = 2;
 }
 
 message GetUserByIdReq {
-string UserId = 1;
+  string UserId = 1;
 }
 
 message GetUserByIdRes {

@@ -1,5 +1,6 @@
 .PHONY:
 
+## choco install make
 # ==============================================================================
 # Run Services
 run_products_service:
@@ -18,10 +19,10 @@ docker-compose_infra_down:
 	@echo Stoping infrastructure docker-compose down
 	docker-compose -f deployments/docker-compose/infrastructure.yaml down
 
+## choco install protoc
+## go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
 # ==============================================================================
 # Proto Identity Service
-
-## go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
 
 ## grpc-server
 proto_identities_get_user_by_id_service:
@@ -34,10 +35,9 @@ proto_identities_get_user_by_id_service:
 	@echo Generating identity_service proto
 	protoc --go_out=./internal/services/product_service/product/grpc_client/protos --go-grpc_opt=require_unimplemented_servers=false --go-grpc_out=./internal/services/product_service/product/grpc_client/protos ./internal/services/product_service/product/grpc_client/protos/*.proto
 
+## go install github.com/swaggo/swag/cmd/swag@latest
 # ==============================================================================
 # Swagger products Service  #https://github.com/swaggo/swag/issues/817
-
-## go install github.com/swaggo/swag/cmd/swag@latest
 
 swagger_products:
 	@echo Starting swagger generating

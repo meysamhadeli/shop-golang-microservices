@@ -92,7 +92,7 @@ const docTemplate = `{
                 "password": {
                     "type": "string"
                 },
-                "userId": {
+                "id": {
                     "type": "string"
                 },
                 "userName": {

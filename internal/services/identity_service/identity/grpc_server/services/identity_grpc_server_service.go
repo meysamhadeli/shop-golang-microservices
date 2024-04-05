@@ -5,7 +5,6 @@ import (
 	"github.com/meysamhadeli/shop-golang-microservices/internal/pkg/logger"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/identity_service/config"
 	identity_service "github.com/meysamhadeli/shop-golang-microservices/internal/services/identity_service/identity/grpc_server/protos"
-	uuid "github.com/satori/go.uuid"
 )
 
 type IdentityGrpcServerService struct {
@@ -19,7 +18,7 @@ func NewIdentityGrpcServerService(cfg *config.Config, log logger.ILogger) *Ident
 
 func (i IdentityGrpcServerService) GetUserById(ctx context.Context, req *identity_service.GetUserByIdReq) (*identity_service.GetUserByIdRes, error) {
 
-	var user = &identity_service.User{UserId: uuid.NewV4().String(), Name: "sam"}
+	var user = &identity_service.User{UserId: req.UserId}
 
 	var result = &identity_service.GetUserByIdRes{
 		User: user,
