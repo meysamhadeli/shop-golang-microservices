@@ -14,6 +14,7 @@ import (
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/identity_service/config"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/identity_service/identity/configurations"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/identity_service/identity/data/repositories"
+	"github.com/meysamhadeli/shop-golang-microservices/internal/services/identity_service/identity/data/seeds"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/identity_service/identity/mappings"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/identity_service/identity/models"
 	"github.com/meysamhadeli/shop-golang-microservices/internal/services/identity_service/server"
@@ -45,7 +46,11 @@ func main() {
 			fx.Invoke(configurations.ConfigMiddlewares),
 			fx.Invoke(configurations.ConfigSwagger),
 			fx.Invoke(func(gorm *gorm.DB) error {
-				return gormpgsql.Migrate(gorm, &models.User{})
+				err := gormpgsql.Migrate(gorm, &models.User{})
+				if err != nil {
+					return err
+				}
+				return seeds.DataSeeder(gorm)
 			}),
 			fx.Invoke(mappings.ConfigureMappings),
 			fx.Invoke(configurations.ConfigEndpoints),

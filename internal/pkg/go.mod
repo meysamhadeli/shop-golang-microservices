@@ -1,6 +1,6 @@
 module github.com/meysamhadeli/shop-golang-microservices/internal/pkg
 
-go 1.21
+go 1.22
 
 require (
 	github.com/ahmetb/go-linq/v3 v3.2.0
