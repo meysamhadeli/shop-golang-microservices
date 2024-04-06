@@ -145,7 +145,12 @@ go test -v ./...
 > ### Documentation Apis
 
 
-Each microservice has a `Swagger OpenAPI`. Browse to `/swagger` for a list of endpoints.
+Each microservice has a `Swagger OpenAPI`. Browse to `/swagger/index.html` for a list of endpoints.
+
+> Note: For generate Swagger OpenAPI, we need to install `swag cli` with this command below:
+```bash
+go install github.com/swaggo/swag/cmd/swag@v1.8.3
+```
 
 As part of API testing, I created the [shop.rest](./shop.rest) file which can be run with the [REST Client](https://github.com/Huachao/vscode-restclient) `VSCode plugin`.
 

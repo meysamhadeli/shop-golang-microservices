@@ -1,5 +1,7 @@
 .PHONY:
 
+### for running all commands we need bash command lien ###
+
 ## choco install make
 # ==============================================================================
 # Run Services
@@ -35,9 +37,9 @@ proto_identities_get_user_by_id_service:
 	@echo Generating identity_service proto
 	protoc --go_out=./internal/services/product_service/product/grpc_client/protos --go-grpc_opt=require_unimplemented_servers=false --go-grpc_out=./internal/services/product_service/product/grpc_client/protos ./internal/services/product_service/product/grpc_client/protos/*.proto
 
-## go install github.com/swaggo/swag/cmd/swag@latest
-# ==============================================================================
+## go install github.com/swaggo/swag/cmd/swag@v1.8.3
 # Swagger products Service  #https://github.com/swaggo/swag/issues/817
+# ==============================================================================
 
 swagger_products:
 	@echo Starting swagger generating
