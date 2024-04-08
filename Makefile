@@ -43,12 +43,12 @@ proto_identities_get_user_by_id_service:
 
 swagger_products:
 	@echo Starting swagger generating
-	swag init -g ./internal/services/product_service/cmd/main.go -o ./internal/services/product_service/docs
+	swag init -g ./internal/services/product_service/cmd/main.go -o ./internal/services/product_service/docs --exclude ./internal/services/identity_service, ./internal/services/inventory_service
 
 swagger_identities:
 	@echo Starting swagger generating
-	swag init -g ./internal/services/identity_service/cmd/main.go -o ./internal/services/identity_service/docs
+	swag init -g ./internal/services/identity_service/cmd/main.go -o ./internal/services/identity_service/docs --exclude ./internal/services/product_service, ./internal/services/inventory_service
 
 swagger_inventories:
 	@echo Starting swagger generating
-	swag init -g ./internal/services/inventory_service/cmd/main.go -o ./internal/services/inventory_service/docs
+	swag init -g ./internal/services/inventory_service/cmd/main.go -o ./internal/services/inventory_service/docs --exclude ./internal/services/product_service, ./internal/services/identity_service
