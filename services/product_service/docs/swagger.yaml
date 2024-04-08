@@ -46,6 +46,34 @@ definitions:
       updatedAt:
         type: string
     type: object
+  dtos.RegisterUserRequestDto:
+    properties:
+      email:
+        type: string
+      firstName:
+        type: string
+      lastName:
+        type: string
+      password:
+        type: string
+      userName:
+        type: string
+    type: object
+  dtos.RegisterUserResponseDto:
+    properties:
+      email:
+        type: string
+      firstName:
+        type: string
+      lastName:
+        type: string
+      password:
+        type: string
+      userId:
+        type: string
+      userName:
+        type: string
+    type: object
   dtos.SearchProductsResponseDto:
     properties:
       products:
@@ -230,6 +258,30 @@ paths:
       summary: Search products
       tags:
       - Products
+  /api/v1/users:
+    post:
+      consumes:
+      - application/json
+      description: Create new user
+      parameters:
+      - description: User data
+        in: body
+        name: RegisterUserRequestDto
+        required: true
+        schema:
+          $ref: '#/definitions/dtos.RegisterUserRequestDto'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dtos.RegisterUserResponseDto'
+      security:
+      - ApiKeyAuth: []
+      summary: Register user
+      tags:
+      - Users
 securityDefinitions:
   ApiKeyAuth:
     in: header
